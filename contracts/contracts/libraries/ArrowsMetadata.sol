@@ -9,16 +9,8 @@ import "./Utilities.sol";
 
 /**
 
-✓✓✓✓✓✓✓  ✓✓✓✓✓✓✓✓    ✓✓✓✓✓✓    ✓✓✓✓✓✓✓✓   ✓✓✓✓✓✓✓     ✓✓
-✓✓       ✓✓     ✓✓  ✓✓    ✓✓   ✓✓    ✓✓  ✓✓     ✓✓  ✓✓✓✓
-✓✓       ✓✓     ✓✓  ✓✓             ✓✓           ✓✓    ✓✓
-✓✓✓✓✓✓   ✓✓✓✓✓✓✓✓   ✓✓            ✓✓      ✓✓✓✓✓✓✓     ✓✓
-✓✓       ✓✓   ✓✓    ✓✓           ✓✓      ✓✓           ✓✓
-✓✓       ✓✓    ✓✓   ✓✓    ✓✓     ✓✓      ✓✓           ✓✓
-✓✓✓✓✓✓✓  ✓✓     ✓✓   ✓✓✓✓✓✓      ✓✓      ✓✓✓✓✓✓✓✓✓   ✓✓✓✓
-
 @title  ArrowsMetadata
-@author VisualizeValue
+@author Hurls
 @notice Renders ERC721 compatible metadata for Arrows.
 */
 library ArrowsMetadata {
@@ -31,19 +23,21 @@ library ArrowsMetadata {
     ) public view returns (string memory) {
         IArrows.Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrows);
 
-        bytes memory svg = ArrowsArt.generateSVG(arrow, arrows);
+        // Generate both static and animated versions
+        bytes memory staticSvg = ArrowsArt.generateSVG(arrow, arrows, true);
+        bytes memory animatedSvg = ArrowsArt.generateSVG(arrow, arrows, false);
 
         bytes memory metadata = abi.encodePacked(
             '{',
                 '"name": "Arrows ', Utilities.uint2str(tokenId), '",',
-                '"description": "This artwork may or may not be notable.",',
+                '"description": "Up and to the right.",',
                 '"image": ',
                     '"data:image/svg+xml;base64,',
-                    Base64.encode(svg),
+                    Base64.encode(staticSvg),
                     '",',
                 '"animation_url": ',
                     '"data:text/html;base64,',
-                    Base64.encode(generateHTML(tokenId, svg)),
+                    Base64.encode(generateHTML(tokenId, animatedSvg)),
                     '",',
                 '"attributes": [', attributes(arrow), ']',
             '}'
@@ -60,8 +54,8 @@ library ArrowsMetadata {
     /// @dev Render the JSON atributes for a given Arrows token.
     /// @param arrow The arrow to render.
     function attributes(IArrows.Arrow memory arrow) public pure returns (bytes memory) {
-        bool showVisualAttributes = arrow.isRevealed && arrow.hasManyArrows;
-        bool showAnimationAttributes = arrow.isRevealed && arrow.arrowsCount > 0;
+        bool showVisualAttributes = arrow.hasManyArrows;
+        bool showAnimationAttributes = arrow.arrowsCount > 0;
 
         return abi.encodePacked(
             showVisualAttributes
@@ -75,9 +69,6 @@ library ArrowsMetadata {
                 : '',
             showAnimationAttributes
                 ? trait('Shift', arrow.direction == 0 ? 'IR' : 'UV', ',')
-                : '',
-            arrow.isRevealed == false
-                ? trait('Revealed', 'No', ',')
                 : '',
             trait('Arrows', Utilities.uint2str(arrow.arrowsCount), ','),
             trait('Day', Utilities.uint2str(arrow.stored.day), '')

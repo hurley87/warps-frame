@@ -77,12 +77,10 @@ library ArrowsArt {
         arrow.stored = stored;
 
         // Set up the source of randomness + seed for this Arrow.
-        uint128 randomness = arrows.epochs[stored.epoch].randomness;
-        arrow.seed = (uint256(keccak256(abi.encodePacked(randomness, stored.seed))) % type(uint128).max);
+        arrow.seed = uint256(keccak256(abi.encodePacked(block.prevrandao, stored.seed))) % type(uint128).max;
 
         // Helpers
         arrow.isRoot = divisorIndex == 0;
-        arrow.isRevealed = randomness > 0;
         arrow.hasManyArrows = divisorIndex < 6;
         arrow.composite = !arrow.isRoot && divisorIndex < 7 ? stored.composites[divisorIndex - 1] : 0;
 
@@ -235,15 +233,6 @@ library ArrowsArt {
             return (zeroColors, zeroIndexes);
         }
 
-        // An unrevealed arrow is all gray.
-        if (! arrow.isRevealed) {
-            string[] memory preRevealColors = new string[](1);
-            uint256[] memory preRevealIndexes = new uint256[](1);
-            preRevealColors[0] = '424242';
-            preRevealIndexes[0] = 0;
-            return (preRevealColors, preRevealIndexes);
-        }
-
         // Fetch the indices on the original color mapping.
         uint256[] memory indexes = colorIndexes(arrow.stored.divisorIndex, arrow, arrows);
 
@@ -367,11 +356,11 @@ library ArrowsArt {
             }
             string memory translateX = Utilities.uint2str(data.rowX + data.indexInRow * data.spaceX);
             string memory translateY = Utilities.uint2str(data.rowY);
-            string memory color = data.arrow.isRevealed ? data.colors[i] : data.colors[0];
+            string memory color = data.colors[i];
             
             // Get animation bytes if needed
             bytes memory animationBytes = bytes('');
-            if (data.arrow.isRevealed && !data.isBlack) {
+            if (!data.isBlack && !data.isStatic) {
                 uint256 colorIndex = data.colorIndexes[i];
                 animationBytes = fillAnimation(data, colorIndex, allColors);
             }
@@ -449,9 +438,11 @@ library ArrowsArt {
     /// @param arrow The arrow to render.
     /// @param arrows The DB containing all arrows.
     function generateSVG(
-        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
+        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows,
+        bool isStatic
     ) public view returns (bytes memory) {
         ArrowRenderData memory data = collectRenderData(arrow, arrows);
+        data.isStatic = isStatic;
 
         return abi.encodePacked(
             '<svg ',
@@ -467,19 +458,18 @@ library ArrowsArt {
                 '<rect x="188" y="152" width="304" height="376" fill="', data.canvasColor, '"/>',
                 generateGrid(),
                 generateArrows(data),
-                '<rect width="680" height="680" fill="transparent">',
-                    '<animate ',
-                        'attributeName="width" ',
-                        'from="680" ',
-                        'to="0" ',
-                        'dur="0.2s" ',
-                        'begin="click" ',
-                        'fill="freeze" ',
-                        'id="animation"',
-                    '/>',
-                '</rect>',
+                !isStatic ? bytes('<rect width="680" height="680" fill="transparent"><animate attributeName="width" from="680" to="0" dur="0.2s" begin="click" fill="freeze" id="animation"/></rect>') : bytes(''),
             '</svg>'
         );
+    }
+
+    /// @dev Generate the complete SVG code for a given Arrow.
+    /// @param arrow The arrow to render.
+    /// @param arrows The DB containing all arrows.
+    function generateSVG(
+        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
+    ) public view returns (bytes memory) {
+        return generateSVG(arrow, arrows, false);
     }
 }
 
@@ -504,4 +494,5 @@ struct ArrowRenderData {
     bool isNewRow;
     bool isBlack;
     bool indent;
+    bool isStatic;
 }

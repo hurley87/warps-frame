@@ -9,26 +9,9 @@ import "./libraries/Utilities.sol";
 import "./standards/ARROWS721.sol";
 
 /**
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓  ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓          ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓                      ✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓                        ✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓                ✓✓       ✓✓✓✓✓✓✓✓
-✓✓✓✓✓                 ✓✓✓          ✓✓✓✓✓
-✓✓✓✓                 ✓✓✓            ✓✓✓✓
-✓✓✓✓✓          ✓✓  ✓✓✓             ✓✓✓✓✓
-✓✓✓✓✓✓✓          ✓✓✓             ✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓                        ✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓                      ✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓          ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓  ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
-✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
 @title  Arrows
-@author VisualizeValue
-@notice This artwork is notable.
+@author Hurls
+@notice Up and to the right.
 */
 contract Arrows is IArrows, ARROWS721 {
 
@@ -42,7 +25,6 @@ contract Arrows is IArrows, ARROWS721 {
     constructor() {
         editionArrows = IArrowsEdition(0x7c5f73CE00f62e1F0364d968684b343dDAD363ac);
         arrows.day0 = uint32(block.timestamp);
-        arrows.epoch = 1;
     }
 
     /// @notice Migrate Arrows Editions to Arrows Originals by burning the Editions.
@@ -51,9 +33,6 @@ contract Arrows is IArrows, ARROWS721 {
     /// @param recipient The address to receive the tokens.
     function mint(uint256[] calldata tokenIds, address recipient) external {
         uint256 count = tokenIds.length;
-
-        // Initialize new epoch / resolve previous epoch.
-        resolveEpochIfNecessary();
 
         // Burn the Editions for the given tokenIds & mint the Originals.
         for (uint256 i; i < count;) {
@@ -73,7 +52,6 @@ contract Arrows is IArrows, ARROWS721 {
             // Initialize our Arrow.
             StoredArrow storage arrow = arrows.all[id];
             arrow.day = Utilities.day(arrows.day0, block.timestamp);
-            arrow.epoch = uint32(arrows.epoch);
             arrow.seed = uint16(id);
             arrow.divisorIndex = 0;
 
@@ -98,42 +76,11 @@ contract Arrows is IArrows, ARROWS721 {
         return ArrowsArt.getArrow(tokenId, arrows);
     }
 
-    /// @notice Sacrifice a token to transfer its visual representation to another token.
-    /// @param tokenId The token ID transfer the art into.
-    /// @param burnId The token ID to sacrifice.
-    function inItForTheArt(uint256 tokenId, uint256 burnId) external {
-        _sacrifice(tokenId, burnId);
-
-        unchecked { ++arrows.burned; }
-    }
-
-    /// @notice Sacrifice multiple tokens to transfer their visual to other tokens.
-    /// @param tokenIds The token IDs to transfer the art into.
-    /// @param burnIds The token IDs to sacrifice.
-    function inItForTheArts(uint256[] calldata tokenIds, uint256[] calldata burnIds) external {
-        uint256 pairs = _multiTokenOperation(tokenIds, burnIds);
-
-        for (uint256 i; i < pairs;) {
-            _sacrifice(tokenIds[i], burnIds[i]);
-
-            unchecked { ++i; }
-        }
-
-        unchecked { arrows.burned += uint32(pairs); }
-    }
 
     /// @notice Composite one token into another. This mixes the visual and reduces the number of arrows.
     /// @param tokenId The token ID to keep alive. Its visual will change.
     /// @param burnId The token ID to composite into the tokenId.
-    /// @param swap Swap the visuals before compositing.
-    function composite(uint256 tokenId, uint256 burnId, bool swap) external {
-        // Allow swapping the visuals before executing the composite.
-        if (swap) {
-            StoredArrow memory toKeep = arrows.all[tokenId];
-
-            arrows.all[tokenId] = arrows.all[burnId];
-            arrows.all[burnId] = toKeep;
-        }
+    function composite(uint256 tokenId, uint256 burnId) external {
 
         _composite(tokenId, burnId);
 
@@ -155,47 +102,6 @@ contract Arrows is IArrows, ARROWS721 {
         unchecked { arrows.burned += uint32(pairs); }
     }
 
-    /// @notice Sacrifice 64 single-arrow tokens to form a black arrow.
-    /// @param tokenIds The token IDs to burn for the black arrow.
-    /// @dev The arrow at index 0 survives.
-    function infinity(uint256[] calldata tokenIds) external {
-        uint256 count = tokenIds.length;
-
-        // Make sure we're allowed to mint the black arrow.
-        if (count != 64) {
-            revert InvalidTokenCount();
-        }
-        for (uint256 i; i < count;) {
-            uint256 id = tokenIds[i];
-            if (arrows.all[id].divisorIndex != 6) {
-                revert BlackArrow__InvalidArrow();
-            }
-            if (!_isApprovedOrOwner(msg.sender, id)) {
-                revert NotAllowed();
-            }
-
-            unchecked { ++i; }
-        }
-
-        // Complete final composite.
-        uint256 blackArrowId = tokenIds[0];
-        StoredArrow storage arrow = arrows.all[blackArrowId];
-        arrow.day = Utilities.day(arrows.day0, block.timestamp);
-        arrow.divisorIndex = 7;
-
-        // Burn all 63 other Arrows.
-        for (uint i = 1; i < count;) {
-            _burn(tokenIds[i]);
-
-            unchecked { ++i; }
-        }
-        unchecked { arrows.burned += 63; }
-
-        // When one is released from the prison of self, that is indeed freedom.
-        // For the most great prison is the prison of self.
-        emit Infinity(blackArrowId, tokenIds[1:]);
-        emit MetadataUpdate(blackArrowId);
-    }
 
     /// @notice Burn a arrow. Note: This burn does not composite or swap tokens.
     /// @param tokenId The token ID to burn.
@@ -210,53 +116,6 @@ contract Arrows is IArrows, ARROWS721 {
 
         // Keep track of supply.
         unchecked { ++arrows.burned; }
-    }
-
-    /// @notice Initializes and closes epochs.
-    /// @dev Based on the commit-reveal scheme proposed by MouseDev.
-    function resolveEpochIfNecessary() public {
-        Epoch storage currentEpoch = arrows.epochs[arrows.epoch];
-
-        if (
-            // If epoch has not been committed,
-            currentEpoch.committed == false ||
-            // Or the reveal commitment timed out.
-            (currentEpoch.revealed == false && currentEpoch.revealBlock < block.number - 256)
-        ) {
-            // This means the epoch has not been committed, OR the epoch was committed but has expired.
-            // Set committed to true, and record the reveal block:
-            currentEpoch.revealBlock = uint64(block.number + 50);
-            currentEpoch.committed = true;
-
-        } else if (block.number > currentEpoch.revealBlock) {
-            // Epoch has been committed and is within range to be revealed.
-            // Set its randomness to the target block hash.
-            currentEpoch.randomness = uint128(uint256(keccak256(
-                abi.encodePacked(
-                    blockhash(currentEpoch.revealBlock),
-                    block.prevrandao
-                ))) % (2 ** 128 - 1)
-            );
-            currentEpoch.revealed = true;
-
-            // Notify DAPPs about the new epoch.
-            emit NewEpoch(arrows.epoch, currentEpoch.revealBlock);
-
-            // Initialize the next epoch
-            arrows.epoch++;
-            resolveEpochIfNecessary();
-        }
-    }
-
-    /// @notice The identifier of the current epoch
-    function getEpoch() view public returns(uint256) {
-        return arrows.epoch;
-    }
-
-    /// @notice Get the data for a given epoch
-    /// @param index The identifier of the epoch to fetch
-    function getEpochData(uint256 index) view public returns(Epoch memory) {
-        return arrows.epochs[index];
     }
 
     /// @notice Simulate a composite.
@@ -324,25 +183,6 @@ contract Arrows is IArrows, ARROWS721 {
         return arrows.minted - arrows.burned;
     }
 
-    /// @dev Sacrifice one token to transfer its art to another.
-    /// @param tokenId The token ID to keep.
-    /// @param burnId The token ID to burn.
-    function _sacrifice(uint256 tokenId, uint256 burnId) internal {
-        (,StoredArrow storage toBurn,) = _tokenOperation(tokenId, burnId);
-
-        // Copy over static genome settings
-        arrows.all[tokenId] = toBurn;
-
-        // Update the birth date for this token.
-        arrows.all[tokenId].day = Utilities.day(arrows.day0, block.timestamp);
-
-        // Perform the burn.
-        _burn(burnId);
-
-        // Notify DAPPs about the Sacrifice.
-        emit Sacrifice(burnId, tokenId);
-        emit MetadataUpdate(tokenId);
-    }
 
     /// @dev Composite one token into to another and burn it.
     /// @param tokenId The token ID to keep. Its art and arrow-count will change.
