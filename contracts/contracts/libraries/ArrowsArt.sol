@@ -34,7 +34,7 @@ import "./Utilities.sol";
 library ArrowsArt {
 
     /// @dev The path for a 20x20 px arrow pointing up and to the right, based on a 36x36 px frame.
-    string public constant ARROWS_PATH = 'M18 8c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10S23.523 8 18 8zm-.5 15v-7.5H10l8-8 8 8h-7.5V23h-1z';
+    string public constant ARROWS_PATH = 'M5.151 19.707c2.304-5.292.659-7.943 3.636-10.92C11.764 5.81 15.5 6.5 19.707 5.15 24.5 2.5 25.79 0 30 0c4.21 0 5.5 3 10.293 5.151 3.707 1.664 7.943.659 10.92 3.635C54.19 11.764 53 14.5 54.849 19.707 56.196 23.5 60 25.79 60 30c0 4.21-3.5 7-5.151 10.293-1.651 3.292-.659 7.943-3.636 10.92C48.236 54.19 45 53 40.293 54.849 36.5 56.339 34.21 60 30 60c-4.21 0-6.5-3-10.293-5.151-3.792-2.151-7.943-.659-10.92-3.636C5.81 48.236 6.5 44.5 5.151 40.293 3.802 36.085 0 34.21 0 30c0-4.21 2.847-5 5.151-10.293Z';
     
     /// @dev The unicode arrow character pointing up and to the right (↗)
     string public constant ARROW_SYMBOL = unicode"↗";
@@ -378,11 +378,13 @@ library ArrowsArt {
 
             // Render the current check.
             checksBytes = abi.encodePacked(checksBytes, abi.encodePacked(
-                '<g transform="translate(', translateX, ', ', translateY, ') scale(', data.scale, ')">',
-                    '<text x="18" y="23" text-anchor="middle" font-size="24" fill="#', color, '" style="font-family: Arial, sans-serif;">',
-                        ARROW_SYMBOL,
-                        animationBytes,
-                    '</text>'
+                '<g transform="translate(', translateX, ', ', translateY, ')">',
+                    '<g transform="translate(3, 3) scale(', data.scale, ')">',
+                        '<path d="M2.576 9.854c1.152-2.646.33-3.972 1.818-5.46C5.882 2.905 7.75 3.25 9.854 2.575 12.25 1.25 12.895 0 15 0c2.105 0 2.75 1.5 5.147 2.576c1.853.832 3.971.33 5.46 1.817C27.095 5.882 26.5 7.25 27.425 9.854 28.098 11.75 30 12.895 30 15c0 2.105-1.75 3.5-2.576 5.147c-.825 1.646-.33 3.971-1.818 5.46C24.118 27.095 22.5 26.5 20.147 27.425 18.25 28.17 17.105 30 15 30c-2.105 0-3.25-1.5-5.146-2.576c-1.896-1.075-3.972-.33-5.46-1.818C2.905 24.118 3.25 22.25 2.576 20.147 1.901 18.043 0 17.105 0 15c0-2.105 1.424-2.5 2.576-5.146Z" fill="#', color, '"',
+                            animationBytes,
+                        '/>',
+                        '<path d="M13.736 21.5V12.338l-3.38 3.393-1.755-1.74L15.004 7.6l6.39 6.39-1.727 1.74-3.394-3.393V21.5h-2.537Z" fill="black"/>',
+                    '</g>',
                 '</g>'
             ));
         }
