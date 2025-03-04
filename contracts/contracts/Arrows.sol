@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./interfaces/IChecks.sol";
-import "./interfaces/IChecksEdition.sol";
+import "./interfaces/IArrows.sol";
+import "./interfaces/IArrowsEdition.sol";
 import "./libraries/ArrowsArt.sol";
 import "./libraries/ArrowsMetadata.sol";
 import "./libraries/Utilities.sol";
-import "./standards/CHECKS721.sol";
+import "./standards/ARROWS721.sol";
 
 /**
 ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓
@@ -30,22 +30,22 @@ import "./standards/CHECKS721.sol";
 @author VisualizeValue
 @notice This artwork is notable.
 */
-contract Arrows is IChecks, CHECKS721 {
+contract Arrows is IArrows, ARROWS721 {
 
-    /// @notice The VV Checks Edition contract.
-    IChecksEdition public editionChecks;
+    /// @notice The VV Arrows Edition contract.
+    IArrowsEdition public editionArrows;
 
     /// @dev We use this database for persistent storage.
-    Checks checks;
+    Arrows arrows;
 
-    /// @dev Initializes the Checks Originals contract and links the Edition contract.
+    /// @dev Initializes the Arrows Originals contract and links the Edition contract.
     constructor() {
-        editionChecks = IChecksEdition(0x7c5f73CE00f62e1F0364d968684b343dDAD363ac);
-        checks.day0 = uint32(block.timestamp);
-        checks.epoch = 1;
+        editionArrows = IArrowsEdition(0x7c5f73CE00f62e1F0364d968684b343dDAD363ac);
+        arrows.day0 = uint32(block.timestamp);
+        arrows.epoch = 1;
     }
 
-    /// @notice Migrate Checks Editions to Checks Originals by burning the Editions.
+    /// @notice Migrate Arrows Editions to Arrows Originals by burning the Editions.
     ///         Requires the Approval of this contract on the Edition contract.
     /// @param tokenIds The Edition token IDs you want to migrate.
     /// @param recipient The address to receive the tokens.
@@ -58,24 +58,24 @@ contract Arrows is IChecks, CHECKS721 {
         // Burn the Editions for the given tokenIds & mint the Originals.
         for (uint256 i; i < count;) {
             uint256 id = tokenIds[i];
-            address owner = editionChecks.ownerOf(id);
+            address owner = editionArrows.ownerOf(id);
 
             // Check whether we're allowed to migrate this Edition.
             if (
                 owner != msg.sender &&
-                (! editionChecks.isApprovedForAll(owner, msg.sender)) &&
-                editionChecks.getApproved(id) != msg.sender
+                (! editionArrows.isApprovedForAll(owner, msg.sender)) &&
+                editionArrows.getApproved(id) != msg.sender
             ) { revert NotAllowed(); }
 
             // Burn the Edition.
-            editionChecks.burn(id);
+            editionArrows.burn(id);
 
-            // Initialize our Check.
-            StoredCheck storage check = checks.all[id];
-            check.day = Utilities.day(checks.day0, block.timestamp);
-            check.epoch = uint32(checks.epoch);
-            check.seed = uint16(id);
-            check.divisorIndex = 0;
+            // Initialize our Arrow.
+            StoredArrow storage arrow = arrows.all[id];
+            arrow.day = Utilities.day(arrows.day0, block.timestamp);
+            arrow.epoch = uint32(arrows.epoch);
+            arrow.seed = uint16(id);
+            arrow.divisorIndex = 0;
 
             // Mint the original.
             // If we're minting to a vault, transfer it there.
@@ -88,14 +88,14 @@ contract Arrows is IChecks, CHECKS721 {
             unchecked { ++i; }
         }
 
-        // Keep track of how many checks have been minted.
-        unchecked { checks.minted += uint32(count); }
+        // Keep track of how many arrows have been minted.
+        unchecked { arrows.minted += uint32(count); }
     }
 
     /// @notice Get a specific check with its genome settings.
     /// @param tokenId The token ID to fetch.
-    function getCheck(uint256 tokenId) external view returns (Check memory check) {
-        return ArrowsArt.getCheck(tokenId, checks);
+    function getArrow(uint256 tokenId) external view returns (Arrow memory arrow) {
+        return ArrowsArt.getArrow(tokenId, arrows);
     }
 
     /// @notice Sacrifice a token to transfer its visual representation to another token.
@@ -104,7 +104,7 @@ contract Arrows is IChecks, CHECKS721 {
     function inItForTheArt(uint256 tokenId, uint256 burnId) external {
         _sacrifice(tokenId, burnId);
 
-        unchecked { ++checks.burned; }
+        unchecked { ++arrows.burned; }
     }
 
     /// @notice Sacrifice multiple tokens to transfer their visual to other tokens.
@@ -119,28 +119,28 @@ contract Arrows is IChecks, CHECKS721 {
             unchecked { ++i; }
         }
 
-        unchecked { checks.burned += uint32(pairs); }
+        unchecked { arrows.burned += uint32(pairs); }
     }
 
-    /// @notice Composite one token into another. This mixes the visual and reduces the number of checks.
+    /// @notice Composite one token into another. This mixes the visual and reduces the number of arrows.
     /// @param tokenId The token ID to keep alive. Its visual will change.
     /// @param burnId The token ID to composite into the tokenId.
     /// @param swap Swap the visuals before compositing.
     function composite(uint256 tokenId, uint256 burnId, bool swap) external {
         // Allow swapping the visuals before executing the composite.
         if (swap) {
-            StoredCheck memory toKeep = checks.all[tokenId];
+            StoredArrow memory toKeep = arrows.all[tokenId];
 
-            checks.all[tokenId] = checks.all[burnId];
-            checks.all[burnId] = toKeep;
+            arrows.all[tokenId] = arrows.all[burnId];
+            arrows.all[burnId] = toKeep;
         }
 
         _composite(tokenId, burnId);
 
-        unchecked { ++checks.burned; }
+        unchecked { ++arrows.burned; }
     }
 
-    /// @notice Composite multiple tokens. This mixes the visuals and checks in remaining tokens.
+    /// @notice Composite multiple tokens. This mixes the visuals and arrows in remaining tokens.
     /// @param tokenIds The token IDs to keep alive. Their art will change.
     /// @param burnIds The token IDs to composite.
     function compositeMany(uint256[] calldata tokenIds, uint256[] calldata burnIds) external {
@@ -152,23 +152,23 @@ contract Arrows is IChecks, CHECKS721 {
             unchecked { ++i; }
         }
 
-        unchecked { checks.burned += uint32(pairs); }
+        unchecked { arrows.burned += uint32(pairs); }
     }
 
-    /// @notice Sacrifice 64 single-check tokens to form a black check.
-    /// @param tokenIds The token IDs to burn for the black check.
-    /// @dev The check at index 0 survives.
+    /// @notice Sacrifice 64 single-arrow tokens to form a black arrow.
+    /// @param tokenIds The token IDs to burn for the black arrow.
+    /// @dev The arrow at index 0 survives.
     function infinity(uint256[] calldata tokenIds) external {
         uint256 count = tokenIds.length;
 
-        // Make sure we're allowed to mint the black check.
+        // Make sure we're allowed to mint the black arrow.
         if (count != 64) {
             revert InvalidTokenCount();
         }
         for (uint256 i; i < count;) {
             uint256 id = tokenIds[i];
-            if (checks.all[id].divisorIndex != 6) {
-                revert BlackCheck__InvalidCheck();
+            if (arrows.all[id].divisorIndex != 6) {
+                revert BlackArrow__InvalidArrow();
             }
             if (!_isApprovedOrOwner(msg.sender, id)) {
                 revert NotAllowed();
@@ -178,26 +178,26 @@ contract Arrows is IChecks, CHECKS721 {
         }
 
         // Complete final composite.
-        uint256 blackCheckId = tokenIds[0];
-        StoredCheck storage check = checks.all[blackCheckId];
-        check.day = Utilities.day(checks.day0, block.timestamp);
-        check.divisorIndex = 7;
+        uint256 blackArrowId = tokenIds[0];
+        StoredArrow storage arrow = arrows.all[blackArrowId];
+        arrow.day = Utilities.day(arrows.day0, block.timestamp);
+        arrow.divisorIndex = 7;
 
-        // Burn all 63 other Checks.
+        // Burn all 63 other Arrows.
         for (uint i = 1; i < count;) {
             _burn(tokenIds[i]);
 
             unchecked { ++i; }
         }
-        unchecked { checks.burned += 63; }
+        unchecked { arrows.burned += 63; }
 
         // When one is released from the prison of self, that is indeed freedom.
         // For the most great prison is the prison of self.
-        emit Infinity(blackCheckId, tokenIds[1:]);
-        emit MetadataUpdate(blackCheckId);
+        emit Infinity(blackArrowId, tokenIds[1:]);
+        emit MetadataUpdate(blackArrowId);
     }
 
-    /// @notice Burn a check. Note: This burn does not composite or swap tokens.
+    /// @notice Burn a arrow. Note: This burn does not composite or swap tokens.
     /// @param tokenId The token ID to burn.
     /// @dev A common purpose burn method.
     function burn(uint256 tokenId) external {
@@ -209,13 +209,13 @@ contract Arrows is IChecks, CHECKS721 {
         _burn(tokenId);
 
         // Keep track of supply.
-        unchecked { ++checks.burned; }
+        unchecked { ++arrows.burned; }
     }
 
     /// @notice Initializes and closes epochs.
     /// @dev Based on the commit-reveal scheme proposed by MouseDev.
     function resolveEpochIfNecessary() public {
-        Epoch storage currentEpoch = checks.epochs[checks.epoch];
+        Epoch storage currentEpoch = arrows.epochs[arrows.epoch];
 
         if (
             // If epoch has not been committed,
@@ -240,101 +240,101 @@ contract Arrows is IChecks, CHECKS721 {
             currentEpoch.revealed = true;
 
             // Notify DAPPs about the new epoch.
-            emit NewEpoch(checks.epoch, currentEpoch.revealBlock);
+            emit NewEpoch(arrows.epoch, currentEpoch.revealBlock);
 
             // Initialize the next epoch
-            checks.epoch++;
+            arrows.epoch++;
             resolveEpochIfNecessary();
         }
     }
 
     /// @notice The identifier of the current epoch
     function getEpoch() view public returns(uint256) {
-        return checks.epoch;
+        return arrows.epoch;
     }
 
     /// @notice Get the data for a given epoch
     /// @param index The identifier of the epoch to fetch
     function getEpochData(uint256 index) view public returns(Epoch memory) {
-        return checks.epochs[index];
+        return arrows.epochs[index];
     }
 
     /// @notice Simulate a composite.
     /// @param tokenId The token to render.
     /// @param burnId The token to composite.
-    function simulateComposite(uint256 tokenId, uint256 burnId) public view returns (Check memory check) {
+    function simulateComposite(uint256 tokenId, uint256 burnId) public view returns (Arrow memory arrow) {
         _requireMinted(tokenId);
         _requireMinted(burnId);
 
-        // We want to simulate for the next divisor check count.
-        uint8 index = checks.all[tokenId].divisorIndex;
+        // We want to simulate for the next divisor arrow count.
+        uint8 index = arrows.all[tokenId].divisorIndex;
         uint8 nextDivisor = index + 1;
-        check = ArrowsArt.getCheck(tokenId, nextDivisor, checks);
+        arrow = ArrowsArt.getArrow(tokenId, nextDivisor, arrows);
 
         // Simulate composite tree
-        check.stored.composites[index] = uint16(burnId);
+        arrow.stored.composites[index] = uint16(burnId);
 
-        // Simulate visual composite in stored data if we have many checks
+        // Simulate visual composite in stored data if we have many arrows
         if (index < 5) {
             (uint8 gradient, uint8 colorBand) = _compositeGenes(tokenId, burnId);
-            check.stored.colorBands[index] = colorBand;
-            check.stored.gradients[index] = gradient;
+            arrow.stored.colorBands[index] = colorBand;
+            arrow.stored.gradients[index] = gradient;
         }
 
         // Simulate composite in memory data
-        check.composite = !check.isRoot && index < 7 ? check.stored.composites[index] : 0;
-        check.colorBand = ArrowsArt.colorBandIndex(check, nextDivisor);
-        check.gradient = ArrowsArt.gradientIndex(check, nextDivisor);
+        arrow.composite = !arrow.isRoot && index < 7 ? arrow.stored.composites[index] : 0;
+        arrow.colorBand = ArrowsArt.colorBandIndex(arrow, nextDivisor);
+        arrow.gradient = ArrowsArt.gradientIndex(arrow, nextDivisor);
     }
 
     /// @notice Render the SVG for a simulated composite.
     /// @param tokenId The token to render.
     /// @param burnId The token to composite.
     function simulateCompositeSVG(uint256 tokenId, uint256 burnId) external view returns (string memory) {
-        return string(ArrowsArt.generateSVG(simulateComposite(tokenId, burnId), checks));
+        return string(ArrowsArt.generateSVG(simulateComposite(tokenId, burnId), arrows));
     }
 
-    /// @notice Get the colors of all checks in a given token.
+    /// @notice Get the colors of all arrows in a given token.
     /// @param tokenId The token ID to get colors for.
     /// @dev Consider using the ArrowsArt and EightyColors Libraries
     ///      in combination with the getCheck function to resolve this yourself.
     function colors(uint256 tokenId) external view returns (string[] memory, uint256[] memory)
     {
-        return ArrowsArt.colors(ArrowsArt.getCheck(tokenId, checks), checks);
+        return ArrowsArt.colors(ArrowsArt.getArrow(tokenId, arrows), arrows);
     }
 
     /// @notice Render the SVG for a given token.
     /// @param tokenId The token to render.
     /// @dev Consider using the ArrowsArt Library directly.
     function svg(uint256 tokenId) external view returns (string memory) {
-        return string(ArrowsArt.generateSVG(ArrowsArt.getCheck(tokenId, checks), checks));
+        return string(ArrowsArt.generateSVG(ArrowsArt.getArrow(tokenId, arrows), arrows));
     }
-
+    
     /// @notice Get the metadata for a given token.
     /// @param tokenId The token to render.
     /// @dev Consider using the ArrowsMetadata Library directly.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
 
-        return ArrowsMetadata.tokenURI(tokenId, checks);
+        return ArrowsMetadata.tokenURI(tokenId, arrows);
     }
 
     /// @notice Returns how many tokens this contract manages.
     function totalSupply() public view returns (uint256) {
-        return checks.minted - checks.burned;
+        return arrows.minted - arrows.burned;
     }
 
     /// @dev Sacrifice one token to transfer its art to another.
     /// @param tokenId The token ID to keep.
     /// @param burnId The token ID to burn.
     function _sacrifice(uint256 tokenId, uint256 burnId) internal {
-        (,StoredCheck storage toBurn,) = _tokenOperation(tokenId, burnId);
+        (,StoredArrow storage toBurn,) = _tokenOperation(tokenId, burnId);
 
         // Copy over static genome settings
-        checks.all[tokenId] = toBurn;
+        arrows.all[tokenId] = toBurn;
 
         // Update the birth date for this token.
-        checks.all[tokenId].day = Utilities.day(checks.day0, block.timestamp);
+        arrows.all[tokenId].day = Utilities.day(arrows.day0, block.timestamp);
 
         // Perform the burn.
         _burn(burnId);
@@ -345,17 +345,17 @@ contract Arrows is IChecks, CHECKS721 {
     }
 
     /// @dev Composite one token into to another and burn it.
-    /// @param tokenId The token ID to keep. Its art and check-count will change.
+    /// @param tokenId The token ID to keep. Its art and arrow-count will change.
     /// @param burnId The token ID to burn in the process.
     function _composite(uint256 tokenId, uint256 burnId) internal {
         (
-            StoredCheck storage toKeep,,
+            StoredArrow storage toKeep,,
             uint8 divisorIndex
         ) = _tokenOperation(tokenId, burnId);
 
         uint8 nextDivisor = divisorIndex + 1;
 
-        // We only need to breed band + gradient up until 4-Checks.
+        // We only need to breed band + gradient up until 4-Arrows.
         if (divisorIndex < 5) {
             (uint8 gradient, uint8 colorBand) = _compositeGenes(tokenId, burnId);
 
@@ -363,8 +363,8 @@ contract Arrows is IChecks, CHECKS721 {
             toKeep.gradients[divisorIndex] = gradient;
         }
 
-        // Composite our check
-        toKeep.day = Utilities.day(checks.day0, block.timestamp);
+        // Composite our arrow
+        toKeep.day = Utilities.day(arrows.day0, block.timestamp);
         toKeep.composites[divisorIndex] = uint16(burnId);
         toKeep.divisorIndex = nextDivisor;
 
@@ -382,8 +382,8 @@ contract Arrows is IChecks, CHECKS721 {
     function _compositeGenes (uint256 tokenId, uint256 burnId) internal view
         returns (uint8 gradient, uint8 colorBand)
     {
-        Check memory keeper = ArrowsArt.getCheck(tokenId, checks);
-        Check memory burner = ArrowsArt.getCheck(burnId, checks);
+        Arrow memory keeper = ArrowsArt.getArrow(tokenId, arrows);
+        Arrow memory burner = ArrowsArt.getArrow(burnId, arrows);
 
         // Pseudorandom gene manipulation.
         uint256 randomizer = uint256(keccak256(abi.encodePacked(keeper.seed, burner.seed)));
@@ -416,13 +416,13 @@ contract Arrows is IChecks, CHECKS721 {
     /// @param burnId The token ID to burn.
     function _tokenOperation(uint256 tokenId, uint256 burnId)
         internal view returns (
-            StoredCheck storage toKeep,
-            StoredCheck storage toBurn,
+            StoredArrow storage toKeep,
+            StoredArrow storage toBurn,
             uint8 divisorIndex
         )
     {
-        toKeep = checks.all[tokenId];
-        toBurn = checks.all[burnId];
+        toKeep = arrows.all[tokenId];
+        toBurn = arrows.all[burnId];
         divisorIndex = toKeep.divisorIndex;
 
         if (

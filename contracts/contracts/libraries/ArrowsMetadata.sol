@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "./ArrowsArt.sol";
-import "../interfaces/IChecks.sol";
+import "../interfaces/IArrows.sol";
 import "./Utilities.sol";
 
 /**
@@ -23,15 +23,15 @@ import "./Utilities.sol";
 */
 library ArrowsMetadata {
 
-    /// @dev Render the JSON Metadata for a given Checks token.
+    /// @dev Render the JSON Metadata for a given Arrows token.
     /// @param tokenId The id of the token to render.
-    /// @param checks The DB containing all checks.
+    /// @param arrows The DB containing all arrows.
     function tokenURI(
-        uint256 tokenId, IChecks.Checks storage checks
+        uint256 tokenId, IArrows.Arrows storage arrows
     ) public view returns (string memory) {
-        IChecks.Check memory check = ArrowsArt.getCheck(tokenId, checks);
+        IArrows.Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrows);
 
-        bytes memory svg = ArrowsArt.generateSVG(check, checks);
+        bytes memory svg = ArrowsArt.generateSVG(arrow, arrows);
 
         bytes memory metadata = abi.encodePacked(
             '{',
@@ -45,7 +45,7 @@ library ArrowsMetadata {
                     '"data:text/html;base64,',
                     Base64.encode(generateHTML(tokenId, svg)),
                     '",',
-                '"attributes": [', attributes(check), ']',
+                '"attributes": [', attributes(arrow), ']',
             '}'
         );
 
@@ -57,34 +57,34 @@ library ArrowsMetadata {
         );
     }
 
-    /// @dev Render the JSON atributes for a given Checks token.
-    /// @param check The check to render.
-    function attributes(IChecks.Check memory check) public pure returns (bytes memory) {
-        bool showVisualAttributes = check.isRevealed && check.hasManyChecks;
-        bool showAnimationAttributes = check.isRevealed && check.checksCount > 0;
+    /// @dev Render the JSON atributes for a given Arrows token.
+    /// @param arrow The arrow to render.
+    function attributes(IArrows.Arrow memory arrow) public pure returns (bytes memory) {
+        bool showVisualAttributes = arrow.isRevealed && arrow.hasManyArrows;
+        bool showAnimationAttributes = arrow.isRevealed && arrow.arrowsCount > 0;
 
         return abi.encodePacked(
             showVisualAttributes
-                ? trait('Color Band', colorBand(ArrowsArt.colorBandIndex(check, check.stored.divisorIndex)), ',')
+                ? trait('Color Band', colorBand(ArrowsArt.colorBandIndex(arrow, arrow.stored.divisorIndex)), ',')
                 : '',
             showVisualAttributes
-                ? trait('Gradient', gradients(ArrowsArt.gradientIndex(check, check.stored.divisorIndex)), ',')
+                ? trait('Gradient', gradients(ArrowsArt.gradientIndex(arrow, arrow.stored.divisorIndex)), ',')
                 : '',
             showAnimationAttributes
-                ? trait('Speed', check.speed == 4 ? '2x' : check.speed == 2 ? '1x' : '0.5x', ',')
+                ? trait('Speed', arrow.speed == 4 ? '2x' : arrow.speed == 2 ? '1x' : '0.5x', ',')
                 : '',
             showAnimationAttributes
-                ? trait('Shift', check.direction == 0 ? 'IR' : 'UV', ',')
+                ? trait('Shift', arrow.direction == 0 ? 'IR' : 'UV', ',')
                 : '',
-            check.isRevealed == false
+            arrow.isRevealed == false
                 ? trait('Revealed', 'No', ',')
                 : '',
-            trait('Checks', Utilities.uint2str(check.checksCount), ','),
-            trait('Day', Utilities.uint2str(check.stored.day), '')
+            trait('Arrows', Utilities.uint2str(arrow.arrowsCount), ','),
+            trait('Day', Utilities.uint2str(arrow.stored.day), '')
         );
     }
 
-    /// @dev Get the names for different gradients. Compare ChecksArt.GRADIENTS.
+    /// @dev Get the names for different gradients. Compare ArrowsArt.GRADIENTS.
     /// @param gradientIndex The index of the gradient.
     function gradients(uint8 gradientIndex) public pure returns (string memory) {
         return [
@@ -92,7 +92,7 @@ library ArrowsMetadata {
         ][gradientIndex];
     }
 
-    /// @dev Get the percentage values for different color bands. Compare ChecksArt.COLOR_BANDS.
+    /// @dev Get the percentage values for different color bands. Compare ArrowsArt.COLOR_BANDS.
     /// @param bandIndex The index of the color band.
     function colorBand(uint8 bandIndex) public pure returns (string memory) {
         return [

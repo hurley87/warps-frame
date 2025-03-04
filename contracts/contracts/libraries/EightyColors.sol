@@ -24,7 +24,7 @@ pragma solidity ^0.8.17;
 
 @title  EightyColors
 @author VisualizeValue
-@notice The eighty colors of Checks.
+@notice The eighty colors of Arrows.
 */
 library EightyColors {
 

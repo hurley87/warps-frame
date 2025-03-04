@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../interfaces/IChecks.sol";
+import "../interfaces/IArrows.sol";
 import "./EightyColors.sol";
 import "./Utilities.sol";
 
@@ -39,7 +39,7 @@ library ArrowsArt {
     /// @dev The unicode arrow character pointing up and to the right (↗)
     string public constant ARROW_SYMBOL = unicode"↗";
 
-    /// @dev The semiperfect divisors of the 80 checks.
+    /// @dev The semiperfect divisors of the 80 arrows.
     function DIVISORS() public pure returns (uint8[8] memory) {
         return [ 80, 40, 20, 10, 5, 4, 1, 0 ];
     }
@@ -54,64 +54,64 @@ library ArrowsArt {
         return [ 0, 1, 2, 5, 8, 9, 10 ];
     }
 
-    /// @dev Load a check from storage and fill its current state settings.
-    /// @param tokenId The id of the check to fetch.
-    /// @param checks The DB containing all checks.
-    function getCheck(
-        uint256 tokenId, IChecks.Checks storage checks
-    ) public view returns (IChecks.Check memory check) {
-        IChecks.StoredCheck memory stored = checks.all[tokenId];
+    /// @dev Load a arrow from storage and fill its current state settings.
+    /// @param tokenId The id of the arrow to fetch.
+    /// @param arrows The DB containing all arrows.
+    function getArrow(
+        uint256 tokenId, IArrows.Arrows storage arrows
+    ) public view returns (IArrows.Arrow memory arrow) {
+        IArrows.StoredArrow memory stored = arrows.all[tokenId];
 
-        return getCheck(tokenId, stored.divisorIndex, checks);
+        return getArrow(tokenId, stored.divisorIndex, arrows);
     }
 
-    /// @dev Load a check from storage and fill its current state settings.
-    /// @param tokenId The id of the check to fetch.
+    /// @dev Load a arrow from storage and fill its current state settings.
+    /// @param tokenId The id of the arrow to fetch.
     /// @param divisorIndex The divisorindex to get.
-    /// @param checks The DB containing all checks.
-    function getCheck(
-        uint256 tokenId, uint8 divisorIndex, IChecks.Checks storage checks
-    ) public view returns (IChecks.Check memory check) {
-        IChecks.StoredCheck memory stored = checks.all[tokenId];
+    /// @param arrows The DB containing all arrows.
+    function getArrow(
+        uint256 tokenId, uint8 divisorIndex, IArrows.Arrows storage arrows
+    ) public view returns (IArrows.Arrow memory arrow) {
+        IArrows.StoredArrow memory stored = arrows.all[tokenId];
         stored.divisorIndex = divisorIndex; // Override in case we're fetching specific state.
-        check.stored = stored;
+        arrow.stored = stored;
 
-        // Set up the source of randomness + seed for this Check.
-        uint128 randomness = checks.epochs[stored.epoch].randomness;
-        check.seed = (uint256(keccak256(abi.encodePacked(randomness, stored.seed))) % type(uint128).max);
+        // Set up the source of randomness + seed for this Arrow.
+        uint128 randomness = arrows.epochs[stored.epoch].randomness;
+        arrow.seed = (uint256(keccak256(abi.encodePacked(randomness, stored.seed))) % type(uint128).max);
 
         // Helpers
-        check.isRoot = divisorIndex == 0;
-        check.isRevealed = randomness > 0;
-        check.hasManyChecks = divisorIndex < 6;
-        check.composite = !check.isRoot && divisorIndex < 7 ? stored.composites[divisorIndex - 1] : 0;
+        arrow.isRoot = divisorIndex == 0;
+        arrow.isRevealed = randomness > 0;
+        arrow.hasManyArrows = divisorIndex < 6;
+        arrow.composite = !arrow.isRoot && divisorIndex < 7 ? stored.composites[divisorIndex - 1] : 0;
 
         // Token properties
-        check.colorBand = colorBandIndex(check, divisorIndex);
-        check.gradient = gradientIndex(check, divisorIndex);
-        check.checksCount = DIVISORS()[divisorIndex];
-        check.speed = uint8(2**(check.seed % 3));
-        check.direction = uint8(check.seed % 2);
+        arrow.colorBand = colorBandIndex(arrow, divisorIndex);
+        arrow.gradient = gradientIndex(arrow, divisorIndex);
+        arrow.arrowsCount = DIVISORS()[divisorIndex];
+        arrow.speed = uint8(2**(arrow.seed % 3));
+        arrow.direction = uint8(arrow.seed % 2);
     }
 
-    /// @dev Query the gradient of a given check at a certain check count.
-    /// @param check The check we want to get the gradient for.
-    /// @param divisorIndex The check divisor in question.
-    function gradientIndex(IChecks.Check memory check, uint8 divisorIndex) public pure returns (uint8) {
-        uint256 n = Utilities.random(check.seed, 'gradient', 100);
+    /// @dev Query the gradient of a given arrow at a certain arrow count.
+    /// @param arrow The arrow we want to get the gradient for.
+    /// @param divisorIndex The arrow divisor in question.
+    function gradientIndex(IArrows.Arrow memory arrow, uint8 divisorIndex) public pure returns (uint8) {
+        uint256 n = Utilities.random(arrow.seed, 'gradient', 100);
 
         return divisorIndex == 0
             ? n < 20 ? uint8(1 + (n % 6)) : 0
             : divisorIndex < 6
-                ? check.stored.gradients[divisorIndex - 1]
+                ? arrow.stored.gradients[divisorIndex - 1]
                 : 0;
     }
 
-    /// @dev Query the color band of a given check at a certain check count.
-    /// @param check The check we want to get the color band for.
-    /// @param divisorIndex The check divisor in question.
-    function colorBandIndex(IChecks.Check memory check, uint8 divisorIndex) public pure returns (uint8) {
-        uint256 n = Utilities.random(check.seed, 'band', 120);
+    /// @dev Query the color band of a given arrow at a certain arrow count.
+    /// @param arrow The arrow we want to get the color band for.
+    /// @param divisorIndex The arrow divisor in question.
+    function colorBandIndex(IArrows.Arrow memory arrow, uint8 divisorIndex) public pure returns (uint8) {
+        uint256 n = Utilities.random(arrow.seed, 'band', 120);
 
         return divisorIndex == 0
             ?   ( n > 80 ? 0
@@ -122,26 +122,26 @@ library ArrowsArt {
                 : n >  1 ? 5
                 : 6 )
             : divisorIndex < 6
-                ? check.stored.colorBands[divisorIndex - 1]
+                ? arrow.stored.colorBands[divisorIndex - 1]
                 : 6;
     }
 
-    /// @dev Generate indexes for the color slots of check parents (up to the EightyColors.COLORS themselves).
+    /// @dev Generate indexes for the color slots of arrow parents (up to the EightyColors.COLORS themselves).
     /// @param divisorIndex The current divisorIndex to query.
-    /// @param check The current check to investigate.
-    /// @param checks The DB containing all checks.
+    /// @param arrow The current arrow to investigate.
+    /// @param arrows The DB containing all arrows.
     function colorIndexes(
-        uint8 divisorIndex, IChecks.Check memory check, IChecks.Checks storage checks
+        uint8 divisorIndex, IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
     )
         public view returns (uint256[] memory)
     {
         uint8[8] memory divisors = DIVISORS();
-        uint256 checksCount = divisors[divisorIndex];
-        uint256 seed = check.seed;
-        uint8 colorBand = COLOR_BANDS()[colorBandIndex(check, divisorIndex)];
-        uint8 gradient = GRADIENTS()[gradientIndex(check, divisorIndex)];
+        uint256 arrowsCount = divisors[divisorIndex];
+        uint256 seed = arrow.seed;
+        uint8 colorBand = COLOR_BANDS()[colorBandIndex(arrow, divisorIndex)];
+        uint8 gradient = GRADIENTS()[gradientIndex(arrow, divisorIndex)];
 
-        // If we're a composited check, we choose colors only based on
+        // If we're a composited arrow, we choose colors only based on
         // the slots available in our parents. Otherwise,
         // we choose based on our available spectrum.
         uint256 possibleColorChoices = divisorIndex > 0
@@ -149,44 +149,44 @@ library ArrowsArt {
             : 80;
 
         // We initialize our index and select the first color
-        uint256[] memory indexes = new uint256[](checksCount);
+        uint256[] memory indexes = new uint256[](arrowsCount);
         indexes[0] = Utilities.random(seed, possibleColorChoices);
 
-        // If we have more than one check, continue selecting colors
-        if (check.hasManyChecks) {
+        // If we have more than one arrow, continue selecting colors
+        if (arrow.hasManyArrows) {
             if (gradient > 0) {
-                // If we're a gradient check, we select based on the color band looping around
+                // If we're a gradient arrow, we select based on the color band looping around
                 // the 80 possible colors
-                for (uint256 i = 1; i < checksCount;) {
-                    indexes[i] = (indexes[0] + (i * gradient * colorBand / checksCount) % colorBand) % 80;
+                for (uint256 i = 1; i < arrowsCount;) {
+                    indexes[i] = (indexes[0] + (i * gradient * colorBand / arrowsCount) % colorBand) % 80;
                     unchecked { ++i; }
                 }
             } else if (divisorIndex == 0) {
                 // If we select initial non gradient colors, we just take random ones
                 // available in our color band
-                for (uint256 i = 1; i < checksCount;) {
+                for (uint256 i = 1; i < arrowsCount;) {
                     indexes[i] = (indexes[0] + Utilities.random(seed + i, colorBand)) % 80;
                     unchecked { ++i; }
                 }
             } else {
-                // If we have parent checks, we select our colors from their set
-                for (uint256 i = 1; i < checksCount;) {
+                // If we have parent arrows, we select our colors from their set
+                for (uint256 i = 1; i < arrowsCount;) {
                     indexes[i] = Utilities.random(seed + i, possibleColorChoices);
                     unchecked { ++i; }
                 }
             }
         }
 
-        // We resolve our color indexes through our parent tree until we reach the root checks
+        // We resolve our color indexes through our parent tree until we reach the root arrows
         if (divisorIndex > 0) {
             uint8 previousDivisor = divisorIndex - 1;
 
-            // We already have our current check, but need the our parent state color indices
-            uint256[] memory parentIndexes = colorIndexes(previousDivisor, check, checks);
+            // We already have our current arrow, but need the our parent state color indices
+            uint256[] memory parentIndexes = colorIndexes(previousDivisor, arrow, arrows);
 
-            // We also need to fetch the colors of the check that was composited into us
-            IChecks.Check memory composited = getCheck(check.composite, checks);
-            uint256[] memory compositedIndexes = colorIndexes(previousDivisor, composited, checks);
+            // We also need to fetch the colors of the arrow that was composited into us
+            IArrows.Arrow memory composited = getArrow(arrow.composite, previousDivisor, arrows);
+            uint256[] memory compositedIndexes = colorIndexes(previousDivisor, composited, arrows);
 
             // Replace random indices with parent / root color indices
             uint8 count = divisors[previousDivisor];
@@ -197,9 +197,9 @@ library ArrowsArt {
                 ? parentIndexes[initialBranchIndex]
                 : compositedIndexes[initialBranchIndex];
 
-            // If we don't have a gradient, we continue resolving from our parent for the remaining checks
+            // If we don't have a gradient, we continue resolving from our parent for the remaining arrows
             if (gradient == 0) {
-                for (uint256 i; i < checksCount;) {
+                for (uint256 i; i < arrowsCount;) {
                     uint256 branchIndex = indexes[i] % count;
                     indexes[i] = indexes[i] < count
                         ? parentIndexes[branchIndex]
@@ -209,8 +209,8 @@ library ArrowsArt {
                 }
             // If we have a gradient we base the remaining colors off our initial selection
             } else {
-                for (uint256 i = 1; i < checksCount;) {
-                    indexes[i] = (indexes[0] + (i * gradient * colorBand / checksCount) % colorBand) % 80;
+                for (uint256 i = 1; i < arrowsCount;) {
+                    indexes[i] = (indexes[0] + (i * gradient * colorBand / arrowsCount) % colorBand) % 80;
 
                     unchecked { ++i; }
                 }
@@ -220,14 +220,14 @@ library ArrowsArt {
         return indexes;
     }
 
-    /// @dev Fetch all colors of a given Check.
-    /// @param check The check to get colors for.
-    /// @param checks The DB containing all checks.
+    /// @dev Fetch all colors of a given Arrow.
+    /// @param arrow The arrow to get colors for.
+    /// @param arrows The DB containing all arrows.
     function colors(
-        IChecks.Check memory check, IChecks.Checks storage checks
+        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
     ) public view returns (string[] memory, uint256[] memory) {
-        // A fully composited check has no color.
-        if (check.stored.divisorIndex == 7) {
+        // A fully composited arrow has no color.
+        if (arrow.stored.divisorIndex == 7) {
             string[] memory zeroColors = new string[](1);
             uint256[] memory zeroIndexes = new uint256[](1);
             zeroColors[0] = '000';
@@ -235,8 +235,8 @@ library ArrowsArt {
             return (zeroColors, zeroIndexes);
         }
 
-        // An unrevealed check is all gray.
-        if (! check.isRevealed) {
+        // An unrevealed arrow is all gray.
+        if (! arrow.isRevealed) {
             string[] memory preRevealColors = new string[](1);
             uint256[] memory preRevealIndexes = new uint256[](1);
             preRevealColors[0] = '424242';
@@ -245,55 +245,55 @@ library ArrowsArt {
         }
 
         // Fetch the indices on the original color mapping.
-        uint256[] memory indexes = colorIndexes(check.stored.divisorIndex, check, checks);
+        uint256[] memory indexes = colorIndexes(arrow.stored.divisorIndex, arrow, arrows);
 
         // Map over to get the colors.
-        string[] memory checkColors = new string[](indexes.length);
+        string[] memory arrowColors = new string[](indexes.length);
         string[80] memory allColors = EightyColors.COLORS();
 
         // Always set the first color.
-        checkColors[0] = allColors[indexes[0]];
+        arrowColors[0] = allColors[indexes[0]];
 
         // Resolve each additional check color via their index in EightyColors.COLORS.
         for (uint256 i = 1; i < indexes.length; i++) {
-            checkColors[i] = allColors[indexes[i]];
+            arrowColors[i] = allColors[indexes[i]];
         }
 
-        return (checkColors, indexes);
+        return (arrowColors, indexes);
     }
 
-    /// @dev Get the number of checks we should display per row.
-    /// @param checks The number of checks in the piece.
-    function perRow(uint8 checks) public pure returns (uint8) {
-        return checks == 80
+    /// @dev Get the number of arrows we should display per row.
+    /// @param arrows The number of arrows in the piece.
+    function perRow(uint8 arrows) public pure returns (uint8) {
+        return arrows == 80
             ? 8
-            : checks >= 20
+            : arrows >= 20
                 ? 4
-                : checks == 10 || checks == 4
+                : arrows == 10 || arrows == 4
                     ? 2
                     : 1;
     }
 
-    /// @dev Get the X-offset for positioning checks horizontally.
-    /// @param checks The number of checks in the piece.
-    function rowX(uint8 checks) public pure returns (uint16) {
-        return checks <= 1
+    /// @dev Get the X-offset for positioning arrow horizontally.
+    /// @param arrows The number of arrows in the piece.
+    function rowX(uint8 arrows) public pure returns (uint16) {
+        return arrows <= 1
             ? 286
-            : checks == 5
+            : arrows == 5
                 ? 304
-                : checks == 10 || checks == 4
+                : arrows == 10 || arrows == 4
                     ? 268
                     : 196;
     }
 
-    /// @dev Get the Y-offset for positioning checks vertically.
-    /// @param checks The number of checks in the piece.
-    function rowY(uint8 checks) public pure returns (uint16) {
-        return checks > 4
+    /// @dev Get the Y-offset for positioning arrow vertically.
+    /// @param arrows The number of arrows in the piece.
+    function rowY(uint8 arrows) public pure returns (uint16) {
+        return arrows > 4
             ? 160
-            : checks == 4
+            : arrows == 4
                 ? 268
-                : checks > 1
+                : arrows > 1
                     ? 304
                     : 286;
     }
@@ -303,7 +303,7 @@ library ArrowsArt {
     /// @param offset The index position of the check in question.
     /// @param allColors All available colors.
     function fillAnimation(
-        CheckRenderData memory data,
+        ArrowRenderData memory data,
         uint256 offset,
         string[80] memory allColors
     ) public pure returns (bytes memory)
@@ -314,7 +314,7 @@ library ArrowsArt {
         bytes memory values;
 
         // Reverse loop through our color gradient.
-        if (data.check.direction == 0) {
+        if (data.arrow.direction == 0) {
             for (uint256 i = offset + 80; i > offset;) {
                 values = abi.encodePacked(values, '#', allColors[i % 80], ';');
                 unchecked { i-=4; }
@@ -334,20 +334,20 @@ library ArrowsArt {
         return abi.encodePacked(
             '<animate ',
                 'attributeName="fill" values="',values,'" ',
-                'dur="',Utilities.uint2str(count * 2 / data.check.speed),'s" begin="animation.begin" ',
+                'dur="',Utilities.uint2str(count * 2 / data.arrow.speed),'s" begin="animation.begin" ',
                 'repeatCount="indefinite" ',
             '/>'
         );
     }
 
-    /// @dev Generate the SVG code for all checks in a given token.
+    /// @dev Generate the SVG code for all arrows in a given token.
     /// @param data The data object containing rendering settings.
-    function generateChecks(CheckRenderData memory data) public pure returns (bytes memory) {
-        bytes memory checksBytes;
+    function generateArrows(ArrowRenderData memory data) public pure returns (bytes memory) {
+        bytes memory arrowsBytes;
         string[80] memory allColors = EightyColors.COLORS();
 
-        uint8 checksCount = data.count;
-        for (uint8 i; i < checksCount; i++) {
+        uint8 arrowsCount = data.count;
+        for (uint8 i; i < arrowsCount; i++) {
             // Compute row settings.
             data.indexInRow = i % data.perRow;
             data.isNewRow = data.indexInRow == 0 && i > 0;
@@ -367,17 +367,17 @@ library ArrowsArt {
             }
             string memory translateX = Utilities.uint2str(data.rowX + data.indexInRow * data.spaceX);
             string memory translateY = Utilities.uint2str(data.rowY);
-            string memory color = data.check.isRevealed ? data.colors[i] : data.colors[0];
+            string memory color = data.arrow.isRevealed ? data.colors[i] : data.colors[0];
             
             // Get animation bytes if needed
             bytes memory animationBytes = bytes('');
-            if (data.check.isRevealed && !data.isBlack) {
+            if (data.arrow.isRevealed && !data.isBlack) {
                 uint256 colorIndex = data.colorIndexes[i];
                 animationBytes = fillAnimation(data, colorIndex, allColors);
             }
 
-            // Render the current check.
-            checksBytes = abi.encodePacked(checksBytes, abi.encodePacked(
+            // Render the current arrow.
+            arrowsBytes = abi.encodePacked(arrowsBytes, abi.encodePacked(
                 '<g transform="translate(', translateX, ', ', translateY, ')">',
                     '<g transform="translate(3, 3) scale(', data.scale, ')">',
                         '<path d="M2.576 9.854c1.152-2.646.33-3.972 1.818-5.46C5.882 2.905 7.75 3.25 9.854 2.575 12.25 1.25 12.895 0 15 0c2.105 0 2.75 1.5 5.147 2.576c1.853.832 3.971.33 5.46 1.817C27.095 5.882 26.5 7.25 27.425 9.854 28.098 11.75 30 12.895 30 15c0 2.105-1.75 3.5-2.576 5.147c-.825 1.646-.33 3.971-1.818 5.46C24.118 27.095 22.5 26.5 20.147 27.425 18.25 28.17 17.105 30 15 30c-2.105 0-3.25-1.5-5.146-2.576c-1.896-1.075-3.972-.33-5.46-1.818C2.905 24.118 3.25 22.25 2.576 20.147 1.901 18.043 0 17.105 0 15c0-2.105 1.424-2.5 2.576-5.146Z" fill="#', color, '"',
@@ -389,22 +389,22 @@ library ArrowsArt {
             ));
         }
 
-        return checksBytes;
+        return arrowsBytes;
     }
 
     /// @dev Collect relevant rendering data for easy access across functions.
-    /// @param check Our current check loaded from storage.
-    /// @param checks The DB containing all checks.
+    /// @param arrow Our current arrow loaded from storage.
+    /// @param arrows The DB containing all arrows.
     function collectRenderData(
-        IChecks.Check memory check, IChecks.Checks storage checks
-    ) public view returns (CheckRenderData memory data) {
+        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
+    ) public view returns (ArrowRenderData memory data) {
         // Carry through base settings.
-        data.check = check;
-        data.isBlack = check.stored.divisorIndex == 7;
-        data.count = data.isBlack ? 1 : DIVISORS()[check.stored.divisorIndex];
+        data.arrow = arrow;
+        data.isBlack = arrow.stored.divisorIndex == 7;
+        data.count = data.isBlack ? 1 : DIVISORS()[arrow.stored.divisorIndex];
 
         // Compute colors and indexes.
-        (string[] memory colors_, uint256[] memory colorIndexes_) = colors(check, checks);
+        (string[] memory colors_, uint256[] memory colorIndexes_) = colors(arrow, arrows);
         data.gridColor = data.isBlack ? '#F2F2F2' : '#191919';
         data.canvasColor = data.isBlack ? '#FFF' : '#111';
         data.colorIndexes = colorIndexes_;
@@ -420,7 +420,7 @@ library ArrowsArt {
         data.rowY = rowY(data.count);
     }
 
-    /// @dev Generate the SVG code for rows in the 8x10 Checks grid.
+    /// @dev Generate the SVG code for rows in the 8x10 Arrows grid.
     function generateGridRow() public pure returns (bytes memory) {
         bytes memory row;
         for (uint256 i; i < 8; i++) {
@@ -432,7 +432,7 @@ library ArrowsArt {
         return row;
     }
 
-    /// @dev Generate the SVG code for the entire 8x10 Checks grid.
+    /// @dev Generate the SVG code for the entire 8x10 Arrows grid.
     function generateGrid() public pure returns (bytes memory) {
         bytes memory grid;
         for (uint256 i; i < 10; i++) {
@@ -445,13 +445,13 @@ library ArrowsArt {
         return abi.encodePacked('<g id="grid" x="196" y="160">', grid, '</g>');
     }
 
-    /// @dev Generate the complete SVG code for a given Check.
-    /// @param check The check to render.
-    /// @param checks The DB containing all checks.
+    /// @dev Generate the complete SVG code for a given Arrow.
+    /// @param arrow The arrow to render.
+    /// @param arrows The DB containing all arrows.
     function generateSVG(
-        IChecks.Check memory check, IChecks.Checks storage checks
+        IArrows.Arrow memory arrow, IArrows.Arrows storage arrows
     ) public view returns (bytes memory) {
-        CheckRenderData memory data = collectRenderData(check, checks);
+        ArrowRenderData memory data = collectRenderData(arrow, arrows);
 
         return abi.encodePacked(
             '<svg ',
@@ -466,7 +466,7 @@ library ArrowsArt {
                 '<rect width="680" height="680" fill="black"/>',
                 '<rect x="188" y="152" width="304" height="376" fill="', data.canvasColor, '"/>',
                 generateGrid(),
-                generateChecks(data),
+                generateArrows(data),
                 '<rect width="680" height="680" fill="transparent">',
                     '<animate ',
                         'attributeName="width" ',
@@ -484,8 +484,8 @@ library ArrowsArt {
 }
 
 /// @dev Bag holding all data relevant for rendering.
-struct CheckRenderData {
-    IChecks.Check check;
+struct ArrowRenderData {
+    IArrows.Arrow arrow;
     uint256[] colorIndexes;
     string[] colors;
     string canvasColor;
