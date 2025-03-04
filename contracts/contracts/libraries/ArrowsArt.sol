@@ -394,8 +394,8 @@ library ArrowsArt {
 
         // Compute colors and indexes.
         (string[] memory colors_, uint256[] memory colorIndexes_) = colors(arrow, arrows);
-        data.gridColor = data.isBlack ? '#F2F2F2' : '#191919';
-        data.canvasColor = data.isBlack ? '#FFF' : '#111';
+        data.gridColor = '#000000';
+        data.canvasColor = '#000000';
         data.colorIndexes = colorIndexes_;
         data.colors = colors_;
 
