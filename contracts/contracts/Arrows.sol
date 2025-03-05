@@ -275,4 +275,25 @@ contract Arrows is IArrows, ARROWS721 {
             revert NotAllowed();
         }
     }
+
+    /// @notice Check if a token has a single green arrow with color #018A08
+    /// @param tokenId The token ID to check
+    /// @return bool True if the token has exactly one arrow with color #018A08
+    function isWinner(uint256 tokenId) external view returns (bool) {
+        _requireMinted(tokenId);
+        
+        // Get the arrow data
+        Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrows);
+        
+        // Check if it has exactly one arrow
+        if (arrow.arrowsCount != 1) {
+            return false;
+        }
+        
+        // Get the colors
+        (string[] memory tokenColors,) = ArrowsArt.colors(arrow, arrows);
+        
+        // Check if the single color matches our target green
+        return keccak256(abi.encodePacked(tokenColors[0])) == keccak256(abi.encodePacked("018A08"));
+    }
 }
