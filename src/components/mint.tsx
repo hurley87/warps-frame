@@ -7,6 +7,7 @@ import { useAccount } from 'wagmi';
 import { useState, useEffect } from 'react';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export function Mint() {
   const { address } = useAccount();
@@ -23,6 +24,7 @@ export function Mint() {
   useEffect(() => {
     if (isSuccess) {
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
+      toast.success('Successfully minted 10 Arrows!');
     }
   }, [isSuccess, queryClient]);
 
@@ -39,6 +41,7 @@ export function Mint() {
       });
     } catch (error) {
       console.error('Mint error:', error);
+      toast.error('Failed to mint Arrows');
     } finally {
       setIsMinting(false);
     }
@@ -63,20 +66,6 @@ export function Mint() {
       >
         {isMinting || isConfirming ? 'Minting...' : 'Mint 10 Arrows'}
       </Button>
-
-      {isSuccess && (
-        <div className="text-green-600 dark:text-green-400">
-          Successfully minted!{' '}
-          <a
-            href={`https://basescan.org/tx/${hash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            View on BaseScan
-          </a>
-        </div>
-      )}
     </div>
   );
 }
