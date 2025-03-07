@@ -8,7 +8,7 @@ import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 import { readContract } from '@wagmi/core';
 import { http, createConfig } from 'wagmi';
-import { baseSepolia, mainnet } from 'wagmi/chains';
+import { baseSepolia } from 'wagmi/chains';
 
 const config = createConfig({
   chains: [baseSepolia],
@@ -22,8 +22,6 @@ interface Token {
   name: string;
   description?: string;
   image?: string;
-  svg?: string;
-  arrow?: any;
 }
 
 export function Tokens() {
