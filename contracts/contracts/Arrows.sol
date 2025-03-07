@@ -159,13 +159,6 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         emit TokensMinted(recipient, startTokenId, mintLimit);
     }
 
-    /// @notice Get a specific check with its genome settings
-    /// @param tokenId The token ID to fetch
-    /// @return arrow The arrow data structure containing all genome settings
-    function getArrow(uint256 tokenId) external view whenNotPaused returns (Arrow memory arrow) {
-        return ArrowsArt.getArrow(tokenId, arrowsData);
-    }
-
     /// @notice Composite one token into another, mixing visuals and reducing arrow count
     /// @param tokenId The token ID to keep alive (its visual will change)
     /// @param burnId The token ID to composite into the kept token
@@ -188,14 +181,6 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         emit TokenBurned(tokenId, msg.sender);
     }
 
-
-    /// @notice Generate the SVG representation of a token
-    /// @param tokenId The token ID to generate SVG for
-    /// @return The SVG string representation of the token
-    function svg(uint256 tokenId) external view returns (string memory) {
-        return string(ArrowsArt.generateSVG(ArrowsArt.getArrow(tokenId, arrowsData), arrowsData));
-    }
-    
     /// @notice Get the metadata URI for a token
     /// @param tokenId The token ID to get metadata for
     /// @return The metadata URI string

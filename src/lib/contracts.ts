@@ -1,7 +1,7 @@
 import { Abi } from 'viem';
 
 export const ARROWS_CONTRACT = {
-  address: '0x1AeD235D2f957A05de7A77fDC08D16371301775C' as `0x${string}`, // Replace with actual contract address
+  address: '0x778BfC8882624b7829670Ea54799a11A6654D4Ae' as `0x${string}`, // Replace with actual contract address
   abi: [
     {
       inputs: [],
@@ -234,6 +234,25 @@ export const ARROWS_CONTRACT = {
         },
       ],
       name: 'MintPriceUpdated',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'uint256',
+          name: 'epoch',
+          type: 'uint256',
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'revealBlock',
+          type: 'uint256',
+        },
+      ],
+      name: 'NewEpoch',
       type: 'event',
     },
     {
@@ -579,109 +598,6 @@ export const ARROWS_CONTRACT = {
       type: 'function',
     },
     {
-      inputs: [
-        {
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256',
-        },
-      ],
-      name: 'getArrow',
-      outputs: [
-        {
-          components: [
-            {
-              components: [
-                {
-                  internalType: 'uint16[6]',
-                  name: 'composites',
-                  type: 'uint16[6]',
-                },
-                {
-                  internalType: 'uint8[5]',
-                  name: 'colorBands',
-                  type: 'uint8[5]',
-                },
-                {
-                  internalType: 'uint8[5]',
-                  name: 'gradients',
-                  type: 'uint8[5]',
-                },
-                {
-                  internalType: 'uint8',
-                  name: 'divisorIndex',
-                  type: 'uint8',
-                },
-                {
-                  internalType: 'uint16',
-                  name: 'seed',
-                  type: 'uint16',
-                },
-                {
-                  internalType: 'uint24',
-                  name: 'day',
-                  type: 'uint24',
-                },
-              ],
-              internalType: 'struct IArrows.StoredArrow',
-              name: 'stored',
-              type: 'tuple',
-            },
-            {
-              internalType: 'uint256',
-              name: 'seed',
-              type: 'uint256',
-            },
-            {
-              internalType: 'uint8',
-              name: 'arrowsCount',
-              type: 'uint8',
-            },
-            {
-              internalType: 'bool',
-              name: 'hasManyArrows',
-              type: 'bool',
-            },
-            {
-              internalType: 'uint16',
-              name: 'composite',
-              type: 'uint16',
-            },
-            {
-              internalType: 'bool',
-              name: 'isRoot',
-              type: 'bool',
-            },
-            {
-              internalType: 'uint8',
-              name: 'colorBand',
-              type: 'uint8',
-            },
-            {
-              internalType: 'uint8',
-              name: 'gradient',
-              type: 'uint8',
-            },
-            {
-              internalType: 'uint8',
-              name: 'direction',
-              type: 'uint8',
-            },
-            {
-              internalType: 'uint8',
-              name: 'speed',
-              type: 'uint8',
-            },
-          ],
-          internalType: 'struct IArrows.Arrow',
-          name: 'arrow',
-          type: 'tuple',
-        },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
       inputs: [],
       name: 'getAvailableOwnerWithdrawal',
       outputs: [
@@ -910,6 +826,13 @@ export const ARROWS_CONTRACT = {
       type: 'function',
     },
     {
+      inputs: [],
+      name: 'resolveEpochIfNecessary',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
       inputs: [
         {
           internalType: 'address',
@@ -998,25 +921,6 @@ export const ARROWS_CONTRACT = {
       type: 'function',
     },
     {
-      inputs: [
-        {
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256',
-        },
-      ],
-      name: 'svg',
-      outputs: [
-        {
-          internalType: 'string',
-          name: '',
-          type: 'string',
-        },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
       inputs: [],
       name: 'symbol',
       outputs: [
@@ -1030,8 +934,51 @@ export const ARROWS_CONTRACT = {
       type: 'function',
     },
     {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'index',
+          type: 'uint256',
+        },
+      ],
+      name: 'tokenByIndex',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
       inputs: [],
       name: 'tokenMintId',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'owner',
+          type: 'address',
+        },
+        {
+          internalType: 'uint256',
+          name: 'index',
+          type: 'uint256',
+        },
+      ],
+      name: 'tokenOfOwnerByIndex',
       outputs: [
         {
           internalType: 'uint256',
