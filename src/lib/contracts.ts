@@ -1,7 +1,7 @@
 import { Abi } from 'viem';
 
 export const ARROWS_CONTRACT = {
-  address: '0x778BfC8882624b7829670Ea54799a11A6654D4Ae' as `0x${string}`, // Replace with actual contract address
+  address: '0x6a71d649BF08ca4A9AE3e8d209A65D7ABb7fde54' as `0x${string}`, // Replace with actual contract address
   abi: [
     {
       inputs: [],
@@ -663,6 +663,25 @@ export const ARROWS_CONTRACT = {
         },
       ],
       name: 'isApprovedForAll',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256',
+        },
+      ],
+      name: 'isWinningToken',
       outputs: [
         {
           internalType: 'bool',

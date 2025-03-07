@@ -288,13 +288,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @dev Burns the winning token and transfers the prize to the winner
     function claimPrize(uint256 tokenId) external whenNotPaused {
         require(ownerOf(tokenId) == msg.sender, "Not token owner");
-        Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
-        require(arrow.arrowsCount == 1, "Not a winning token");
-        (string[] memory tokenColors,) = ArrowsArt.colors(arrow, arrowsData);
-        require(
-            keccak256(abi.encodePacked(tokenColors[0])) == keccak256(abi.encodePacked("018A08")),
-            "Not a winning token"
-        );
+        require(isWinningToken(tokenId), "Not a winning token");
 
         uint256 winnerShare = getWinnerShare();
         uint256 availableBalance = getAvailablePrizePool();
@@ -352,5 +346,19 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         uint256 ownerShare = getOwnerShare();
         return ownerShare > prizePool.totalWithdrawn ? 
                ownerShare - prizePool.totalWithdrawn : 0;
+    }
+
+    /// @notice Check if a token is a winning token
+    /// @param tokenId The token ID to check
+    /// @return bool True if the token is a winner, false otherwise
+    /// @dev A token is considered a winner if it has exactly 1 arrow and its first color is "018A08"
+    function isWinningToken(uint256 tokenId) public view returns (bool) {
+        if (!_exists(tokenId)) return false;
+        
+        Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
+        if (arrow.arrowsCount != 1) return false;
+        
+        (string[] memory tokenColors,) = ArrowsArt.colors(arrow, arrowsData);
+        return keccak256(abi.encodePacked(tokenColors[0])) == keccak256(abi.encodePacked("018A08"));
     }
 }
