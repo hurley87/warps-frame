@@ -34,8 +34,8 @@ export function Tokens() {
     <div className="relative">
       {isFetching && (
         <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10">
-          <div className="text-sm text-muted-foreground p-2">
-            Loading new arrows...
+          <div className="text-sm text-muted-foreground p-2 text-center">
+            Loading your arrows...
           </div>
         </div>
       )}
