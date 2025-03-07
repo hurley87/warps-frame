@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -14,10 +15,9 @@ import "../interfaces/IERC4906.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
- * the Metadata extension, but not including the Enumerable extension, which is available separately as
- * {ERC721Enumerable}.
+ * the Metadata extension and the Enumerable extension.
  */
-contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
+contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable, IERC4906 {
     error ERC721__InvalidApproval();
     error ERC721__InvalidOwner();
     error ERC721__InvalidToken();
@@ -47,6 +47,19 @@ contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    // Enumerable mappings
+    // Mapping from owner to list of owned token IDs
+    mapping(address => mapping(uint256 => uint256)) private _ownedTokens;
+
+    // Mapping from token ID to index of the owner tokens list
+    mapping(uint256 => uint256) private _ownedTokensIndex;
+
+    // Array with all token ids, used for enumeration
+    uint256[] private _allTokens;
+
+    // Mapping from token id to position in the allTokens array
+    mapping(uint256 => uint256) private _allTokensIndex;
+
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
@@ -62,6 +75,7 @@ contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
         return
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IERC721Metadata).interfaceId ||
+            interfaceId == type(IERC721Enumerable).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
@@ -543,23 +557,12 @@ contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens will be transferred to `to`.
-     * - When `from` is zero, the tokens will be minted for `to`.
-     * - When `to` is zero, ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev Hook that is called before any token transfer. This includes minting and burning.
      */
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256, /* firstTokenId */
+        uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual {
         if (batchSize > 1) {
@@ -570,21 +573,21 @@ contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
                 _balances[to] += batchSize;
             }
         }
+
+        if (from == address(0)) {
+            _addTokenToAllTokensEnumeration(firstTokenId);
+        } else if (from != to) {
+            _removeTokenFromOwnerEnumeration(from, firstTokenId);
+        }
+        if (to == address(0)) {
+            _removeTokenFromAllTokensEnumeration(firstTokenId);
+        } else if (to != from) {
+            _addTokenToOwnerEnumeration(to, firstTokenId);
+        }
     }
 
     /**
-     * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens were transferred to `to`.
-     * - When `from` is zero, the tokens were minted for `to`.
-     * - When `to` is zero, ``from``'s tokens were burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev Hook that is called after any token transfer. This includes minting and burning.
      */
     function _afterTokenTransfer(
         address from,
@@ -604,5 +607,101 @@ contract ARROWS721 is Context, ERC165, IERC721, IERC721Metadata, IERC4906 {
         // for contracts in construction, since the code is only stored at the end
         // of the constructor execution.
         return account.code.length > 0;
+    }
+
+    /**
+     * @dev See {IERC721Enumerable-totalSupply}.
+     */
+    function totalSupply() public view virtual override returns (uint256) {
+        return _allTokens.length;
+    }
+
+    /**
+     * @dev See {IERC721Enumerable-tokenByIndex}.
+     */
+    function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
+        if (index >= totalSupply()) {
+            revert ERC721__InvalidToken();
+        }
+        return _allTokens[index];
+    }
+
+    /**
+     * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
+     */
+    function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
+        if (index >= balanceOf(owner)) {
+            revert ERC721__InvalidToken();
+        }
+        return _ownedTokens[owner][index];
+    }
+
+    /**
+     * @dev Private function to add a token to this extension's ownership-tracking data structures.
+     * @param to address representing the new owner of the given token ID
+     * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
+     */
+    function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
+        uint256 length = balanceOf(to);
+        _ownedTokens[to][length] = tokenId;
+        _ownedTokensIndex[tokenId] = length;
+    }
+
+    /**
+     * @dev Private function to add a token to this extension's token tracking data structures.
+     * @param tokenId uint256 ID of the token to be added to the tokens list
+     */
+    function _addTokenToAllTokensEnumeration(uint256 tokenId) private {
+        _allTokensIndex[tokenId] = _allTokens.length;
+        _allTokens.push(tokenId);
+    }
+
+    /**
+     * @dev Private function to remove a token from this extension's ownership-tracking data structures.
+     * @param from address representing the previous owner of the given token ID
+     * @param tokenId uint256 ID of the token to be removed from the tokens list of the given address
+     */
+    function _removeTokenFromOwnerEnumeration(address from, uint256 tokenId) private {
+        // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
+        // then delete the last slot (swap and pop).
+
+        uint256 lastTokenIndex = balanceOf(from) - 1;
+        uint256 tokenIndex = _ownedTokensIndex[tokenId];
+
+        // When the token to delete is the last token, the swap operation is unnecessary
+        if (tokenIndex != lastTokenIndex) {
+            uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
+
+            _ownedTokens[from][tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+            _ownedTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
+        }
+
+        // This also deletes the contents at the last position of the array
+        delete _ownedTokens[from][lastTokenIndex];
+        delete _ownedTokensIndex[tokenId];
+    }
+
+    /**
+     * @dev Private function to remove a token from this extension's token tracking data structures.
+     * @param tokenId uint256 ID of the token to be removed from the tokens list
+     */
+    function _removeTokenFromAllTokensEnumeration(uint256 tokenId) private {
+        // To prevent a gap in the tokens array, we store the last token in the index of the token to delete, and
+        // then delete the last slot (swap and pop).
+
+        uint256 lastTokenIndex = _allTokens.length - 1;
+        uint256 tokenIndex = _allTokensIndex[tokenId];
+
+        // When the token to delete is the last token, the swap operation is unnecessary. However, since this occurs so
+        // rarely (when the last minted token is burnt) that we still do the swap here to avoid the gas cost of adding
+        // an 'if' statement (like in _removeTokenFromOwnerEnumeration)
+        uint256 lastTokenId = _allTokens[lastTokenIndex];
+
+        _allTokens[tokenIndex] = lastTokenId; // Move the last token to the slot of the to-delete token
+        _allTokensIndex[lastTokenId] = tokenIndex; // Update the moved token's index
+
+        // This also deletes the contents at the last position of the array
+        _allTokens.pop();
+        delete _allTokensIndex[tokenId];
     }
 }

@@ -204,12 +204,6 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         return ArrowsMetadata.tokenURI(tokenId, arrowsData);
     }
 
-    /// @notice Get the total number of tokens in circulation
-    /// @return The total supply (minted - burned)
-    function totalSupply() public view returns (uint256) {
-        return arrowsData.minted - arrowsData.burned;
-    }
-
     /// @dev Composite one token into to another and burn it.
     /// @param tokenId The token ID to keep. Its art and arrow-count will change.
     /// @param burnId The token ID to burn in the process.
