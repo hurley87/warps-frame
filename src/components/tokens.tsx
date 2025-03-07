@@ -2,8 +2,6 @@
 
 import { useAccount, useReadContract } from 'wagmi';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Skeleton } from './ui/skeleton';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 import { readContract } from '@wagmi/core';
@@ -42,59 +40,43 @@ export function Tokens() {
     args: address ? [address as Address] : undefined,
   });
 
-  // get total supply
-  const { data: totalSupply } = useReadContract({
-    address: ARROWS_CONTRACT.address as Address,
-    abi: ARROWS_CONTRACT.abi,
-    functionName: 'totalSupply',
-  });
-
   // Fetch tokens owned by the user
   useEffect(() => {
     const fetchTokens = async () => {
-      if (!balance) {
+      if (!balance || !address) {
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('balance', balance);
-        console.log('totalSupply', totalSupply);
-
         const tokens = [];
+        const balanceNum = Number(balance);
 
-        // iterate over total supply
-        for (let i = 0; i < Number(totalSupply); i++) {
-          console.log('i', i);
-          // check if address is owner of token
-          const isOwner = await readContract(config, {
+        // Get each token owned by the address using tokenOfOwnerByIndex
+        for (let i = 0; i < balanceNum; i++) {
+          const tokenId = await readContract(config, {
             address: ARROWS_CONTRACT.address as Address,
             abi: ARROWS_CONTRACT.abi,
-            functionName: 'ownerOf',
-            args: [BigInt(i)],
+            functionName: 'tokenOfOwnerByIndex',
+            args: [address as Address, BigInt(i)],
           });
 
-          console.log('isOwner', isOwner);
+          // Get token metadata
+          const tokenMetadata = await readContract(config, {
+            address: ARROWS_CONTRACT.address as Address,
+            abi: ARROWS_CONTRACT.abi,
+            functionName: 'tokenURI',
+            args: [tokenId],
+          });
 
-          if (isOwner === address) {
-            // get token metadata
-            const tokenMetadata = await readContract(config, {
-              address: ARROWS_CONTRACT.address as Address,
-              abi: ARROWS_CONTRACT.abi,
-              functionName: 'tokenURI',
-              args: [BigInt(i)],
-            });
+          const token = {
+            ...decodeBase64URI(tokenMetadata),
+            id: Number(tokenId),
+          };
 
-            const token = {
-              ...decodeBase64URI(tokenMetadata),
-              id: i,
-            };
-
-            tokens.push(token);
-          }
+          tokens.push(token);
         }
 
-        console.log('tokens', tokens);
         setTokens(tokens);
       } catch (error) {
         console.error('Error fetching tokens:', error);
@@ -105,46 +87,39 @@ export function Tokens() {
 
     setIsLoading(true);
     fetchTokens();
-  }, [balance]);
+  }, [balance, address]);
 
   if (!isConnected) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Arrows</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Connect your wallet to view your arrows
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <p className="text-lg font-medium text-muted-foreground">
+          Connect your wallet to view your arrows
+        </p>
+      </div>
     );
   }
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Arrows</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="relative aspect-square">
+            <div className="absolute inset-0 bg-white/20 rounded-lg animate-pulse h-full w-full" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/20 to-primary/0 animate-pulse" />
+          </div>
+        ))}
+      </div>
     );
   }
 
   console.log('tokens', tokens);
 
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid grid-cols-2 gap-4">
       {tokens.map((token) => (
-        <div key={`token-${token.id}`}>
+        <div key={`token-${token.id}`} className="relative aspect-square">
           <div
-            className="w-full h-auto mb-2"
+            className="w-full h-full"
             dangerouslySetInnerHTML={{
               __html: token.image?.startsWith('data:image/svg+xml;base64,')
                 ? atob(token.image.split(',')[1])
