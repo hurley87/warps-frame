@@ -2,12 +2,19 @@ import { type Token as TokenType } from '@/hooks/use-tokens';
 
 interface TokenProps {
   token: TokenType;
+  isSelected?: boolean;
+  onSelect?: (tokenId: number) => void;
 }
 
-export function Token({ token }: TokenProps) {
+export function Token({ token, isSelected, onSelect }: TokenProps) {
   return (
     <>
-      <div className="relative aspect-square group">
+      <div
+        className={`relative aspect-square group cursor-pointer ${
+          isSelected ? 'ring-2 ring-primary' : ''
+        }`}
+        onClick={() => onSelect?.(token.id)}
+      >
         <div
           className="w-full h-full transition-transform duration-300 hover:scale-110 relative svg-container"
           // style={{
@@ -19,6 +26,9 @@ export function Token({ token }: TokenProps) {
               : '',
           }}
         />
+        {isSelected && (
+          <div className="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full" />
+        )}
         {/* <div
           className="absolute inset-0 bg-[#018A08] opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-lg"
           style={{
