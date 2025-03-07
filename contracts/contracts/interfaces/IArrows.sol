@@ -10,6 +10,7 @@ interface IArrows {
         uint8 divisorIndex; // Easy access to next / previous divisor
         uint16 seed;      // A unique identifier to enable swapping
         uint24 day;      // The days since token was created
+        uint32 epoch;    // The epoch when this token was created
     }
 
     struct Arrow {
@@ -25,11 +26,20 @@ interface IArrows {
         uint8 speed;     // Animation speed
     }
 
+    struct Epoch {
+        bool committed;
+        bool revealed;
+        uint64 revealBlock;
+        uint128 randomness;
+    }
+
     struct Arrows {
         mapping(uint256 => StoredArrow) all; // All arrows
+        mapping(uint256 => Epoch) epochs; // Epoch data for randomness
         uint32 minted;  // The number of arrows editions that have been migrated
         uint32 burned;  // The number of tokens that have been burned
         uint32 day0;    // Marks the start of this journey
+        uint32 currentEpoch; // Current epoch number
     }
 
     event Sacrifice(
@@ -46,6 +56,11 @@ interface IArrows {
     event Infinity(
         uint256 indexed tokenId,
         uint256[] indexed burnedIds
+    );
+
+    event NewEpoch(
+        uint256 indexed epoch,
+        uint256 revealBlock
     );
 
     error NotAllowed();

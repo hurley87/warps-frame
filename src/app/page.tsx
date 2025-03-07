@@ -7,9 +7,5 @@ const Game = dynamic(() => import('@/components/game'), {
 });
 
 export default function Home() {
-  return (
-    <main className="min-h-screen flex flex-col p-4">
-      <Game />
-    </main>
-  );
+  return <Game />;
 }

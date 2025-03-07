@@ -71,7 +71,8 @@ library ArrowsArt {
         arrow.stored = stored;
 
         // Set up the source of randomness + seed for this Arrow.
-        arrow.seed = uint256(keccak256(abi.encodePacked(block.prevrandao, stored.seed))) % type(uint128).max;
+        uint128 randomness = arrows.epochs[stored.epoch].randomness;
+        arrow.seed = uint256(keccak256(abi.encodePacked(randomness, stored.seed))) % type(uint128).max;
 
         // Helpers
         arrow.isRoot = divisorIndex == 0;

@@ -54,6 +54,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         arrowsData.day0 = uint32(block.timestamp);
         arrowsData.minted = 0;
         arrowsData.burned = 0;
+        arrowsData.currentEpoch = 1;
         prizePool.winnerPercentage = 60; // Default 60% for winner
         prizePool.lastWinnerClaim = 0;
     }
@@ -92,6 +93,31 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         emit WinnerPercentageUpdated(newPercentage);
     }
 
+    /// @notice Resolve the current epoch's randomness if necessary
+    function resolveEpochIfNecessary() public {
+        Epoch storage epoch = arrowsData.epochs[arrowsData.currentEpoch];
+
+        if (!epoch.committed || (epoch.revealed == false && epoch.revealBlock < block.number - 256)) {
+            // Set committed and reveal block
+            epoch.revealBlock = uint64(block.number + 50);
+            epoch.committed = true;
+        } else if (block.number > epoch.revealBlock) {
+            // Set randomness from block hash
+            epoch.randomness = uint128(uint256(keccak256(
+                abi.encodePacked(
+                    blockhash(epoch.revealBlock),
+                    block.prevrandao
+                ))) % (2 ** 128 - 1)
+            );
+            epoch.revealed = true;
+
+            // Move to next epoch
+            emit NewEpoch(arrowsData.currentEpoch, epoch.revealBlock);
+            arrowsData.currentEpoch++;
+            resolveEpochIfNecessary();
+        }
+    }
+
     /// @notice Mint new Arrows tokens
     /// @param recipient The address to receive the tokens
     function mint(address recipient) external payable whenNotPaused {
@@ -104,6 +130,9 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         prizePool.totalDeposited += msg.value;
         emit PrizePoolUpdated(prizePool.totalDeposited, prizePool.totalWithdrawn);
 
+        // Resolve epoch for randomness
+        resolveEpochIfNecessary();
+
         uint256 startTokenId = tokenMintId;
         
         // Mint the tokens
@@ -114,6 +143,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
             arrow.day = Utilities.day(arrowsData.day0, block.timestamp);
             arrow.seed = uint16(id);
             arrow.divisorIndex = 0;
+            arrow.epoch = uint32(arrowsData.currentEpoch); // Store the epoch
 
             _safeMint(recipient, id);
 

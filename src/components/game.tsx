@@ -7,6 +7,7 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
+import { Tokens } from './tokens';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -40,7 +41,7 @@ export default function Game() {
   }
 
   return (
-    <div className="w-[300px] mx-auto py-4 px-2">
+    <div className="">
       <h1 className="text-2xl font-bold text-center mb-4">Frames v2 Demo</h1>
 
       <div className="mb-4">
@@ -89,6 +90,9 @@ export default function Game() {
         </div>
       </div>
       <Mint />
+      <div className="mt-4">
+        <Tokens />
+      </div>
     </div>
   );
 }
