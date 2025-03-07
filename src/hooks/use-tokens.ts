@@ -12,7 +12,7 @@ const config = createConfig({
   },
 });
 
-interface Token {
+export interface Token {
   id: number;
   name: string;
   description?: string;
