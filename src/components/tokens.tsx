@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useTokens, useClaimPrize } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
-import { Composite } from '@/components/composite';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
@@ -14,7 +13,7 @@ interface TokensProps {
 }
 
 export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
   const claimPrize = useClaimPrize();
   const [isClaimingPrize, setIsClaimingPrize] = useState(false);
@@ -31,16 +30,6 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
       setIsClaimingPrize(false);
     }
   };
-
-  if (!isConnected) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-lg font-medium text-muted-foreground">
-          Connect your wallet to view your arrows
-        </p>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
