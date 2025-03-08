@@ -1,18 +1,19 @@
 'use client';
 
 import { useAccount } from 'wagmi';
-import { useTokens } from '@/hooks/use-tokens';
+import { useTokens, useClaimPrize } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
 import { Composite } from '@/components/composite';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export function Tokens() {
   const { address, isConnected } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
   const [selectedTokens, setSelectedTokens] = useState<number[]>([]);
-
-  console.log(tokens);
-  console.log(selectedTokens);
+  const claimPrize = useClaimPrize();
+  const [isClaimingPrize, setIsClaimingPrize] = useState(false);
 
   const handleTokenSelect = (tokenId: number) => {
     setSelectedTokens((prev) => {
@@ -30,6 +31,19 @@ export function Tokens() {
     setSelectedTokens([]);
   };
 
+  const handleClaimPrize = async (tokenId: number) => {
+    try {
+      setIsClaimingPrize(true);
+      await claimPrize(tokenId);
+      // Success state will be handled by the query invalidation
+    } catch (error) {
+      console.error('Failed to claim prize:', error);
+      // You could add a toast notification here for the error
+    } finally {
+      setIsClaimingPrize(false);
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -42,17 +56,58 @@ export function Tokens() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-3 gap-4">
+        {[...Array(10)].map((_, i) => (
           <div key={i} className="relative aspect-square">
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg" />
             <img
               src="/loadingarrow.svg"
               alt="Loading"
               className="absolute inset-0 w-full h-full"
             />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm animate-pulse" />
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // Check if user has any winning tokens
+  const winningToken = tokens.find((token) => token.isWinning);
+
+  if (winningToken) {
+    return (
+      <div className="relative p-4">
+        <div className="mb-6 text-center">
+          <h2 className="text-lg font-bold text-green-500 mb-2">
+            🎉 Congratulations! You've Won! 🎉
+          </h2>
+          <p className="text-lg text-muted-foreground mb-4">
+            You have a winning arrow! Claim your prize now.
+          </p>
+        </div>
+        <div className="max-w-sm mx-auto">
+          <Token
+            key={`token-${winningToken.id}`}
+            token={winningToken}
+            isSelected={false}
+            onSelect={() => {}}
+          />
+          <Button
+            className="w-full mt-4 bg-green-500 hover:bg-green-600"
+            onClick={() => handleClaimPrize(winningToken.id)}
+            disabled={isClaimingPrize}
+          >
+            {isClaimingPrize ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Claiming Prize...
+              </>
+            ) : (
+              'Claim Prize 🏆'
+            )}
+          </Button>
+        </div>
       </div>
     );
   }
