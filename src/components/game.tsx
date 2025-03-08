@@ -18,6 +18,7 @@ import { Tokens } from './tokens';
 import { Composite } from '@/components/composite';
 import { Info } from 'lucide-react';
 import { XIcon } from 'lucide-react';
+import { Pool } from './pool';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -182,7 +183,7 @@ export default function Game() {
           </div>
         </div>
       </header>
-
+      <Pool />
       <Composite
         selectedTokens={selectedTokens}
         onCompositeComplete={handleCompositeComplete}
