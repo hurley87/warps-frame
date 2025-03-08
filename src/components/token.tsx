@@ -15,17 +15,19 @@ export function Token({ token, isSelected, onSelect }: TokenProps) {
         }`}
         onClick={() => onSelect?.(token.id)}
       >
-        <div
-          className="w-full h-full transition-transform duration-300 hover:scale-110 relative svg-container"
-          style={{
-            filter: 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
-          }}
-          dangerouslySetInnerHTML={{
-            __html: token.image?.startsWith('data:image/svg+xml;base64,')
-              ? atob(token.image.split(',')[1])
-              : '',
-          }}
-        />
+        <div className="absolute inset-0 overflow-hidden rounded-lg">
+          <div
+            className="absolute inset-[-20%] w-[140%] h-[140%] transition-transform duration-300 hover:scale-110 svg-container"
+            style={{
+              filter: 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
+            }}
+            dangerouslySetInnerHTML={{
+              __html: token.image?.startsWith('data:image/svg+xml;base64,')
+                ? atob(token.image.split(',')[1])
+                : '',
+            }}
+          />
+        </div>
         {isSelected && (
           <div className="absolute top-2 right-2 w-4 h-4 bg-primary rounded-full" />
         )}

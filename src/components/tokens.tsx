@@ -33,7 +33,7 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {[...Array(10)].map((_, i) => (
           <div key={i} className="relative aspect-square">
             <img
@@ -98,7 +98,7 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
           </div>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {tokens.map((token) => (
           <Token
             key={`token-${token.id}`}
