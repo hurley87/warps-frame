@@ -1,11 +1,5 @@
-'use client';
-
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
-
-const Game = dynamic(() => import('@/components/game'), {
-  ssr: false,
-});
+import App from './app';
 
 const appUrl = 'https://www.arrows.art';
 
@@ -40,5 +34,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Home() {
-  return <Game />;
+  return <App />;
 }
