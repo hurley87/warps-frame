@@ -17,9 +17,9 @@ export function Token({ token, isSelected, onSelect }: TokenProps) {
       >
         <div
           className="w-full h-full transition-transform duration-300 hover:scale-110 relative svg-container"
-          // style={{
-          //   filter: 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
-          // }}
+          style={{
+            filter: 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
+          }}
           dangerouslySetInnerHTML={{
             __html: token.image?.startsWith('data:image/svg+xml;base64,')
               ? atob(token.image.split(',')[1])
@@ -58,12 +58,12 @@ export function Token({ token, isSelected, onSelect }: TokenProps) {
         }
 
         .animate-pulse-subtle {
-          animation: pulseSlow 3s ease-in-out infinite;
+          animation: pulseSlow 1s ease-in-out infinite;
         }
 
         .svg-container g path[fill='#018A08'] {
           transform-origin: center;
-          animation: pathPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: pathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
         }
       `}</style>

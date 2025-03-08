@@ -1,13 +1,12 @@
 'use client';
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -23,7 +22,6 @@ import { XIcon } from 'lucide-react';
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-  const [isContextOpen, setIsContextOpen] = useState(false);
   const [selectedTokens, setSelectedTokens] = useState<number[]>([]);
 
   const { address, isConnected } = useAccount();
@@ -43,10 +41,6 @@ export default function Game() {
       load();
     }
   }, [isSDKLoaded]);
-
-  const toggleContext = useCallback(() => {
-    setIsContextOpen((prev) => !prev);
-  }, []);
 
   const handleTokenSelect = (tokenId: number) => {
     setSelectedTokens((prev) => {
