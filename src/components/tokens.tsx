@@ -1,35 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useTokens, useClaimPrize } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
 import { Composite } from '@/components/composite';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
-export function Tokens() {
+interface TokensProps {
+  selectedTokens: number[];
+  onTokenSelect: (tokenId: number) => void;
+}
+
+export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
   const { address, isConnected } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
-  const [selectedTokens, setSelectedTokens] = useState<number[]>([]);
   const claimPrize = useClaimPrize();
   const [isClaimingPrize, setIsClaimingPrize] = useState(false);
-
-  const handleTokenSelect = (tokenId: number) => {
-    setSelectedTokens((prev) => {
-      if (prev.includes(tokenId)) {
-        return prev.filter((id) => id !== tokenId);
-      }
-      if (prev.length < 2) {
-        return [...prev, tokenId];
-      }
-      return prev;
-    });
-  };
-
-  const handleCompositeComplete = () => {
-    setSelectedTokens([]);
-  };
 
   const handleClaimPrize = async (tokenId: number) => {
     try {
@@ -121,19 +109,13 @@ export function Tokens() {
           </div>
         </div>
       )}
-      <div className="mt-6">
-        <Composite
-          selectedTokens={selectedTokens}
-          onCompositeComplete={handleCompositeComplete}
-        />
-      </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {tokens.map((token) => (
           <Token
             key={`token-${token.id}`}
             token={token}
             isSelected={selectedTokens.includes(token.id)}
-            onSelect={handleTokenSelect}
+            onSelect={onTokenSelect}
           />
         ))}
       </div>
