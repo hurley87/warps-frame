@@ -80,7 +80,7 @@ export function Tokens() {
       <div className="relative p-4">
         <div className="mb-6 text-center">
           <h2 className="text-lg font-bold text-green-500 mb-2">
-            🎉 Congratulations! You've Won! 🎉
+            {`🎉 Congratulations! You've Won! 🎉`}
           </h2>
           <p className="text-lg text-muted-foreground mb-4">
             You have a winning arrow! Claim your prize now.
