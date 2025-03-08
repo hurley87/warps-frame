@@ -8,6 +8,7 @@ import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
+import { Header } from './header';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -41,8 +42,8 @@ export default function Game() {
   }
 
   return (
-    <div className="">
-      <h1 className="text-2xl font-bold text-center mb-4">Frames v2 Demo</h1>
+    <div className="max-w-[425px] h-[695px] mx-auto bg-background relative">
+      <Header />
 
       <div className="mb-4">
         <h2 className="font-2xl font-bold">Context</h2>
