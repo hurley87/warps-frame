@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import App from './app';
 
-const appUrl = 'https://www.arrows.art';
+const appUrl = 'https://arrows.art';
 
 const frame = {
   version: 'next',
