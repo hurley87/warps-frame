@@ -18,11 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
 
-interface TokensProps {
-  onTokenSelect: (tokenId: number) => void;
-}
-
-export function Tokens({ onTokenSelect }: TokensProps) {
+export function Tokens() {
   const { address } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
   const claimPrize = useClaimPrize();
@@ -159,7 +155,6 @@ export function Tokens({ onTokenSelect }: TokensProps) {
           <Token
             key={`token-${token.id}`}
             token={token}
-            onSelect={onTokenSelect}
             onDrop={handleTokenDrop}
           />
         ))}

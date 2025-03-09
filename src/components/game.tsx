@@ -27,7 +27,6 @@ const DEFAULT_AVATAR =
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-  const [selectedTokens, setSelectedTokens] = useState<number[]>([]);
 
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
@@ -53,18 +52,6 @@ export default function Game() {
       })();
     }
   }, [context]);
-
-  const handleTokenSelect = (tokenId: number) => {
-    setSelectedTokens((prev) => {
-      if (prev.includes(tokenId)) {
-        return prev.filter((id) => id !== tokenId);
-      }
-      if (prev.length < 2) {
-        return [...prev, tokenId];
-      }
-      return prev;
-    });
-  };
 
   if (!isSDKLoaded) {
     return <div>Loading...</div>;
@@ -198,7 +185,7 @@ export default function Game() {
       </header>
       <Pool />
       <Mint />
-      <Tokens onTokenSelect={handleTokenSelect} />
+      <Tokens />
     </div>
   );
 }
