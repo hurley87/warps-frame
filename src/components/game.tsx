@@ -2,6 +2,7 @@
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import {
@@ -18,6 +19,10 @@ import { Tokens } from './tokens';
 import { Info } from 'lucide-react';
 import { XIcon } from 'lucide-react';
 import { Pool } from './pool';
+
+// Default avatar data URL - a simple gray circle
+const DEFAULT_AVATAR =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzRCNTU2MyIvPjwvc3ZnPg==';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -104,10 +109,13 @@ export default function Game() {
             <Dialog>
               <DialogTrigger>
                 <span className="flex items-center gap-2">
-                  <img
-                    src={context?.user?.pfpUrl}
-                    alt="Info"
-                    className="w-6 h-6 rounded-full"
+                  <Image
+                    src={context?.user?.pfpUrl || DEFAULT_AVATAR}
+                    alt="Profile picture"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                    unoptimized
                   />
                   <span className="text-sm">{context?.user?.username}</span>
                 </span>
@@ -123,10 +131,13 @@ export default function Game() {
                         <div className="flex flex-col items-center text-center gap-4">
                           <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-background blur-2xl -z-10 rounded-full" />
-                            <img
-                              src={context?.user?.pfpUrl}
-                              alt={context?.user?.username}
-                              className="w-24 h-24 rounded-full shadow-xl animate-in zoom-in-50 duration-500"
+                            <Image
+                              src={context?.user?.pfpUrl || DEFAULT_AVATAR}
+                              alt={`${context?.user?.username}'s profile picture`}
+                              width={96}
+                              height={96}
+                              className="rounded-full shadow-xl animate-in zoom-in-50 duration-500"
+                              unoptimized
                             />
                           </div>
                           <div className="space-y-1">

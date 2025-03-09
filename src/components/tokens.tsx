@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useAccount } from 'wagmi';
 import { useTokens, useClaimPrize } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
@@ -32,8 +33,6 @@ export function Tokens({ onTokenSelect }: TokensProps) {
     target: number;
   } | null>(null);
 
-  console.log('tokens', tokens);
-
   const handleClaimPrize = async (tokenId: number) => {
     try {
       setIsClaimingPrize(true);
@@ -42,6 +41,7 @@ export function Tokens({ onTokenSelect }: TokensProps) {
     } catch (error) {
       console.error('Failed to claim prize:', error);
       // You could add a toast notification here for the error
+      toast.error('Failed to claim prize');
     } finally {
       setIsClaimingPrize(false);
     }
@@ -59,9 +59,6 @@ export function Tokens({ onTokenSelect }: TokensProps) {
     const targetColorBand = targetToken.attributes.find(
       (attr) => attr.trait_type === 'Arrows'
     )?.value;
-
-    console.log('sourceColorBand', sourceColorBand);
-    console.log('targetColorBand', targetColorBand);
 
     // Only show dialog if both tokens have the same arrows count
     if (
@@ -86,10 +83,13 @@ export function Tokens({ onTokenSelect }: TokensProps) {
       <div className="grid grid-cols-3 gap-4">
         {[...Array(10)].map((_, i) => (
           <div key={i} className="relative aspect-square">
-            <img
+            <Image
               src="/loadingarrow.svg"
               alt="Loading"
+              width={300}
+              height={300}
               className="absolute inset-0 w-full h-full"
+              priority={i < 4} // Prioritize loading first 4 images
             />
             <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
             <div className="absolute inset-0 bg-white/10 backdrop-blur-sm animate-pulse" />
