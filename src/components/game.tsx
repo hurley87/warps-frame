@@ -187,10 +187,7 @@ export default function Game() {
       </header>
       <Pool />
       <Mint />
-      <Tokens
-        onTokenSelect={handleTokenSelect}
-        selectedTokens={selectedTokens}
-      />
+      <Tokens onTokenSelect={handleTokenSelect} />
     </div>
   );
 }

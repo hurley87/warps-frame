@@ -18,11 +18,10 @@ import {
 import { Composite } from '@/components/composite';
 
 interface TokensProps {
-  selectedTokens: number[];
   onTokenSelect: (tokenId: number) => void;
 }
 
-export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
+export function Tokens({ onTokenSelect }: TokensProps) {
   const { address } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
   const claimPrize = useClaimPrize();
