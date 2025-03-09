@@ -36,10 +36,6 @@ export default function Game() {
     const load = async () => {
       const context = await sdk.context;
       setContext(await sdk.context);
-      if (!context?.client?.added) {
-        const result = await sdk.actions.addFrame();
-        console.log('result', result);
-      }
       sdk.actions.ready();
     };
     if (sdk && !isSDKLoaded) {
@@ -47,6 +43,15 @@ export default function Game() {
       load();
     }
   }, [isSDKLoaded]);
+
+  useEffect(() => {
+    if (!context?.client?.added) {
+      (async () => {
+        const result = await sdk.actions.addFrame();
+        console.log('result', result);
+      })();
+    }
+  }, [context]);
 
   const handleTokenSelect = (tokenId: number) => {
     setSelectedTokens((prev) => {
