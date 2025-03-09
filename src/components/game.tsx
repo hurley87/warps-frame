@@ -194,10 +194,6 @@ export default function Game() {
         </div>
       </header>
       <Pool />
-      <Composite
-        selectedTokens={selectedTokens}
-        onCompositeComplete={handleCompositeComplete}
-      />
       <Mint />
       <Tokens
         onTokenSelect={handleTokenSelect}

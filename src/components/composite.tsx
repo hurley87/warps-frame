@@ -11,14 +11,17 @@ import { toast } from 'sonner';
 interface CompositeProps {
   selectedTokens: number[];
   onCompositeComplete: () => void;
+  variant?: 'default' | 'dialog';
 }
 
 export function Composite({
   selectedTokens,
   onCompositeComplete,
+  variant = 'default',
 }: CompositeProps) {
   const { address } = useAccount();
   const [isCompositing, setIsCompositing] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
   const successHandled = useRef(false);
 
@@ -39,6 +42,8 @@ export function Composite({
       setTimeout(() => {
         toast.success('Successfully composited arrows!');
       }, 0);
+      setIsPending(false);
+      setIsCompositing(false);
     }
   }, [isSuccess, queryClient, onCompositeComplete]);
 
@@ -46,6 +51,7 @@ export function Composite({
     if (!address || selectedTokens.length !== 2) return;
 
     successHandled.current = false;
+    setIsPending(true);
     setIsCompositing(true);
     try {
       await writeContract({
@@ -56,10 +62,19 @@ export function Composite({
     } catch (error) {
       console.error('Composite error:', error);
       toast.error('Failed to composite arrows');
-    } finally {
+      setIsPending(false);
       setIsCompositing(false);
     }
   };
+
+  const isLoading = isCompositing || isConfirming || isPending;
+  const buttonText = (() => {
+    if (isPending && !hash) return 'Waiting for approval...';
+    if (isCompositing || isConfirming) return 'Compositing...';
+    return variant === 'dialog'
+      ? 'Composite Arrows'
+      : 'Composite Selected Arrows';
+  })();
 
   if (!address) {
     return (
@@ -71,16 +86,26 @@ export function Composite({
     );
   }
 
+  if (variant === 'dialog') {
+    return (
+      <Button
+        onClick={handleComposite}
+        disabled={isLoading || selectedTokens.length !== 2}
+        className="bg-green-600 hover:bg-green-700 text-white min-w-[150px]"
+      >
+        {buttonText}
+      </Button>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center gap-4 p-4">
       <Button
         onClick={handleComposite}
-        disabled={isCompositing || isConfirming || selectedTokens.length !== 2}
+        disabled={isLoading || selectedTokens.length !== 2}
         className="w-full max-w-xs"
       >
-        {isCompositing || isConfirming
-          ? 'Compositing...'
-          : 'Composite Selected Arrows'}
+        {buttonText}
       </Button>
       {selectedTokens.length === 0 && (
         <p className="text-sm text-muted-foreground">

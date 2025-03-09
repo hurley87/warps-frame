@@ -18,6 +18,10 @@ export interface Token {
   description?: string;
   image?: string;
   isWinning?: boolean;
+  attributes: {
+    trait_type: string;
+    value: string;
+  }[];
 }
 
 const decodeBase64URI = (uri: string) => {
