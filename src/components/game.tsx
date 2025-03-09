@@ -15,7 +15,6 @@ import {
 import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
-import { Composite } from '@/components/composite';
 import { Info } from 'lucide-react';
 import { XIcon } from 'lucide-react';
 import { Pool } from './pool';
@@ -28,9 +27,6 @@ export default function Game() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
-
-  console.log('address', address);
-  console.log('isConnected', isConnected);
 
   useEffect(() => {
     const load = async () => {
@@ -63,10 +59,6 @@ export default function Game() {
       }
       return prev;
     });
-  };
-
-  const handleCompositeComplete = () => {
-    setSelectedTokens([]);
   };
 
   if (!isSDKLoaded) {

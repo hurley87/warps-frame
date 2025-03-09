@@ -3,12 +3,11 @@ import { useState } from 'react';
 
 interface TokenProps {
   token: TokenType;
-  isSelected?: boolean;
   onSelect?: (tokenId: number) => void;
   onDrop?: (sourceId: number, targetId: number) => void;
 }
 
-export function Token({ token, isSelected, onSelect, onDrop }: TokenProps) {
+export function Token({ token, onSelect, onDrop }: TokenProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {

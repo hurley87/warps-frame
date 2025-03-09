@@ -118,7 +118,6 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
           <Token
             key={`token-${winningToken.id}`}
             token={winningToken}
-            isSelected={false}
             onSelect={() => {}}
           />
           <Button
@@ -161,7 +160,6 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
           <Token
             key={`token-${token.id}`}
             token={token}
-            isSelected={selectedTokens.includes(token.id)}
             onSelect={onTokenSelect}
             onDrop={handleTokenDrop}
           />
@@ -187,11 +185,7 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
                   <div className="relative">
                     <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-green-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token
-                      token={sourceToken}
-                      isSelected={false}
-                      onSelect={() => {}}
-                    />
+                    <Token token={sourceToken} onSelect={() => {}} />
                   </div>
                 </div>
                 <div className="text-center target-arrow-container">
@@ -199,11 +193,7 @@ export function Tokens({ selectedTokens, onTokenSelect }: TokensProps) {
                   <div className="relative">
                     <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-red-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token
-                      token={targetToken}
-                      isSelected={false}
-                      onSelect={() => {}}
-                    />
+                    <Token token={targetToken} onSelect={() => {}} />
                   </div>
                 </div>
               </div>
