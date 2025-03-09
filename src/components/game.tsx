@@ -35,7 +35,7 @@ export default function Game() {
   useEffect(() => {
     const load = async () => {
       const context = await sdk.context;
-      setContext(await sdk.context);
+      setContext(context);
       sdk.actions.ready();
     };
     if (sdk && !isSDKLoaded) {
