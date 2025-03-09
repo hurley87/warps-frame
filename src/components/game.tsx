@@ -48,6 +48,7 @@ export default function Game() {
     if (!context?.client?.added) {
       (async () => {
         const result = await sdk.actions.addFrame();
+        // TODO: think about saving this to DB
         console.log('result', result);
       })();
     }

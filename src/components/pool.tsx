@@ -9,8 +9,6 @@ export function Pool() {
     functionName: 'getWinnerShare',
   });
 
-  console.log('winnerShare', winnerShare);
-
   return (
     <div className="bg-secondary/30 backdrop-blur-sm rounded-xl p-4 text-white">
       <h4 className="text-sm font-medium mb-2 text-center">Prize Pool</h4>
