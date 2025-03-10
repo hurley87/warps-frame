@@ -46,16 +46,6 @@ export function Mint() {
     }
   };
 
-  if (!address) {
-    return (
-      <div className="text-center p-4">
-        <p className="text-gray-600 dark:text-gray-400">
-          Please connect your wallet to mint
-        </p>
-      </div>
-    );
-  }
-
   return (
     <Button
       onClick={handleMint}
