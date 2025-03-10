@@ -8,6 +8,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
+import { Pool } from './pool';
 
 export default function Info() {
   return (
@@ -28,8 +29,8 @@ export default function Info() {
           />
         </svg>
       </DrawerTrigger>
-      <DrawerContent className="h-[85vh] max-h-[85vh]">
-        <div className="h-full flex flex-col">
+      <DrawerContent className="h-full">
+        <div className="h-full flex flex-col bg-black">
           <VisuallyHidden.Root>
             <DrawerTitle>How it Works</DrawerTitle>
             <DrawerDescription>How it Works</DrawerDescription>
@@ -59,8 +60,9 @@ export default function Info() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="flex flex-col gap-6 text-sm">
+          <div className="flex-1 overflow-y-auto px-6 pt-4">
+            <div className="flex flex-col gap-6 text-sm pb-20">
+              <Pool />
               <div className="space-y-2">
                 <h3 className="font-bold">Game Overview</h3>
                 <p>

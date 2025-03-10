@@ -50,7 +50,7 @@ export function Mint() {
     <Button
       onClick={handleMint}
       disabled={isMinting || isConfirming}
-      className="w-full max-w-xs"
+      className="border"
     >
       {isMinting || isConfirming ? 'Minting...' : 'Mint'}
     </Button>

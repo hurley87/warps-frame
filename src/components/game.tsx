@@ -7,9 +7,8 @@ import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
-import { Info } from 'lucide-react';
+import Info from './info';
 import { Pool } from './pool';
-import { Profile } from './profile';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -77,15 +76,11 @@ export default function Game() {
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-bold">Arrows</span>
-          </div>
-          <div className="flex items-center gap-2">
             <Info />
-            <Profile context={context} />
           </div>
+          <Mint />
         </div>
       </header>
-      <Pool />
-      <Mint />
       <Tokens />
     </div>
   );

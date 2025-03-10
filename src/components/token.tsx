@@ -1,5 +1,5 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface TokenProps {
   token: TokenType;
@@ -9,7 +9,13 @@ interface TokenProps {
 
 export function Token({ token, onSelect, onDrop }: TokenProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isTouchActive, setIsTouchActive] = useState(false);
+  const [isTouchOver, setIsTouchOver] = useState(false);
+  const touchStartTime = useRef<number>(0);
+  const touchStartPosition = useRef<{ x: number; y: number } | null>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
 
+  // Desktop drag and drop handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData('text/plain', token.id.toString());
     setIsDragging(true);
@@ -39,12 +45,61 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     }
   };
 
+  // Mobile touch handlers
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartTime.current = Date.now();
+    touchStartPosition.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+    setIsTouchActive(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isTouchActive || !touchStartPosition.current || !elementRef.current)
+      return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPosition.current.x;
+    const deltaY = touch.clientY - touchStartPosition.current.y;
+
+    // If moved more than 10px, consider it a drag
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      setIsDragging(true);
+    }
+
+    // Check if touch is over the element
+    const rect = elementRef.current.getBoundingClientRect();
+    const isOver =
+      touch.clientX >= rect.left &&
+      touch.clientX <= rect.right &&
+      touch.clientY >= rect.top &&
+      touch.clientY <= rect.bottom;
+    setIsTouchOver(isOver);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touchEndTime = Date.now();
+    const touchDuration = touchEndTime - touchStartTime.current;
+
+    // If it was a quick tap (less than 200ms) and minimal movement, treat as a tap
+    if (touchDuration < 200 && !isDragging) {
+      onSelect?.(token.id);
+    }
+
+    setIsTouchActive(false);
+    setIsDragging(false);
+    setIsTouchOver(false);
+    touchStartPosition.current = null;
+  };
+
   return (
     <>
       <div
+        ref={elementRef}
         className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
           isDragging ? 'opacity-50' : ''
-        }`}
+        } ${isTouchOver ? 'drag-over' : ''}`}
         onClick={() => onSelect?.(token.id)}
         draggable
         onDragStart={handleDragStart}
@@ -52,6 +107,9 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
         onDragLeave={handleDragLeave}
         onDragEnd={handleDragEnd}
         onDrop={handleDrop}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
           <div
@@ -151,6 +209,13 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
 
         .target-arrow-container .group .absolute {
           background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+          .drag-over {
+            transform: scale(1.05);
+          }
         }
       `}</style>
     </>

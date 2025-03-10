@@ -10,17 +10,15 @@ export function Pool() {
   });
 
   return (
-    <div className="bg-secondary/30 backdrop-blur-sm rounded-xl p-4 text-white">
-      <h4 className="text-sm font-medium mb-2 text-center">Prize Pool</h4>
-      <div className="flex items-center justify-center gap-2">
-        <span className="text-xl font-bold">
-          {isLoading ? (
-            <span className="animate-pulse">Loading...</span>
-          ) : (
-            `${formatEther(winnerShare || BigInt(0))} ETH`
-          )}
-        </span>
-      </div>
+    <div className="space-y-2">
+      <h3 className="font-bold">Prize Pool</h3>
+      <p>
+        {isLoading ? (
+          <span className="animate-pulse">Loading...</span>
+        ) : (
+          `${formatEther(winnerShare || BigInt(0))} ETH`
+        )}
+      </p>
     </div>
   );
 }
