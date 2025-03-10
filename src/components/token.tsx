@@ -1,5 +1,6 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
 import { useState, useRef } from 'react';
+import { TokenDetailsDialog } from './token-details-dialog';
 
 interface TokenProps {
   token: TokenType;
@@ -11,9 +12,36 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isTouchActive, setIsTouchActive] = useState(false);
   const [isTouchOver, setIsTouchOver] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const touchStartTime = useRef<number>(0);
   const touchStartPosition = useRef<{ x: number; y: number } | null>(null);
   const elementRef = useRef<HTMLDivElement>(null);
+  const clickCount = useRef<number>(0);
+  const clickTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle double click for desktop
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    clickCount.current += 1;
+
+    if (clickCount.current === 1) {
+      // Single click
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+
+      clickTimer.current = setTimeout(() => {
+        // If timer expires before second click, it's a single click
+        if (clickCount.current === 1) {
+          onSelect?.(token.id);
+        }
+        clickCount.current = 0;
+      }, 300); // 300ms threshold for double click
+    } else {
+      // Double click
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickCount.current = 0;
+      e.preventDefault(); // Prevent any default behavior
+      setShowDetailsDialog(true);
+    }
+  };
 
   // Desktop drag and drop handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -82,8 +110,12 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     const touchEndTime = Date.now();
     const touchDuration = touchEndTime - touchStartTime.current;
 
+    // If it was a long press (more than 500ms) and minimal movement, show details dialog
+    if (touchDuration > 500 && !isDragging) {
+      setShowDetailsDialog(true);
+    }
     // If it was a quick tap (less than 200ms) and minimal movement, treat as a tap
-    if (touchDuration < 200 && !isDragging) {
+    else if (touchDuration < 200 && !isDragging) {
       onSelect?.(token.id);
     }
 
@@ -100,7 +132,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
         className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
           isDragging ? 'opacity-50' : ''
         } ${isTouchOver ? 'drag-over' : ''}`}
-        onClick={() => onSelect?.(token.id)}
+        onClick={handleClick}
         draggable
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
@@ -128,6 +160,14 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
           <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300 rounded-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-105" />
         )}
       </div>
+
+      {/* Token Details Dialog */}
+      <TokenDetailsDialog
+        token={token}
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+      />
+
       <style jsx global>{`
         @keyframes pathPulse {
           0%,
