@@ -8,14 +8,13 @@ import "./libraries/ArrowsMetadata.sol";
 import "./libraries/Utilities.sol";
 import "./standards/ARROWS721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
 @title  Arrows
 @author Hurls
 @notice Up and to the right.
 */
-contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
+contract Arrows is IArrows, ARROWS721, Ownable {
 
     event MintPriceUpdated(uint256 newPrice);
     event MintLimitUpdated(uint8 newLimit);
@@ -49,6 +48,15 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
 
     PrizePool public prizePool;
 
+    struct FinalizedMetadata {
+        bool isFinalized;
+        uint256 computedSeed;      // The final computed seed after epoch revelation
+        uint8[5] finalColorBands;  // Final color band values
+        uint8[5] finalGradients;   // Final gradient values
+    }
+
+    mapping(uint256 => FinalizedMetadata) private finalizedMetadata;
+
     /// @dev Initializes the Arrows Originals contract and links the Edition contract.
     constructor() Ownable(msg.sender) {
         arrowsData.day0 = uint32(block.timestamp);
@@ -59,26 +67,16 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         prizePool.lastWinnerClaim = 0;
     }
 
-    /// @notice Pause the contract
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /// @notice Unpause the contract
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-
     /// @notice Update the mint price
     /// @param newPrice The new price in ETH
-    function updateMintPrice(uint256 newPrice) external onlyOwner whenNotPaused {
+    function updateMintPrice(uint256 newPrice) external onlyOwner  {
         mintPrice = newPrice;
         emit MintPriceUpdated(newPrice);
     }
 
     /// @notice Update the mint limit
     /// @param newLimit The new limit of tokens per mint
-    function updateMintLimit(uint8 newLimit) external onlyOwner whenNotPaused {
+    function updateMintLimit(uint8 newLimit) external onlyOwner  {
         require(newLimit > 0 && newLimit <= 100, "Invalid limit");
         mintLimit = newLimit;
         emit MintLimitUpdated(newLimit);
@@ -86,7 +84,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
 
     /// @notice Update the winner's percentage of the prize pool
     /// @param newPercentage The new percentage (1-99)
-    function updateWinnerPercentage(uint8 newPercentage) external onlyOwner whenNotPaused {
+    function updateWinnerPercentage(uint8 newPercentage) external onlyOwner  {
         require(newPercentage > 0 && newPercentage < 100, "Invalid percentage");
         require(block.timestamp >= prizePool.lastWinnerClaim + 1 days, "Too soon after winner claim");
         prizePool.winnerPercentage = newPercentage;
@@ -96,13 +94,12 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @notice Resolve the current epoch's randomness if necessary
     function resolveEpochIfNecessary() public {
         Epoch storage epoch = arrowsData.epochs[arrowsData.currentEpoch];
+        uint256 oldEpoch = arrowsData.currentEpoch;
 
         if (!epoch.committed || (epoch.revealed == false && epoch.revealBlock < block.number - 256)) {
-            // Set committed and reveal block
             epoch.revealBlock = uint64(block.number + 50);
             epoch.committed = true;
         } else if (block.number > epoch.revealBlock) {
-            // Set randomness from block hash
             epoch.randomness = uint128(uint256(keccak256(
                 abi.encodePacked(
                     blockhash(epoch.revealBlock),
@@ -111,7 +108,13 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
             );
             epoch.revealed = true;
 
-            // Move to next epoch
+            // Finalize metadata for all tokens in this epoch
+            for (uint256 i = 0; i < tokenMintId; i++) {
+                if (arrowsData.all[i].epoch == oldEpoch) {
+                    _finalizeMetadata(i);
+                }
+            }
+
             emit NewEpoch(arrowsData.currentEpoch, epoch.revealBlock);
             arrowsData.currentEpoch++;
             resolveEpochIfNecessary();
@@ -120,7 +123,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
 
     /// @notice Mint new Arrows tokens
     /// @param recipient The address to receive the tokens
-    function mint(address recipient) external payable whenNotPaused {
+    function mint(address recipient) external payable  {
         require(recipient != address(0), "Invalid recipient");
         
         // Check if enough ETH was sent
@@ -143,9 +146,12 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
             arrow.day = Utilities.day(arrowsData.day0, block.timestamp);
             arrow.seed = uint16(id);
             arrow.divisorIndex = 0;
-            arrow.epoch = uint32(arrowsData.currentEpoch); // Store the epoch
+            arrow.epoch = uint32(arrowsData.currentEpoch);
 
             _safeMint(recipient, id);
+            
+            // Try to finalize metadata if epoch is already revealed
+            _finalizeMetadata(id);
 
             unchecked { ++i; }
         }
@@ -162,7 +168,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @notice Composite one token into another, mixing visuals and reducing arrow count
     /// @param tokenId The token ID to keep alive (its visual will change)
     /// @param burnId The token ID to composite into the kept token
-    function composite(uint256 tokenId, uint256 burnId) external whenNotPaused {
+    function composite(uint256 tokenId, uint256 burnId) external  {
         _composite(tokenId, burnId);
         unchecked { ++arrowsData.burned; }
         emit TokensComposited(tokenId, burnId);
@@ -171,7 +177,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @notice Burn a single arrow token without compositing
     /// @param tokenId The token ID to burn
     /// @dev This is a common purpose burn method that does not affect other tokens
-    function burn(uint256 tokenId) external whenNotPaused {
+    function burn(uint256 tokenId) external {
         if (! _isApprovedOrOwner(msg.sender, tokenId)) {
             revert NotAllowed();
         }
@@ -186,13 +192,53 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @return The metadata URI string
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
+        
+        // Get the arrow data
+        IArrows.Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
+        
+        // If metadata is finalized, override the computed values with finalized ones
+        if (finalizedMetadata[tokenId].isFinalized) {
+            arrow.seed = finalizedMetadata[tokenId].computedSeed;
+            for (uint8 i = 0; i < 5; i++) {
+                if (i < arrow.stored.divisorIndex) {
+                    arrow.stored.colorBands[i] = finalizedMetadata[tokenId].finalColorBands[i];
+                    arrow.stored.gradients[i] = finalizedMetadata[tokenId].finalGradients[i];
+                }
+            }
+        }
+
         return ArrowsMetadata.tokenURI(tokenId, arrowsData);
+    }
+
+    /// @dev Finalize metadata for a token once its epoch is revealed
+    function _finalizeMetadata(uint256 tokenId) internal {
+        if (!finalizedMetadata[tokenId].isFinalized) {
+            StoredArrow storage arrow = arrowsData.all[tokenId];
+            Epoch storage epoch = arrowsData.epochs[arrow.epoch];
+            
+            // Only finalize if the epoch has been revealed
+            if (epoch.revealed) {
+                // Get the complete arrow data to capture computed values
+                IArrows.Arrow memory computedArrow = ArrowsArt.getArrow(tokenId, arrowsData);
+                
+                // Store the computed seed and visual properties
+                finalizedMetadata[tokenId].computedSeed = computedArrow.seed;
+                for (uint8 i = 0; i < 5; i++) {
+                    finalizedMetadata[tokenId].finalColorBands[i] = arrow.colorBands[i];
+                    finalizedMetadata[tokenId].finalGradients[i] = arrow.gradients[i];
+                }
+                finalizedMetadata[tokenId].isFinalized = true;
+            }
+        }
     }
 
     /// @dev Composite one token into to another and burn it.
     /// @param tokenId The token ID to keep. Its art and arrow-count will change.
     /// @param burnId The token ID to burn in the process.
     function _composite(uint256 tokenId, uint256 burnId) internal {
+        // Remove finalized status for the kept token since it's being modified
+        finalizedMetadata[tokenId].isFinalized = false;
+        
         (
             StoredArrow storage toKeep,,
             uint8 divisorIndex
@@ -219,6 +265,9 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
         // Notify DAPPs about the Composite.
         emit Composite(tokenId, burnId, ArrowsArt.DIVISORS()[toKeep.divisorIndex]);
         emit MetadataUpdate(tokenId);
+
+        // After composition is complete, try to finalize the metadata
+        _finalizeMetadata(tokenId);
     }
 
     /// @dev Composite the gradient and colorBand settings.
@@ -286,7 +335,7 @@ contract Arrows is IArrows, ARROWS721, Ownable, Pausable {
     /// @param tokenId The token ID to check and claim
     /// @dev Verifies token ownership, winning status, and available prize pool
     /// @dev Burns the winning token and transfers the prize to the winner
-    function claimPrize(uint256 tokenId) external whenNotPaused {
+    function claimPrize(uint256 tokenId) external  {
         require(ownerOf(tokenId) == msg.sender, "Not token owner");
         require(isWinningToken(tokenId), "Not a winning token");
 

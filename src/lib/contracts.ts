@@ -1,7 +1,7 @@
 import { Abi } from 'viem';
 
 export const ARROWS_CONTRACT = {
-  address: '0x6a71d649BF08ca4A9AE3e8d209A65D7ABb7fde54' as `0x${string}`, // Replace with actual contract address
+  address: '0x1e3bf615d23ad8169c8bc8c33a8e659616d60f49' as `0x${string}`, // Replace with actual contract address
   abi: [
     {
       inputs: [],
@@ -46,16 +46,6 @@ export const ARROWS_CONTRACT = {
     {
       inputs: [],
       name: 'ERC721__TransferToZero',
-      type: 'error',
-    },
-    {
-      inputs: [],
-      name: 'EnforcedPause',
-      type: 'error',
-    },
-    {
-      inputs: [],
-      name: 'ExpectedPause',
       type: 'error',
     },
     {
@@ -292,19 +282,6 @@ export const ARROWS_CONTRACT = {
       inputs: [
         {
           indexed: false,
-          internalType: 'address',
-          name: 'account',
-          type: 'address',
-        },
-      ],
-      name: 'Paused',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
           internalType: 'uint256',
           name: 'tokenId',
           type: 'uint256',
@@ -449,19 +426,6 @@ export const ARROWS_CONTRACT = {
         },
       ],
       name: 'Transfer',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: 'address',
-          name: 'account',
-          type: 'address',
-        },
-      ],
-      name: 'Unpaused',
       type: 'event',
     },
     {
@@ -791,26 +755,6 @@ export const ARROWS_CONTRACT = {
     },
     {
       inputs: [],
-      name: 'pause',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'paused',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: '',
-          type: 'bool',
-        },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-    {
-      inputs: [],
       name: 'prizePool',
       outputs: [
         {
@@ -1085,13 +1029,6 @@ export const ARROWS_CONTRACT = {
         },
       ],
       name: 'transferOwnership',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function',
-    },
-    {
-      inputs: [],
-      name: 'unpause',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function',
