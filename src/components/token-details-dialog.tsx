@@ -1,13 +1,7 @@
 'use client';
 
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface TokenDetailsDialogProps {
   token: TokenType | null;

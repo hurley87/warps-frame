@@ -106,7 +106,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     setIsTouchOver(isOver);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchEnd = () => {
     const touchEndTime = Date.now();
     const touchDuration = touchEndTime - touchStartTime.current;
 

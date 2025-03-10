@@ -8,7 +8,6 @@ import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
 import Info from './info';
-import { Pool } from './pool';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
