@@ -210,7 +210,6 @@ export function Tokens() {
                 selectedPair ? [selectedPair.source, selectedPair.target] : []
               }
               onCompositeComplete={handleCompositeComplete}
-              variant="dialog"
             />
           </DialogFooter>
         </DialogContent>
