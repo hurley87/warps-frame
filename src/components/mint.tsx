@@ -20,7 +20,6 @@ export function Mint() {
     hash,
   });
 
-  // Watch for successful transactions and invalidate the tokens query
   useEffect(() => {
     if (isSuccess) {
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
@@ -58,14 +57,12 @@ export function Mint() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <Button
-        onClick={handleMint}
-        disabled={isMinting || isConfirming}
-        className="w-full max-w-xs"
-      >
-        {isMinting || isConfirming ? 'Minting...' : 'Mint 10 Arrows'}
-      </Button>
-    </div>
+    <Button
+      onClick={handleMint}
+      disabled={isMinting || isConfirming}
+      className="w-full max-w-xs"
+    >
+      {isMinting || isConfirming ? 'Minting...' : 'Mint'}
+    </Button>
   );
 }
