@@ -2,7 +2,6 @@
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useAccount, useConnect } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
@@ -11,10 +10,6 @@ import { Tokens } from './tokens';
 import { Info } from 'lucide-react';
 import { Pool } from './pool';
 import { Profile } from './profile';
-
-// Default avatar data URL - a simple gray circle
-const DEFAULT_AVATAR =
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzRCNTU2MyIvPjwvc3ZnPg==';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
