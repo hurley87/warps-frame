@@ -1,5 +1,5 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TokenDetailsDialog } from './token-details-dialog';
 
 interface TokenProps {
@@ -21,7 +21,13 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const clickTimer = useRef<NodeJS.Timeout | null>(null);
   const clickCount = useRef<number>(0);
-  const currentDragId = useRef<number | null>(null);
+
+  // Static reference to track which token is currently being dragged
+  // This needs to be static (outside component state) to be shared across all Token components
+  const dragState = useRef({
+    draggedTokenId: null as number | null,
+    dropTargetTokenId: null as number | null,
+  }).current;
 
   // Handle pointer down (start of potential drag or click)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -62,7 +68,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
       (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)
     ) {
       setIsDragging(true);
-      currentDragId.current = token.id;
+      dragState.draggedTokenId = token.id;
 
       // Clear any pending timers
       if (longPressTimer.current) {
@@ -88,10 +94,19 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     }
 
     // If we were dragging and have a drop target, handle the drop
-    if (isDragging && currentDragId.current !== null) {
-      // We're not over a valid drop target, just end the drag
+    if (isDragging && dragState.draggedTokenId !== null) {
+      if (
+        dragState.dropTargetTokenId !== null &&
+        dragState.dropTargetTokenId !== dragState.draggedTokenId
+      ) {
+        // Call onDrop with the source and target token IDs
+        onDrop?.(dragState.draggedTokenId, dragState.dropTargetTokenId);
+      }
+
+      // Reset drag state
       setIsDragging(false);
-      currentDragId.current = null;
+      dragState.draggedTokenId = null;
+      dragState.dropTargetTokenId = null;
     }
 
     // Reset state
@@ -116,7 +131,8 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     setIsPointerDown(false);
     pointerStartPosition.current = null;
     dragOffset.current = null;
-    currentDragId.current = null;
+    dragState.draggedTokenId = null;
+    dragState.dropTargetTokenId = null;
 
     // Release pointer capture
     e.currentTarget.releasePointerCapture(e.pointerId);
@@ -146,34 +162,52 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     }
   };
 
-  // Handle when another token is dropped on this one
-  const handleTokenDrop = (sourceId: number) => {
-    if (sourceId !== token.id) {
-      onDrop?.(sourceId, token.id);
-    }
-  };
-
-  // Handle when this token is dragged over another token
+  // Handle when this token is dragged over
   const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
+    // If another token is being dragged over this one
     if (
-      isDragging &&
-      currentDragId.current !== null &&
-      currentDragId.current !== token.id
+      dragState.draggedTokenId !== null &&
+      dragState.draggedTokenId !== token.id
     ) {
       e.currentTarget.classList.add('drag-over');
+      dragState.dropTargetTokenId = token.id;
     }
   };
 
   const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.classList.remove('drag-over');
+    if (dragState.dropTargetTokenId === token.id) {
+      dragState.dropTargetTokenId = null;
+    }
   };
+
+  // Clean up any lingering state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+      if (clickTimer.current) {
+        clearTimeout(clickTimer.current);
+      }
+      // Clear static state if this token was involved
+      if (dragState.draggedTokenId === token.id) {
+        dragState.draggedTokenId = null;
+      }
+      if (dragState.dropTargetTokenId === token.id) {
+        dragState.dropTargetTokenId = null;
+      }
+    };
+  }, [token.id, dragState]);
 
   return (
     <>
       <div
         ref={elementRef}
         className={`relative aspect-square group cursor-grab transition-all duration-200 ${
-          isDragging ? 'opacity-50 cursor-grabbing' : ''
+          isDragging || dragState.draggedTokenId === token.id
+            ? 'opacity-50 cursor-grabbing'
+            : ''
         } ${isPointerDown && !isDragging ? 'touch-pulse' : ''}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -196,7 +230,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
             }}
           />
         </div>
-        {!isDragging && (
+        {!isDragging && dragState.draggedTokenId !== token.id && (
           <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300 rounded-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-105" />
         )}
       </div>
