@@ -10,10 +10,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ensureBaseNetwork } from '@/lib/network';
 import { useNetworkCheck } from '@/hooks/use-network-check';
+import { TutorialDialog } from './tutorial-dialog';
 
 export function Mint() {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const queryClient = useQueryClient();
   const { isCorrectNetwork, switchToBaseNetwork, isSwitchingNetwork } =
     useNetworkCheck();
@@ -37,6 +39,8 @@ export function Mint() {
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
       toast.success('Successfully minted 10 Arrows!');
       setIsPending(false);
+      // Show the tutorial dialog after successful mint
+      setShowTutorial(true);
     }
   }, [isSuccess, queryClient]);
 
@@ -84,8 +88,15 @@ export function Mint() {
   }
 
   return (
-    <Button onClick={handleMint} disabled={isLoading} className="border">
-      {isLoading ? 'Minting...' : 'Mint Arrows'}
-    </Button>
+    <>
+      <Button onClick={handleMint} disabled={isLoading} className="border">
+        {isLoading ? 'Minting...' : 'Mint Arrows'}
+      </Button>
+
+      <TutorialDialog
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+      />
+    </>
   );
 }
