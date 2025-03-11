@@ -41,7 +41,7 @@ export function Tokens() {
       setSelectedPair({ source: sourceId, target: targetId });
       setShowCompositeDialog(true);
     } else {
-      toast.error('Tokens must have the same number of arrows to evolve');
+      toast.error('Tokens must have the same number of arrows');
     }
   };
 
