@@ -59,14 +59,13 @@ export function Composite({
   };
 
   const isLoading = isConfirming || isPending;
-  const buttonText =
-    isPending && !hash ? 'Waiting for approval...' : 'Composite Arrows';
+  const buttonText = isPending && !hash ? 'Waiting for approval...' : 'Evolve';
 
   return (
     <Button
       onClick={handleComposite}
       disabled={isLoading || selectedTokens.length !== 2}
-      className="bg-green-600 hover:bg-green-700 text-white min-w-[150px]"
+      className="border"
     >
       {buttonText}
     </Button>
