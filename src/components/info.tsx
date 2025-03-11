@@ -76,13 +76,13 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
                 <p>
-                  Mint 10 Arrow tokens at a time for 0.01 ETH. Each mint
-                  contributes to the prize pool.
+                  Mint 10 Arrow tokens for 0.01 ETH. Each mint contributes to
+                  the prize pool.
                 </p>
-                <p>Double click on an arrow token to view its details.</p>
+                <p>Double click on an token to view its details.</p>
                 <p>
-                  Click and hold on an arrow token to drag it. Drop it on
-                  another arrow token to evolve it.
+                  Click and hold on an token to drag it. Drop it on another
+                  token to evolve it.
                 </p>
                 <p>
                   Evolve your tokens strategically - when you combine two
