@@ -48,19 +48,19 @@ export function CompositeDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-black border-green-500/20 shadow-2xl flex flex-col h-full">
-        <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center pb-20">
           <div>
             <DialogHeader className="text-center">
               <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
               <DialogDescription className="text-gray-400">
-                {`You'll burn one arrow and evolve the other.`}
+                {`To evolve, you'll keep one and burn the other.`}
               </DialogDescription>
             </DialogHeader>
 
             {sourceToken && targetToken && (
               <div className="grid grid-cols-2 gap-8 py-8 px-4 w-full max-w-md">
                 <div className="text-center source-arrow-container">
-                  <p className="text-sm text-gray-400 mb-4">Evolve</p>
+                  <p className="text-sm text-gray-400 mb-4">Keep</p>
                   <div className="relative">
                     <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-green-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
