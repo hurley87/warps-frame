@@ -1,7 +1,8 @@
 'use client';
 
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
 interface TokenDetailsDialogProps {
   token: TokenType | null;
@@ -28,6 +29,9 @@ export function TokenDetailsDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[90vw] md:max-w-[600px] overflow-hidden bg-black text-white border-none p-6 h-full">
+        <VisuallyHidden.Root>
+          <DialogTitle>Token #{token.id} Details</DialogTitle>
+        </VisuallyHidden.Root>
         <div className="flex flex-col">
           {/* Full-width image with zoom and crop effect */}
           <div className="w-full relative aspect-square overflow-hidden">

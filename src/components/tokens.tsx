@@ -8,6 +8,8 @@ import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
+import { Mint } from '@/components/mint';
+import { Pool } from '@/components/pool';
 
 export function Tokens() {
   const { address } = useAccount();
@@ -82,6 +84,44 @@ export function Tokens() {
   const targetToken = selectedPair
     ? tokens.find((t) => t.id === selectedPair.target) ?? null
     : null;
+
+  if (tokens.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center p-6 space-y-6 text-center pt-0">
+        <div className="relative w-64 h-64 mb-2">
+          <Image
+            src="/loadingarrow.svg"
+            alt="Arrow"
+            width={256}
+            height={256}
+            className="animate-pulse"
+            priority
+          />
+        </div>
+
+        <div className="space-y-3 max-w-xs">
+          <div className="flex items-center gap-2 text-primary justify-center">
+            <span className="text-sm font-medium">Current Prize Pool</span>
+          </div>
+          <div className="relative font-bold text-2xl pb-1">
+            <Pool />
+          </div>
+          <p className="text-muted-foreground">
+            Every mint contributes to the prize pool. Evolve your arrows by
+            combining matching pairs. The first to find the higher arrow can
+            claim the entire prize.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center space-y-2">
+          <Mint />
+          <p className="text-xs text-muted-foreground">
+            Minting costs 0.01 ETH for a pack of 10 arrows
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative p-4">

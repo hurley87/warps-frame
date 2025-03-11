@@ -52,7 +52,7 @@ export function Mint() {
       disabled={isMinting || isConfirming}
       className="border"
     >
-      {isMinting || isConfirming ? 'Minting...' : 'Mint'}
+      {isMinting || isConfirming ? 'Minting...' : 'Mint Arrows'}
     </Button>
   );
 }

@@ -1,7 +1,7 @@
 import { Abi } from 'viem';
 
 export const ARROWS_CONTRACT = {
-  address: '0x1e3bf615d23ad8169c8bc8c33a8e659616d60f49' as `0x${string}`, // Replace with actual contract address
+  address: '0x508b6379a3BbF779773c7130127F1Ee4398CaE9F' as `0x${string}`, // Replace with actual contract address
   abi: [
     {
       inputs: [],
