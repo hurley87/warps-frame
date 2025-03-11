@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useSwitchChain, useChainId } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
+import { base } from 'wagmi/chains';
 import { toast } from 'sonner';
 
-// Determine which chain to use based on environment
-const isDevelopment = process.env.NODE_ENV === 'development';
-const targetChain = isDevelopment ? baseSepolia : base;
+// Use Base network exclusively
+const targetChain = base;
 const TARGET_CHAIN_ID = targetChain.id;
-const NETWORK_NAME = isDevelopment ? 'Base Sepolia' : 'Base';
+const NETWORK_NAME = 'Base';
 
 export function useNetworkCheck() {
   const { isConnected } = useAccount();

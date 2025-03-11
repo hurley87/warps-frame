@@ -1,53 +1,43 @@
 import { switchChain, getChainId } from '@wagmi/core';
-import { base, baseSepolia } from 'wagmi/chains';
+import { base } from 'wagmi/chains';
 import { toast } from 'sonner';
 import { config } from '@/components/providers/WagmiProvider';
 
-// Determine which chain to use based on environment
-const isDevelopment = process.env.NODE_ENV === 'development';
-const targetChain = isDevelopment ? baseSepolia : base;
-const TARGET_CHAIN_ID = targetChain.id;
-const NETWORK_NAME = isDevelopment ? 'Base Sepolia' : 'Base';
+const BASE_CHAIN_ID = 8453;
 
 /**
- * Checks if the current network is the target network and switches to it if not
- * @returns A promise that resolves to true if the network is correct or was successfully switched
+ * Checks if the current network is Base and switches to it if not
+ * @returns A promise that resolves to true if the network is Base or was successfully switched to Base
  */
-export async function ensureCorrectNetwork(): Promise<boolean> {
+export async function ensureBaseNetwork(): Promise<boolean> {
   try {
     const chainId = await getChainId(config);
 
-    if (chainId !== TARGET_CHAIN_ID) {
-      toast.info(`Switching to ${NETWORK_NAME} network...`);
-      await switchChain(config, { chainId: targetChain.id });
-      toast.success(`Successfully switched to ${NETWORK_NAME} network`);
+    if (chainId !== BASE_CHAIN_ID) {
+      toast.info('Switching to Base network...');
+      await switchChain(config, { chainId: base.id });
+      toast.success('Successfully switched to Base network');
       return true;
     }
 
-    return true; // Already on correct network
+    return true; // Already on Base network
   } catch (error) {
-    console.error(`Failed to switch to ${NETWORK_NAME} network:`, error);
-    toast.error(
-      `Failed to switch to ${NETWORK_NAME} network. Please switch manually.`
-    );
+    console.error('Failed to switch to Base network:', error);
+    toast.error('Failed to switch to Base network. Please switch manually.');
     return false;
   }
 }
 
 /**
- * Checks if the current network is the target network
- * @returns A promise that resolves to true if the current network is correct
+ * Checks if the current network is Base
+ * @returns A promise that resolves to true if the current network is Base
  */
-export async function isCorrectNetwork(): Promise<boolean> {
+export async function isBaseNetwork(): Promise<boolean> {
   try {
     const chainId = await getChainId(config);
-    return chainId === TARGET_CHAIN_ID;
+    return chainId === BASE_CHAIN_ID;
   } catch (error) {
     console.error('Failed to check network:', error);
     return false;
   }
 }
-
-// For backward compatibility
-export const ensureBaseNetwork = ensureCorrectNetwork;
-export const isBaseNetwork = isCorrectNetwork;

@@ -1,18 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
 import { http, createConfig } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
+import { base } from 'wagmi/chains';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 
-// Determine which chain to use based on environment
-const activeChain = process.env.NODE_ENV === 'production' ? base : baseSepolia;
-
 const config = createConfig({
-  chains: [activeChain],
+  chains: [base],
   transports: {
     [base.id]: http(),
-    [baseSepolia.id]: http(),
   },
 });
 
