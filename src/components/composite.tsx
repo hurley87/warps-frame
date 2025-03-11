@@ -34,7 +34,7 @@ export function Composite({
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
       onCompositeComplete();
       setTimeout(() => {
-        toast.success('Successfully composited arrows!');
+        toast.success('Successfully evolved arrows!');
       }, 0);
       setIsPending(false);
     }
