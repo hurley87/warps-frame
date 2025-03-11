@@ -76,8 +76,8 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
                 <p>
-                  Mint 10 Arrow tokens for 0.01 ETH. Each mint contributes to
-                  the prize pool.
+                  Mint 10 tokens for 0.01 ETH. Each mint contributes to the
+                  prize pool.
                 </p>
                 <p>Double click on an token to view its details.</p>
                 <p>
