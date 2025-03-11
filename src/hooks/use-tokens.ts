@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
 import { http, createConfig } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
+import { base } from 'wagmi/chains';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 
 const config = createConfig({
-  chains: [baseSepolia],
+  chains: [base],
   transports: {
-    [baseSepolia.id]: http(),
+    [base.id]: http(),
   },
 });
 
