@@ -11,26 +11,34 @@ import { toast } from 'sonner';
 
 export function Mint() {
   const { address } = useAccount();
-  const [isMinting, setIsMinting] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: hash, writeContract } = useWriteContract();
+  const {
+    data: hash,
+    writeContract,
+    isPending: isWritePending,
+  } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
 
+  // Determine if any loading state is active
+  const isLoading = isPending || isWritePending || isConfirming;
+
   useEffect(() => {
     if (isSuccess) {
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
       toast.success('Successfully minted 10 Arrows!');
+      setIsPending(false);
     }
   }, [isSuccess, queryClient]);
 
   const handleMint = async () => {
     if (!address) return;
 
-    setIsMinting(true);
+    setIsPending(true);
     try {
       await writeContract({
         ...ARROWS_CONTRACT,
@@ -38,21 +46,18 @@ export function Mint() {
         args: [address],
         value: parseEther('0.01'), // 0.001 ETH * 10 tokens
       });
+      // Note: We don't reset isPending here as we want to keep the loading state
+      // until the transaction is confirmed (handled in the useEffect)
     } catch (error) {
       console.error('Mint error:', error);
       toast.error('Failed to mint Arrows');
-    } finally {
-      setIsMinting(false);
+      setIsPending(false);
     }
   };
 
   return (
-    <Button
-      onClick={handleMint}
-      disabled={isMinting || isConfirming}
-      className="border"
-    >
-      {isMinting || isConfirming ? 'Minting...' : 'Mint Arrows'}
+    <Button onClick={handleMint} disabled={isLoading} className="border">
+      {isLoading ? 'Minting...' : 'Mint Arrows'}
     </Button>
   );
 }
