@@ -18,9 +18,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const clickCount = useRef<number>(0);
   const clickTimer = useRef<NodeJS.Timeout | null>(null);
-  const tapCount = useRef<number>(0);
-  const tapTimer = useRef<NodeJS.Timeout | null>(null);
-  const dragThreshold = 5; // Reduced threshold for more responsive dragging (was 10px)
+  const dragThreshold = 5; // Reduced threshold for more responsive dragging
 
   // Handle double click for desktop
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -97,12 +95,6 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     // If moved more than the threshold, consider it a drag immediately
     if (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold) {
       setIsDragging(true);
-
-      // Cancel any pending tap timers when dragging starts
-      if (tapTimer.current) {
-        clearTimeout(tapTimer.current);
-        tapTimer.current = null;
-      }
     }
 
     // Check if touch is over the element
@@ -115,32 +107,17 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     setIsTouchOver(isOver);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchEnd = () => {
     const touchEndTime = Date.now();
     const touchDuration = touchEndTime - touchStartTime.current;
 
-    // Only handle tap events if we weren't dragging
-    if (!isDragging) {
-      // Handle double tap for details (similar to double click)
-      tapCount.current += 1;
-
-      if (tapCount.current === 1) {
-        if (tapTimer.current) clearTimeout(tapTimer.current);
-
-        tapTimer.current = setTimeout(() => {
-          // If timer expires before second tap, it's a single tap
-          if (tapCount.current === 1 && touchDuration < 200) {
-            onSelect?.(token.id);
-          }
-          tapCount.current = 0;
-        }, 300); // 300ms threshold for double tap
-      } else {
-        // Double tap
-        if (tapTimer.current) clearTimeout(tapTimer.current);
-        tapCount.current = 0;
-        e.preventDefault();
-        setShowDetailsDialog(true);
-      }
+    // If it was a quick tap (less than 200ms) and minimal movement, treat as a tap
+    if (touchDuration < 200 && !isDragging) {
+      onSelect?.(token.id);
+    }
+    // If it was a long press (more than 500ms) and minimal movement, show details dialog
+    else if (touchDuration > 500 && !isDragging) {
+      setShowDetailsDialog(true);
     }
 
     setIsTouchActive(false);
@@ -183,9 +160,6 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
         {!isDragging && (
           <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300 rounded-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-105" />
         )}
-
-        {/* Mobile drag indicator */}
-        <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-500/70 md:hidden" />
       </div>
 
       {/* Token Details Dialog */}
