@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useSwitchChain, useChainId } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { base, baseSepolia } from 'wagmi/chains';
 import { toast } from 'sonner';
 
-const BASE_CHAIN_ID = 8453;
+// Determine which chain to use based on environment
+const isDevelopment = process.env.NODE_ENV === 'development';
+const targetChain = isDevelopment ? baseSepolia : base;
+const TARGET_CHAIN_ID = targetChain.id;
+const NETWORK_NAME = isDevelopment ? 'Base Sepolia' : 'Base';
 
 export function useNetworkCheck() {
   const { isConnected } = useAccount();
@@ -13,32 +17,36 @@ export function useNetworkCheck() {
 
   useEffect(() => {
     if (isConnected) {
-      const onCorrectNetwork = chainId === BASE_CHAIN_ID;
+      const onCorrectNetwork = chainId === TARGET_CHAIN_ID;
       setIsCorrectNetwork(onCorrectNetwork);
 
       if (!onCorrectNetwork) {
-        toast.error('Please switch to Base network to use this application');
+        toast.error(
+          `Please switch to ${NETWORK_NAME} network to use this application`
+        );
       }
     }
   }, [chainId, isConnected]);
 
-  const switchToBaseNetwork = async () => {
+  const switchToCorrectNetwork = async () => {
     if (!isConnected) return;
 
-    if (chainId !== BASE_CHAIN_ID) {
+    if (chainId !== TARGET_CHAIN_ID) {
       try {
-        await switchChain({ chainId: base.id });
-        toast.success('Successfully switched to Base network');
+        await switchChain({ chainId: targetChain.id });
+        toast.success(`Successfully switched to ${NETWORK_NAME} network`);
       } catch (error) {
         console.error('Failed to switch network:', error);
-        toast.error('Failed to switch to Base network');
+        toast.error(`Failed to switch to ${NETWORK_NAME} network`);
       }
     }
   };
 
   return {
     isCorrectNetwork,
-    switchToBaseNetwork,
+    switchToCorrectNetwork,
     isSwitchingNetwork: isPending,
+    // For backward compatibility
+    switchToBaseNetwork: switchToCorrectNetwork,
   };
 }

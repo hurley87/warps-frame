@@ -1,12 +1,17 @@
 import { createConfig, http, WagmiProvider } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { farcasterFrame } from '@farcaster/frame-wagmi-connector';
 
+// Determine which chain to use based on environment
+const isDevelopment = process.env.NODE_ENV === 'development';
+const chain = isDevelopment ? baseSepolia : base;
+
 export const config = createConfig({
-  chains: [base],
+  chains: [chain],
   transports: {
     [base.id]: http(),
+    [baseSepolia.id]: http(),
   },
   connectors: [farcasterFrame()],
 });

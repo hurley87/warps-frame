@@ -20,6 +20,10 @@ import { useNetworkCheck } from '@/hooks/use-network-check';
 const DEFAULT_AVATAR =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzRCNTU2MyIvPjwvc3ZnPg==';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+const NETWORK_NAME = isDevelopment ? 'Base Sepolia' : 'Base';
+const NETWORK_ID = isDevelopment ? '84532' : '8453';
+
 interface ProfileProps {
   context?: Context.FrameContext;
 }
@@ -111,7 +115,7 @@ export function Profile({ context }: ProfileProps) {
                         />
                         <span className="text-sm">
                           {isCorrectNetwork
-                            ? 'Base Network (8453)'
+                            ? `${NETWORK_NAME} Network (${NETWORK_ID})`
                             : `Wrong Network (${chainId})`}
                         </span>
                       </div>

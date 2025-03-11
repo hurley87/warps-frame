@@ -5,24 +5,28 @@ import { Button } from '@/components/ui/button';
 import { useAccount } from 'wagmi';
 import { ComponentProps } from 'react';
 
+// Determine which network name to use based on environment
+const isDevelopment = process.env.NODE_ENV === 'development';
+const NETWORK_NAME = isDevelopment ? 'Base Sepolia' : 'Base';
+
 type ButtonProps = ComponentProps<typeof Button>;
 
-interface SwitchToBaseProps extends Omit<ButtonProps, 'onClick'> {
+interface SwitchNetworkProps extends Omit<ButtonProps, 'onClick'> {
   variant?: ButtonProps['variant'];
   size?: ButtonProps['size'];
   className?: string;
   children?: React.ReactNode;
 }
 
-export function SwitchToBase({
+export function SwitchNetwork({
   variant = 'default',
   size = 'default',
   className = '',
   children,
   ...props
-}: SwitchToBaseProps) {
+}: SwitchNetworkProps) {
   const { isConnected } = useAccount();
-  const { isCorrectNetwork, switchToBaseNetwork, isSwitchingNetwork } =
+  const { isCorrectNetwork, switchToCorrectNetwork, isSwitchingNetwork } =
     useNetworkCheck();
 
   // If not connected or already on correct network, don't render the button
@@ -35,12 +39,17 @@ export function SwitchToBase({
       variant={variant}
       size={size}
       className={className}
-      onClick={switchToBaseNetwork}
+      onClick={switchToCorrectNetwork}
       disabled={isSwitchingNetwork}
       {...props}
     >
       {children ||
-        (isSwitchingNetwork ? 'Switching...' : 'Switch to Base Network')}
+        (isSwitchingNetwork
+          ? 'Switching...'
+          : `Switch to ${NETWORK_NAME} Network`)}
     </Button>
   );
 }
+
+// For backward compatibility
+export const SwitchToBase = SwitchNetwork;

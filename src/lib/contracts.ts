@@ -1,7 +1,31 @@
 import { Abi } from 'viem';
 
+/**
+ * Contract addresses for different environments
+ */
+const CONTRACT_ADDRESSES = {
+  production: '0x62ec6f851e2ec5a1b599fd38b63e63debeab9cb4' as `0x${string}`,
+  development: '0x508b6379a3BbF779773c7130127F1Ee4398CaE9F' as `0x${string}`,
+};
+
+/**
+ * Determines if the application is running in development mode
+ */
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+console.log('isDevelopment', isDevelopment);
+
+/**
+ * Get the appropriate contract address based on the current environment
+ */
+const getContractAddress = (): `0x${string}` => {
+  return isDevelopment
+    ? CONTRACT_ADDRESSES.development
+    : CONTRACT_ADDRESSES.production;
+};
+
 export const ARROWS_CONTRACT = {
-  address: '0x62eC6f851E2ec5a1B599fd38b63E63dEBeAb9cB4' as `0x${string}`, // Replace with actual contract address
+  address: getContractAddress(),
   abi: [
     {
       inputs: [],
