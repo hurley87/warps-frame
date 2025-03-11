@@ -8,13 +8,73 @@ import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
 import Info from './info';
+import Image from 'next/image';
+import {
+  ArrowRight,
+  ArrowLeft,
+  ArrowUp,
+  ArrowDown,
+  Sparkles,
+  Lock,
+  Trophy,
+  Flame,
+  Coins,
+} from 'lucide-react';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
+  const [floatingArrows, setFloatingArrows] = useState<
+    Array<{
+      id: number;
+      x: number;
+      y: number;
+      rotation: number;
+      type: string;
+      color: string;
+    }>
+  >([]);
 
   const { isConnected } = useAccount();
   const { connect } = useConnect();
+
+  // Generate random floating arrows for the background animation
+  useEffect(() => {
+    if (!isConnected) {
+      const arrowTypes = ['up', 'down', 'left', 'right'];
+      const arrowColors = [
+        '#FF5A5F',
+        '#3490DE',
+        '#FFB400',
+        '#8A2BE2',
+        '#50C878',
+      ];
+
+      // Create regular arrows
+      const regularArrows = Array.from({ length: 12 }, (_, i) => {
+        return {
+          id: i,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          rotation: Math.floor(Math.random() * 360),
+          type: arrowTypes[Math.floor(Math.random() * arrowTypes.length)],
+          color: arrowColors[Math.floor(Math.random() * arrowColors.length)],
+        };
+      });
+
+      // Add one special "higher" arrow (green #018A08)
+      const higherArrow = {
+        id: 99,
+        x: 50 + (Math.random() * 30 - 15),
+        y: 20 + Math.random() * 10,
+        rotation: 0,
+        type: 'up',
+        color: '#018A08', // The special higher arrow color
+      };
+
+      setFloatingArrows([...regularArrows, higherArrow]);
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     const load = async () => {
@@ -42,28 +102,106 @@ export default function Game() {
     return <div>Loading...</div>;
   }
 
+  // Helper function to render the appropriate arrow icon
+  const renderArrowIcon = (type: string, color: string) => {
+    const style = { color: color, filter: `drop-shadow(0 0 3px ${color}40)` };
+
+    switch (type) {
+      case 'up':
+        return <ArrowUp style={style} />;
+      case 'down':
+        return <ArrowDown style={style} />;
+      case 'left':
+        return <ArrowLeft style={style} />;
+      case 'right':
+        return <ArrowRight style={style} />;
+      default:
+        return <ArrowRight style={style} />;
+    }
+  };
+
   if (!isConnected) {
     return (
-      <div className="flex flex-col items-center justify-center h-[695px] p-6 text-center space-y-6">
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold">Welcome to Arrows</h1>
-          <p className="text-muted-foreground">
-            Combine arrows to create unique compositions and unlock special
-            combinations.
+      <div className="relative flex flex-col items-center justify-center h-screen p-16 text-center space-y-6 overflow-hidden">
+        {/* Animated floating arrows background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {floatingArrows.map((arrow) => (
+            <div
+              key={arrow.id}
+              className={`absolute animate-float transition-transform ${
+                arrow.color === '#018A08' ? 'z-10 scale-150' : ''
+              }`}
+              style={
+                {
+                  left: `${arrow.x}%`,
+                  top: `${arrow.y}%`,
+                  '--rotation': `${arrow.rotation}deg`,
+                  animationDelay: `${arrow.id * 0.2}s`,
+                  opacity: arrow.color === '#018A08' ? 0.9 : 0.5,
+                } as React.CSSProperties
+              }
+            >
+              {renderArrowIcon(arrow.type, arrow.color)}
+            </div>
+          ))}
+        </div>
+
+        {/* Game title and intro with playful animation */}
+        <div className="relative z-10 space-y-4">
+          <p className="text-lg text-muted-foreground max-w-md">
+            Mint, combine, and evolve arrow NFTs to create the legendary
+            <span className="text-[#018A08] font-bold"> Higher Arrow</span> and
+            win the prize pool!
           </p>
         </div>
 
-        <div className="space-y-4">
-          <Button
-            size="lg"
-            onClick={() => connect({ connector: config.connectors[0] })}
-            className="animate-pulse"
-          >
-            Connect Wallet to Start
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Connect your wallet to start minting and combining arrows
-          </p>
+        {/* Connect wallet CTA - Moved up for prominence */}
+        <div className="relative z-10 w-full max-w-md">
+          <div className="bg-black/50 backdrop-blur-md rounded-xl p-0 border-2 border-primary/50 shadow-lg shadow-primary/20 animate-pulse-slow">
+            <Button
+              size="lg"
+              onClick={() => connect({ connector: config.connectors[0] })}
+              className="w-full bg-white text-black font-bold py-6 text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            >
+              Connect Wallet
+            </Button>
+          </div>
+        </div>
+
+        {/* Game mechanics explanation */}
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-md">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+            <div className="flex items-center justify-center mb-2">
+              <Coins className="h-6 w-6 text-[#FFB400]" />
+            </div>
+            <h3 className="font-semibold mb-1 text-sm">Mint Arrows</h3>
+            <p className="text-xs text-muted-foreground">
+              Mint 10 arrows for 0.01 ETH. Each mint contributes to the prize
+              pool.
+            </p>
+          </div>
+
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+            <div className="flex items-center justify-center mb-2">
+              <Flame className="h-6 w-6 text-[#FF5A5F]" />
+            </div>
+            <h3 className="font-semibold mb-1 text-sm">Evolve</h3>
+            <p className="text-xs text-muted-foreground">
+              Combine two arrows to evolve one and burn the other. Choose
+              wisely!
+            </p>
+          </div>
+
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-primary/20">
+            <div className="flex items-center justify-center mb-2">
+              <Trophy className="h-6 w-6 text-[#FFD700]" />
+            </div>
+            <h3 className="font-semibold mb-1 text-sm">Win the Prize</h3>
+            <p className="text-xs text-muted-foreground">
+              First to create the Higher Arrow (green #018A08) claims the entire
+              prize pool!
+            </p>
+          </div>
         </div>
       </div>
     );
