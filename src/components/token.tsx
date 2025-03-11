@@ -1,5 +1,5 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { TokenDetailsDialog } from './token-details-dialog';
 
 interface TokenProps {
@@ -10,140 +10,22 @@ interface TokenProps {
 
 export function Token({ token, onSelect, onDrop }: TokenProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [isPointerDown, setIsPointerDown] = useState(false);
+  const [isTouchActive, setIsTouchActive] = useState(false);
+  const [isTouchOver, setIsTouchOver] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-  const pointerStartTime = useRef<number>(0);
-  const pointerStartPosition = useRef<{ x: number; y: number } | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const touchStartPosition = useRef<{ x: number; y: number } | null>(null);
   const elementRef = useRef<HTMLDivElement>(null);
-  const dragOffset = useRef<{ x: number; y: number } | null>(null);
-  const dragThreshold = 5; // Small threshold for responsive dragging
-  const longPressThreshold = 500; // ms
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-  const clickTimer = useRef<NodeJS.Timeout | null>(null);
   const clickCount = useRef<number>(0);
+  const clickTimer = useRef<NodeJS.Timeout | null>(null);
+  const dragThreshold = 5; // Reduced threshold for more responsive dragging
 
-  // Static reference to track which token is currently being dragged
-  // This needs to be static (outside component state) to be shared across all Token components
-  const dragState = useRef({
-    draggedTokenId: null as number | null,
-    dropTargetTokenId: null as number | null,
-  }).current;
-
-  // Handle pointer down (start of potential drag or click)
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Capture the pointer to ensure we get all events
-    e.currentTarget.setPointerCapture(e.pointerId);
-
-    pointerStartTime.current = Date.now();
-    pointerStartPosition.current = { x: e.clientX, y: e.clientY };
-    setIsPointerDown(true);
-
-    // Calculate offset from the element's top-left corner
-    if (elementRef.current) {
-      const rect = elementRef.current.getBoundingClientRect();
-      dragOffset.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    }
-
-    // Set up long press timer for showing details
-    longPressTimer.current = setTimeout(() => {
-      if (isPointerDown && !isDragging) {
-        setShowDetailsDialog(true);
-      }
-    }, longPressThreshold);
-  };
-
-  // Handle pointer move (potential drag)
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDown || !pointerStartPosition.current) return;
-
-    const deltaX = e.clientX - pointerStartPosition.current.x;
-    const deltaY = e.clientY - pointerStartPosition.current.y;
-
-    // If moved more than threshold, start dragging
-    if (
-      !isDragging &&
-      (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)
-    ) {
-      setIsDragging(true);
-      dragState.draggedTokenId = token.id;
-
-      // Clear any pending timers
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-        longPressTimer.current = null;
-      }
-    }
-  };
-
-  // Handle pointer up (end of drag or click)
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    const pointerDuration = Date.now() - pointerStartTime.current;
-
-    // Clear long press timer
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-
-    // If it wasn't a drag and was a quick tap, handle as a click
-    if (!isDragging && pointerDuration < 200) {
-      handleClickOrDoubleTap(e);
-    }
-
-    // If we were dragging and have a drop target, handle the drop
-    if (isDragging && dragState.draggedTokenId !== null) {
-      if (
-        dragState.dropTargetTokenId !== null &&
-        dragState.dropTargetTokenId !== dragState.draggedTokenId
-      ) {
-        // Call onDrop with the source and target token IDs
-        onDrop?.(dragState.draggedTokenId, dragState.dropTargetTokenId);
-      }
-
-      // Reset drag state
-      setIsDragging(false);
-      dragState.draggedTokenId = null;
-      dragState.dropTargetTokenId = null;
-    }
-
-    // Reset state
-    setIsPointerDown(false);
-    pointerStartPosition.current = null;
-    dragOffset.current = null;
-
-    // Release pointer capture
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  };
-
-  // Handle pointer cancel (e.g., user scrolls during drag)
-  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Clear any timers
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-
-    // Reset state
-    setIsDragging(false);
-    setIsPointerDown(false);
-    pointerStartPosition.current = null;
-    dragOffset.current = null;
-    dragState.draggedTokenId = null;
-    dragState.dropTargetTokenId = null;
-
-    // Release pointer capture
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  };
-
-  // Handle click or double tap
-  const handleClickOrDoubleTap = (e: React.PointerEvent<HTMLDivElement>) => {
+  // Handle double click for desktop
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     clickCount.current += 1;
 
     if (clickCount.current === 1) {
-      // First click/tap
+      // Single click
       if (clickTimer.current) clearTimeout(clickTimer.current);
 
       clickTimer.current = setTimeout(() => {
@@ -152,70 +34,117 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
           onSelect?.(token.id);
         }
         clickCount.current = 0;
-      }, 300); // 300ms threshold for double click/tap
+      }, 300); // 300ms threshold for double click
     } else {
-      // Double click/tap
+      // Double click
       if (clickTimer.current) clearTimeout(clickTimer.current);
       clickCount.current = 0;
-      e.preventDefault();
+      e.preventDefault(); // Prevent any default behavior
       setShowDetailsDialog(true);
     }
   };
 
-  // Handle when this token is dragged over
-  const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
-    // If another token is being dragged over this one
-    if (
-      dragState.draggedTokenId !== null &&
-      dragState.draggedTokenId !== token.id
-    ) {
+  // Desktop drag and drop handlers
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('text/plain', token.id.toString());
+    setIsDragging(true);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!isDragging) {
       e.currentTarget.classList.add('drag-over');
-      dragState.dropTargetTokenId = token.id;
     }
   };
 
-  const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.currentTarget.classList.remove('drag-over');
-    if (dragState.dropTargetTokenId === token.id) {
-      dragState.dropTargetTokenId = null;
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const sourceId = parseInt(e.dataTransfer.getData('text/plain'));
+    if (sourceId !== token.id) {
+      onDrop?.(sourceId, token.id);
     }
   };
 
-  // Clean up any lingering state when component unmounts
-  useEffect(() => {
-    return () => {
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-      }
-      if (clickTimer.current) {
-        clearTimeout(clickTimer.current);
-      }
-      // Clear static state if this token was involved
-      if (dragState.draggedTokenId === token.id) {
-        dragState.draggedTokenId = null;
-      }
-      if (dragState.dropTargetTokenId === token.id) {
-        dragState.dropTargetTokenId = null;
-      }
+  // Mobile touch handlers
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartTime.current = Date.now();
+    touchStartPosition.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
     };
-  }, [token.id, dragState]);
+    setIsTouchActive(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isTouchActive || !touchStartPosition.current || !elementRef.current)
+      return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPosition.current.x;
+    const deltaY = touch.clientY - touchStartPosition.current.y;
+
+    // If moved more than the threshold, consider it a drag immediately
+    if (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold) {
+      setIsDragging(true);
+    }
+
+    // Check if touch is over the element
+    const rect = elementRef.current.getBoundingClientRect();
+    const isOver =
+      touch.clientX >= rect.left &&
+      touch.clientX <= rect.right &&
+      touch.clientY >= rect.top &&
+      touch.clientY <= rect.bottom;
+    setIsTouchOver(isOver);
+  };
+
+  const handleTouchEnd = () => {
+    const touchEndTime = Date.now();
+    const touchDuration = touchEndTime - touchStartTime.current;
+
+    // If it was a quick tap (less than 200ms) and minimal movement, treat as a tap
+    if (touchDuration < 200 && !isDragging) {
+      onSelect?.(token.id);
+    }
+    // If it was a long press (more than 500ms) and minimal movement, show details dialog
+    else if (touchDuration > 500 && !isDragging) {
+      setShowDetailsDialog(true);
+    }
+
+    setIsTouchActive(false);
+    setIsDragging(false);
+    setIsTouchOver(false);
+    touchStartPosition.current = null;
+  };
 
   return (
     <>
       <div
         ref={elementRef}
         className={`relative aspect-square group cursor-grab transition-all duration-200 ${
-          isDragging || dragState.draggedTokenId === token.id
-            ? 'opacity-50 cursor-grabbing'
-            : ''
-        } ${isPointerDown && !isDragging ? 'touch-pulse' : ''}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-        style={{ touchAction: 'none' }} // Prevent browser handling of gestures
+          isDragging ? 'opacity-50 cursor-grabbing' : ''
+        } ${isTouchActive && !isDragging ? 'touch-pulse' : ''} ${
+          isTouchOver ? 'drag-over' : ''
+        }`}
+        onClick={handleClick}
+        draggable
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDragEnd={handleDragEnd}
+        onDrop={handleDrop}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
           <div
@@ -230,7 +159,7 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
             }}
           />
         </div>
-        {!isDragging && dragState.draggedTokenId !== token.id && (
+        {!isDragging && (
           <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300 rounded-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-105" />
         )}
       </div>
