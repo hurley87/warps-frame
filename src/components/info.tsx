@@ -89,9 +89,9 @@ export default function Info() {
                   tokens, one is burned and the other evolves.
                 </p>
                 <p>
-                  Your goal is to be the first to create a single higher arrow
-                  token (color #018A08). Whoever owns the highest arrow token
-                  can claim the entire prize pool.
+                  Your goal is to be the first to create a single higher token
+                  (color #018A08). Whoever owns that token can claim the entire
+                  prize pool.
                 </p>
               </div>
             </div>
