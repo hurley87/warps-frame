@@ -59,7 +59,11 @@ export function Composite({
   };
 
   const isLoading = isConfirming || isPending;
-  const buttonText = isPending && !hash ? 'Waiting for approval...' : 'Evolve';
+  let buttonText = isPending && !hash ? 'Waiting for approval...' : 'Evolve';
+
+  if (isLoading) {
+    buttonText = 'Evolving...';
+  }
 
   return (
     <Button

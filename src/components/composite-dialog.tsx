@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Token } from '@/components/token';
 import {
   Dialog,
@@ -54,7 +53,7 @@ export function CompositeDialog({
             <DialogHeader className="text-center">
               <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
               <DialogDescription className="text-gray-400">
-                You'll burn one arrow and evolve the other.
+                {`You'll burn one arrow and evolve the other.`}
               </DialogDescription>
             </DialogHeader>
 

@@ -8,14 +8,11 @@ import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
 import Info from './info';
-import Image from 'next/image';
 import {
   ArrowRight,
   ArrowLeft,
   ArrowUp,
   ArrowDown,
-  Sparkles,
-  Lock,
   Trophy,
   Flame,
   Coins,
