@@ -63,11 +63,10 @@ export default function Info() {
           <div className="flex-1 overflow-y-auto px-6 pt-4">
             <div className="flex flex-col gap-6 text-sm pb-20">
               <div className="space-y-2">
-                <h3 className="font-bold">Game Overview</h3>
+                <h3 className="font-bold">Overview</h3>
                 <p>
-                  Arrows is a Strategic NFT Evolution Game where players compete
-                  to create the higher green arrow token through careful
-                  combinations and strategy.
+                  Arrows is a game where players compete to create the higher
+                  green arrow through strategic NFT evolutions.
                 </p>
               </div>
               <div className="space-y-2">
@@ -79,6 +78,11 @@ export default function Info() {
                 <p>
                   Mint 10 Arrow tokens at a time for 0.01 ETH. Each mint
                   contributes to the prize pool.
+                </p>
+                <p>Double click on an arrow token to view its details.</p>
+                <p>
+                  Click and hold on an arrow token to drag it. Drop it on
+                  another arrow token to evolve it.
                 </p>
                 <p>
                   Evolve your tokens strategically - when you combine two
