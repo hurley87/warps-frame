@@ -130,9 +130,11 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     <>
       <div
         ref={elementRef}
-        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
-          isDragging ? 'opacity-50' : ''
-        } ${isTouchOver ? 'drag-over' : ''}`}
+        className={`relative aspect-square group cursor-grab transition-all duration-200 ${
+          isDragging ? 'opacity-50 cursor-grabbing' : ''
+        } ${isTouchActive && !isDragging ? 'touch-pulse' : ''} ${
+          isTouchOver ? 'drag-over' : ''
+        }`}
         onClick={handleClick}
         draggable
         onDragStart={handleDragStart}
@@ -228,6 +230,22 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
           50% {
             box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
           }
+        }
+
+        @keyframes touchPulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.03);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .touch-pulse {
+          animation: touchPulse 0.3s ease-in-out;
         }
 
         .drag-over {
