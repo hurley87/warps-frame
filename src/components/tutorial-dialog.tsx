@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -54,7 +53,7 @@ export function TutorialDialog({ isOpen, onClose }: TutorialDialogProps) {
 
         <DialogFooter>
           <Button onClick={onClose} className="w-full">
-            Got it, let's play!
+            Continue
           </Button>
         </DialogFooter>
       </DialogContent>
