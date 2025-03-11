@@ -53,7 +53,7 @@ export function CompositeDialog({
             <DialogHeader className="text-center">
               <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
               <DialogDescription className="text-gray-400">
-                {`To evolve, you'll keep one and burn the other.`}
+                {`To evolve, keep one and burn the other.`}
               </DialogDescription>
             </DialogHeader>
 
