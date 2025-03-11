@@ -48,7 +48,7 @@ export function CompositeDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-black border-green-500/20 shadow-2xl flex flex-col h-full">
-        <div className="flex-1 flex flex-col items-center justify-center pb-20">
+        <div className="flex-1 flex flex-col items-center justify-center pb-32">
           <div>
             <DialogHeader className="text-center">
               <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
