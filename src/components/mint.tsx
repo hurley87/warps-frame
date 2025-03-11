@@ -15,7 +15,8 @@ export function Mint() {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
-  const { isCorrectNetwork } = useNetworkCheck();
+  const { isCorrectNetwork, switchToBaseNetwork, isSwitchingNetwork } =
+    useNetworkCheck();
 
   const {
     data: hash,
@@ -28,7 +29,8 @@ export function Mint() {
   });
 
   // Determine if any loading state is active
-  const isLoading = isPending || isWritePending || isConfirming;
+  const isLoading =
+    isPending || isWritePending || isConfirming || isSwitchingNetwork;
 
   useEffect(() => {
     if (isSuccess) {
@@ -66,6 +68,20 @@ export function Mint() {
       setIsPending(false);
     }
   };
+
+  // If not on the correct network, show a switch network button
+  if (!isCorrectNetwork && address) {
+    return (
+      <Button
+        onClick={switchToBaseNetwork}
+        disabled={isSwitchingNetwork}
+        variant="outline"
+        className="border border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-600"
+      >
+        {isSwitchingNetwork ? 'Switching...' : 'Switch to Base'}
+      </Button>
+    );
+  }
 
   return (
     <Button onClick={handleMint} disabled={isLoading} className="border">
