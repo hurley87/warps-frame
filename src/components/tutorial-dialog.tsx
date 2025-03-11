@@ -21,31 +21,25 @@ export function TutorialDialog({ isOpen, onClose }: TutorialDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl">How to Play</DialogTitle>
-          <DialogDescription>
-            Quick guide to get you started with your newly minted tokens
-          </DialogDescription>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <h3 className="font-medium">Evolve Your Tokens</h3>
             <ul className="space-y-2 list-disc pl-5">
+              <li>Double-click on any token to view it.</li>
               <li>
-                <span className="font-medium">View token details:</span>{' '}
-                Double-click on any token
+                Click and hold on an token to drag it. Drop it on another token
+                to evolve it.
               </li>
               <li>
-                <span className="font-medium">Drag and drop to evolve:</span>{' '}
-                Click and hold on a token, then drop it onto another token
+                When you combine two tokens, one is burned and the other
+                evolves.
               </li>
               <li>
-                <span className="font-medium">Strategic evolution:</span> When
-                you combine two tokens, one is burned and the other evolves
-              </li>
-              <li>
-                <span className="font-medium">Win the prize:</span> Create the
-                highest green arrow token (color #018A08) to claim the prize
-                pool.
+                Create the single higher green arrow (color #018A08) to claim
+                the prize pool.
               </li>
             </ul>
           </div>
