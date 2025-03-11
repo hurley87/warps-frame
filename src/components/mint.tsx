@@ -8,11 +8,14 @@ import { useState, useEffect } from 'react';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { ensureBaseNetwork } from '@/lib/network';
+import { useNetworkCheck } from '@/hooks/use-network-check';
 
 export function Mint() {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
+  const { isCorrectNetwork } = useNetworkCheck();
 
   const {
     data: hash,
@@ -37,6 +40,15 @@ export function Mint() {
 
   const handleMint = async () => {
     if (!address) return;
+
+    // Check if we're on the Base network first
+    if (!isCorrectNetwork) {
+      const switched = await ensureBaseNetwork();
+      if (!switched) {
+        toast.error('Please switch to Base network to mint arrows');
+        return;
+      }
+    }
 
     setIsPending(true);
     try {

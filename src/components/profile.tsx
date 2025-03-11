@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useChainId } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 import { Button } from './ui/button';
 import { XIcon } from 'lucide-react';
 import { type Context } from '@farcaster/frame-sdk';
+import { useNetworkCheck } from '@/hooks/use-network-check';
 
 // Default avatar data URL - a simple gray circle
 const DEFAULT_AVATAR =
@@ -27,6 +28,9 @@ export function Profile({ context }: ProfileProps) {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
+  const chainId = useChainId();
+  const { isCorrectNetwork, switchToBaseNetwork, isSwitchingNetwork } =
+    useNetworkCheck();
 
   return (
     <Dialog>
@@ -91,6 +95,41 @@ export function Profile({ context }: ProfileProps) {
                       </span>
                     </div>
                   </div>
+
+                  {isConnected && (
+                    <div className="bg-secondary/30 backdrop-blur-sm rounded-xl p-6">
+                      <h4 className="text-sm font-medium mb-3 text-center">
+                        Network Status
+                      </h4>
+                      <div className="flex items-center justify-center gap-2">
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            isCorrectNetwork
+                              ? 'bg-green-500 animate-pulse'
+                              : 'bg-amber-500 animate-pulse'
+                          }`}
+                        />
+                        <span className="text-sm">
+                          {isCorrectNetwork
+                            ? 'Base Network (8453)'
+                            : `Wrong Network (${chainId})`}
+                        </span>
+                      </div>
+
+                      {!isCorrectNetwork && (
+                        <Button
+                          onClick={switchToBaseNetwork}
+                          disabled={isSwitchingNetwork}
+                          variant="outline"
+                          className="w-full mt-4 text-sm"
+                        >
+                          {isSwitchingNetwork
+                            ? 'Switching...'
+                            : 'Switch to Base Network'}
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
                   <Button
                     onClick={() =>

@@ -9,6 +9,17 @@ const WagmiProvider = dynamic(
   }
 );
 
+const NetworkCheck = dynamic(
+  () => import('@/components/network-check').then((mod) => mod.NetworkCheck),
+  {
+    ssr: false,
+  }
+);
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <WagmiProvider>{children}</WagmiProvider>;
+  return (
+    <WagmiProvider>
+      <NetworkCheck>{children}</NetworkCheck>
+    </WagmiProvider>
+  );
 }
