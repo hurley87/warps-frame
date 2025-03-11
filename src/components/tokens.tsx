@@ -109,7 +109,7 @@ export function Tokens() {
           <p className="text-muted-foreground">
             Every mint contributes to the prize pool. Evolve your arrows by
             combining matching pairs. The first to find the higher arrow can
-            claim the entire prize.
+            claim the entire prize pool.
           </p>
         </div>
 
