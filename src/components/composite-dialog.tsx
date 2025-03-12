@@ -10,7 +10,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
-import { useEffect } from 'react';
 
 interface CompositeDialogProps {
   open: boolean;
