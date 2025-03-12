@@ -5,22 +5,21 @@ import { TokenDetailsDialog } from './token-details-dialog';
 interface TokenProps {
   token: TokenType;
   onSelect?: (tokenId: number) => void;
-  onDrop?: (sourceId: number, targetId: number) => void;
+  isSelected?: boolean;
+  isBurnToken?: boolean;
 }
 
-export function Token({ token, onSelect, onDrop }: TokenProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [isTouchActive, setIsTouchActive] = useState(false);
-  const [isTouchOver, setIsTouchOver] = useState(false);
+export function Token({
+  token,
+  onSelect,
+  isSelected = false,
+  isBurnToken = false,
+}: TokenProps) {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-  const touchStartTime = useRef<number>(0);
-  const touchStartPosition = useRef<{ x: number; y: number } | null>(null);
-  const elementRef = useRef<HTMLDivElement>(null);
-  const clickCount = useRef<number>(0);
   const clickTimer = useRef<NodeJS.Timeout | null>(null);
-  const dragThreshold = 5; // Reduced threshold for more responsive dragging
+  const clickCount = useRef<number>(0);
 
-  // Handle double click for desktop
+  // Handle click for selection and double click for details
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     clickCount.current += 1;
 
@@ -44,113 +43,25 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
     }
   };
 
-  // Desktop drag and drop handlers
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    e.dataTransfer.setData('text/plain', token.id.toString());
-    setIsDragging(true);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!isDragging) {
-      e.currentTarget.classList.add('drag-over');
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.classList.remove('drag-over');
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    const sourceId = parseInt(e.dataTransfer.getData('text/plain'));
-    if (sourceId !== token.id) {
-      onDrop?.(sourceId, token.id);
-    }
-  };
-
-  // Mobile touch handlers
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    touchStartTime.current = Date.now();
-    touchStartPosition.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-    setIsTouchActive(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isTouchActive || !touchStartPosition.current || !elementRef.current)
-      return;
-
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartPosition.current.x;
-    const deltaY = touch.clientY - touchStartPosition.current.y;
-
-    // If moved more than the threshold, consider it a drag immediately
-    if (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold) {
-      setIsDragging(true);
-    }
-
-    // Check if touch is over the element
-    const rect = elementRef.current.getBoundingClientRect();
-    const isOver =
-      touch.clientX >= rect.left &&
-      touch.clientX <= rect.right &&
-      touch.clientY >= rect.top &&
-      touch.clientY <= rect.bottom;
-    setIsTouchOver(isOver);
-  };
-
-  const handleTouchEnd = () => {
-    const touchEndTime = Date.now();
-    const touchDuration = touchEndTime - touchStartTime.current;
-
-    // If it was a quick tap (less than 200ms) and minimal movement, treat as a tap
-    if (touchDuration < 200 && !isDragging) {
-      onSelect?.(token.id);
-    }
-    // If it was a long press (more than 500ms) and minimal movement, show details dialog
-    else if (touchDuration > 500 && !isDragging) {
-      setShowDetailsDialog(true);
-    }
-
-    setIsTouchActive(false);
-    setIsDragging(false);
-    setIsTouchOver(false);
-    touchStartPosition.current = null;
-  };
-
   return (
     <>
       <div
-        ref={elementRef}
-        className={`relative aspect-square group cursor-grab transition-all duration-200 ${
-          isDragging ? 'opacity-50 cursor-grabbing' : ''
-        } ${isTouchActive && !isDragging ? 'touch-pulse' : ''} ${
-          isTouchOver ? 'drag-over' : ''
+        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
+          isSelected
+            ? isBurnToken
+              ? 'ring-2 ring-red-500'
+              : 'ring-2 ring-green-500'
+            : ''
         }`}
         onClick={handleClick}
-        draggable
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDragEnd={handleDragEnd}
-        onDrop={handleDrop}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
           <div
             className="absolute inset-[-20%] w-[140%] h-[140%] transition-transform duration-300 group-hover:scale-110 svg-container"
             style={{
-              filter: 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
+              filter: isBurnToken
+                ? 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.5))'
+                : 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
             }}
             dangerouslySetInnerHTML={{
               __html: token.image?.startsWith('data:image/svg+xml;base64,')
@@ -159,9 +70,13 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
             }}
           />
         </div>
-        {!isDragging && (
-          <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300 rounded-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-105" />
-        )}
+        <div
+          className={`absolute inset-0 ${
+            isBurnToken
+              ? 'bg-red-500/0 group-hover:bg-red-500/5 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+              : 'bg-green-500/0 group-hover:bg-green-500/5 group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]'
+          } transition-all duration-300 rounded-lg group-hover:scale-105`}
+        />
       </div>
 
       {/* Token Details Dialog */}
@@ -176,19 +91,19 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
           0%,
           100% {
             transform: scale(1);
-            fill: #018a08;
+            fill: ${isBurnToken ? '#ef4444' : '#018a08'};
           }
           25% {
             transform: scale(1.15);
-            fill: #02bd0b;
+            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
           }
           50% {
             transform: scale(1.2);
-            fill: #02bd0b;
+            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
           }
           75% {
             transform: scale(1.15);
-            fill: #02bd0b;
+            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
           }
         }
 
@@ -222,36 +137,6 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
           }
         }
 
-        @keyframes dragGlow {
-          0%,
-          100% {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 25px rgba(34, 197, 94, 0.5);
-          }
-        }
-
-        @keyframes touchPulse {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.03);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .touch-pulse {
-          animation: touchPulse 0.3s ease-in-out;
-        }
-
-        .drag-over {
-          animation: dragGlow 1.5s ease-in-out infinite !important;
-        }
-
         .source-arrow-container .group {
           animation: greenGlowPulse 2s ease-in-out infinite;
           box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
@@ -268,13 +153,6 @@ export function Token({ token, onSelect, onDrop }: TokenProps) {
 
         .target-arrow-container .group .absolute {
           background-color: rgba(239, 68, 68, 0.05) !important;
-        }
-
-        /* Mobile-specific styles */
-        @media (max-width: 768px) {
-          .drag-over {
-            transform: scale(1.05);
-          }
         }
       `}</style>
     </>

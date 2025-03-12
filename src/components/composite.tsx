@@ -7,8 +7,6 @@ import { useAccount } from 'wagmi';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ensureBaseNetwork } from '@/lib/network';
-import { useNetworkCheck } from '@/hooks/use-network-check';
 
 interface CompositeProps {
   selectedTokens: number[];
@@ -23,7 +21,6 @@ export function Composite({
   const [isPending, setIsPending] = useState(false);
   const queryClient = useQueryClient();
   const successHandled = useRef(false);
-  const { isCorrectNetwork } = useNetworkCheck();
 
   const { data: hash, writeContract } = useWriteContract();
 
@@ -45,15 +42,6 @@ export function Composite({
 
   const handleComposite = async () => {
     if (!address || selectedTokens.length !== 2) return;
-
-    // Check if we're on the Base network first
-    if (!isCorrectNetwork) {
-      const switched = await ensureBaseNetwork();
-      if (!switched) {
-        toast.error('Please switch to Base network to evolve arrows');
-        return;
-      }
-    }
 
     successHandled.current = false;
     setIsPending(true);

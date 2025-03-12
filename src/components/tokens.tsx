@@ -15,14 +15,28 @@ export function Tokens() {
   const { address } = useAccount();
   const { data: tokens = [], isLoading, isFetching } = useTokens(address);
   const [showCompositeDialog, setShowCompositeDialog] = useState(false);
+  const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
   const [selectedPair, setSelectedPair] = useState<{
     source: number;
     target: number;
   } | null>(null);
 
-  const handleTokenDrop = (sourceId: number, targetId: number) => {
-    const sourceToken = tokens.find((t) => t.id === sourceId);
-    const targetToken = tokens.find((t) => t.id === targetId);
+  const handleTokenSelect = (tokenId: number) => {
+    // If the token is already selected, unselect it
+    if (selectedTokenId === tokenId) {
+      setSelectedTokenId(null);
+      return;
+    }
+
+    // If no token is selected, select this one
+    if (selectedTokenId === null) {
+      setSelectedTokenId(tokenId);
+      return;
+    }
+
+    // If another token is already selected, check if they can be combined
+    const sourceToken = tokens.find((t) => t.id === selectedTokenId);
+    const targetToken = tokens.find((t) => t.id === tokenId);
 
     if (!sourceToken || !targetToken) return;
 
@@ -38,16 +52,19 @@ export function Tokens() {
       targetColorBand &&
       sourceColorBand === targetColorBand
     ) {
-      setSelectedPair({ source: sourceId, target: targetId });
+      setSelectedPair({ source: selectedTokenId, target: tokenId });
       setShowCompositeDialog(true);
     } else {
       toast.error('Tokens must have the same number of arrows');
+      // Select the new token instead
+      setSelectedTokenId(tokenId);
     }
   };
 
   const handleCompositeComplete = () => {
     setShowCompositeDialog(false);
     setSelectedPair(null);
+    setSelectedTokenId(null);
   };
 
   if (isLoading) {
@@ -137,7 +154,12 @@ export function Tokens() {
           <Token
             key={`token-${token.id}`}
             token={token}
-            onDrop={handleTokenDrop}
+            onSelect={handleTokenSelect}
+            isSelected={selectedTokenId === token.id}
+            isBurnToken={
+              selectedPair?.target === token.id ||
+              (selectedTokenId !== null && selectedTokenId !== token.id)
+            }
           />
         ))}
       </div>

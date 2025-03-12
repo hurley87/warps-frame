@@ -8,17 +8,11 @@ import { useState, useEffect } from 'react';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ensureBaseNetwork } from '@/lib/network';
-import { useNetworkCheck } from '@/hooks/use-network-check';
-import { TutorialDialog } from './tutorial-dialog';
 
 export function Mint() {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
   const queryClient = useQueryClient();
-  const { isCorrectNetwork, switchToBaseNetwork, isSwitchingNetwork } =
-    useNetworkCheck();
 
   const {
     data: hash,
@@ -31,30 +25,18 @@ export function Mint() {
   });
 
   // Determine if any loading state is active
-  const isLoading =
-    isPending || isWritePending || isConfirming || isSwitchingNetwork;
+  const isLoading = isPending || isWritePending || isConfirming;
 
   useEffect(() => {
     if (isSuccess) {
       queryClient.invalidateQueries({ queryKey: ['tokens'] });
       toast.success('Successfully minted 10 Arrows!');
       setIsPending(false);
-      // Show the tutorial dialog after successful mint
-      setShowTutorial(true);
     }
   }, [isSuccess, queryClient]);
 
   const handleMint = async () => {
     if (!address) return;
-
-    // Check if we're on the Base network first
-    if (!isCorrectNetwork) {
-      const switched = await ensureBaseNetwork();
-      if (!switched) {
-        toast.error('Please switch to Base network to mint arrows');
-        return;
-      }
-    }
 
     setIsPending(true);
     try {
@@ -73,30 +55,11 @@ export function Mint() {
     }
   };
 
-  // If not on the correct network, show a switch network button
-  if (!isCorrectNetwork && address) {
-    return (
-      <Button
-        onClick={switchToBaseNetwork}
-        disabled={isSwitchingNetwork}
-        variant="outline"
-        className="border border-amber-500 text-amber-500 hover:bg-amber-50 hover:text-amber-600"
-      >
-        {isSwitchingNetwork ? 'Switching...' : 'Switch to Base'}
-      </Button>
-    );
-  }
-
   return (
     <>
       <Button onClick={handleMint} disabled={isLoading} className="border">
         {isLoading ? 'Minting...' : 'Mint Arrows'}
       </Button>
-
-      <TutorialDialog
-        isOpen={showTutorial}
-        onClose={() => setShowTutorial(false)}
-      />
     </>
   );
 }

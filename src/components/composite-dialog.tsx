@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
+import { useEffect } from 'react';
 
 interface CompositeDialogProps {
   open: boolean;
@@ -45,8 +46,17 @@ export function CompositeDialog({
   selectedPair,
   onCompositeComplete,
 }: CompositeDialogProps) {
+  // Handle dialog close to reset selection state
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // If dialog is closing, call onCompositeComplete to reset selection state
+      onCompositeComplete();
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="bg-black border-green-500/20 shadow-2xl flex flex-col h-full">
         <div className="flex-1 flex flex-col items-center justify-center pb-32">
           <div>
@@ -64,7 +74,7 @@ export function CompositeDialog({
                   <div className="relative">
                     <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-green-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token token={sourceToken} onSelect={() => {}} />
+                    <Token token={sourceToken} />
                   </div>
                 </div>
                 <div className="text-center target-arrow-container">
@@ -72,7 +82,7 @@ export function CompositeDialog({
                   <div className="relative">
                     <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-red-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token token={targetToken} onSelect={() => {}} />
+                    <Token token={targetToken} isBurnToken={true} />
                   </div>
                 </div>
               </div>
