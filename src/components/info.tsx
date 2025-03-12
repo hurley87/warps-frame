@@ -81,12 +81,8 @@ export default function Info() {
                 </p>
                 <p>Double click on an token to view its details.</p>
                 <p>
-                  Click and hold on an token to drag it. Drop it on another
-                  token to evolve it.
-                </p>
-                <p>
-                  Evolve your tokens strategically - when you combine two
-                  tokens, one is burned and the other evolves.
+                  To evolve a token, first select the token you want to evolve,
+                  then choose a second token to burn.
                 </p>
                 <p>
                   Your goal is to be the first to create a single higher token
