@@ -99,23 +99,43 @@ export function Token({
       />
 
       <style jsx global>{`
-        @keyframes pathPulse {
+        @keyframes greenPathPulse {
           0%,
           100% {
             transform: scale(1);
-            fill: ${isBurnToken ? '#ef4444' : '#018a08'};
+            fill: #018a08;
           }
           25% {
             transform: scale(1.15);
-            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
+            fill: #02bd0b;
           }
           50% {
             transform: scale(1.2);
-            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
+            fill: #02bd0b;
           }
           75% {
             transform: scale(1.15);
-            fill: ${isBurnToken ? '#dc2626' : '#02bd0b'};
+            fill: #02bd0b;
+          }
+        }
+
+        @keyframes redPathPulse {
+          0%,
+          100% {
+            transform: scale(1);
+            fill: #ef4444;
+          }
+          25% {
+            transform: scale(1.15);
+            fill: #dc2626;
+          }
+          50% {
+            transform: scale(1.2);
+            fill: #dc2626;
+          }
+          75% {
+            transform: scale(1.15);
+            fill: #dc2626;
           }
         }
 
@@ -159,7 +179,8 @@ export function Token({
 
         .svg-container g path[fill='#018A08'] {
           transform-origin: center;
-          animation: pathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: ${isBurnToken ? 'redPathPulse' : 'greenPathPulse'} 1s
+            cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
         }
 
