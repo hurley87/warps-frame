@@ -34,7 +34,7 @@ interface CompositeDialogProps {
     source: number;
     target: number;
   } | null;
-  onCompositeComplete: () => void;
+  onCompositeComplete: (evolvedTokenId?: number) => void;
 }
 
 export function CompositeDialog({
@@ -52,6 +52,12 @@ export function CompositeDialog({
       onCompositeComplete();
     }
     onOpenChange(newOpen);
+  };
+
+  // Handle composite completion with the evolved token ID
+  const handleCompositeComplete = (evolvedTokenId?: number) => {
+    onCompositeComplete(evolvedTokenId);
+    onOpenChange(false);
   };
 
   return (
@@ -93,7 +99,7 @@ export function CompositeDialog({
               selectedTokens={
                 selectedPair ? [selectedPair.source, selectedPair.target] : []
               }
-              onCompositeComplete={onCompositeComplete}
+              onCompositeComplete={handleCompositeComplete}
             />
           </DialogFooter>
         </div>

@@ -7,6 +7,7 @@ interface TokenProps {
   onSelect?: (tokenId: number) => void;
   isSelected?: boolean;
   isBurnToken?: boolean;
+  isEvolvedToken?: boolean;
 }
 
 export function Token({
@@ -14,6 +15,7 @@ export function Token({
   onSelect,
   isSelected = false,
   isBurnToken = false,
+  isEvolvedToken = false,
 }: TokenProps) {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const clickTimer = useRef<NodeJS.Timeout | null>(null);
@@ -43,23 +45,31 @@ export function Token({
     }
   };
 
+  // Determine the appropriate ring style based on the token state
+  const getRingStyle = () => {
+    if (isEvolvedToken) {
+      return 'ring-2 ring-yellow-400 animate-pulse-evolved';
+    } else if (isSelected) {
+      return isBurnToken ? 'ring-2 ring-red-500' : 'ring-2 ring-green-500';
+    }
+    return '';
+  };
+
   return (
     <>
       <div
-        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
-          isSelected
-            ? isBurnToken
-              ? 'ring-2 ring-red-500'
-              : 'ring-2 ring-green-500'
-            : ''
-        }`}
+        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${getRingStyle()}`}
         onClick={handleClick}
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
           <div
-            className="absolute inset-[-20%] w-[140%] h-[140%] transition-transform duration-300 group-hover:scale-110 svg-container"
+            className={`absolute inset-[-20%] w-[140%] h-[140%] transition-transform duration-300 group-hover:scale-110 svg-container ${
+              isEvolvedToken ? 'evolved-token-glow' : ''
+            }`}
             style={{
-              filter: isBurnToken
+              filter: isEvolvedToken
+                ? 'drop-shadow(0 0 12px rgba(250, 204, 21, 0.7))'
+                : isBurnToken
                 ? 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.5))'
                 : 'drop-shadow(0 0 8px rgba(1, 138, 8, 0.5))',
             }}
@@ -72,7 +82,9 @@ export function Token({
         </div>
         <div
           className={`absolute inset-0 ${
-            isBurnToken
+            isEvolvedToken
+              ? 'bg-yellow-500/10 group-hover:bg-yellow-500/15 group-hover:shadow-[0_0_20px_rgba(250,204,21,0.5)]'
+              : isBurnToken
               ? 'bg-red-500/0 group-hover:bg-red-500/5 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]'
               : 'bg-green-500/0 group-hover:bg-green-500/5 group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]'
           } transition-all duration-300 rounded-lg group-hover:scale-105`}
@@ -107,13 +119,53 @@ export function Token({
           }
         }
 
+        @keyframes evolvedPathPulse {
+          0%,
+          100% {
+            transform: scale(1);
+            fill: #facc15;
+          }
+          25% {
+            transform: scale(1.15);
+            fill: #fbbf24;
+          }
+          50% {
+            transform: scale(1.2);
+            fill: #f59e0b;
+          }
+          75% {
+            transform: scale(1.15);
+            fill: #fbbf24;
+          }
+        }
+
         .animate-pulse-subtle {
           animation: pulseSlow 1s ease-in-out infinite;
+        }
+
+        .animate-pulse-evolved {
+          animation: pulseEvolved 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseEvolved {
+          0%,
+          100% {
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.8);
+          }
         }
 
         .svg-container g path[fill='#018A08'] {
           transform-origin: center;
           animation: pathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          transform-box: fill-box;
+        }
+
+        .evolved-token-glow g path[fill='#018A08'] {
+          transform-origin: center;
+          animation: evolvedPathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
         }
 
@@ -134,6 +186,16 @@ export function Token({
           }
           50% {
             box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+          }
+        }
+
+        @keyframes yellowGlowPulse {
+          0%,
+          100% {
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.8);
           }
         }
 

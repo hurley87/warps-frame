@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAccount } from 'wagmi';
 import { useTokens } from '@/hooks/use-tokens';
@@ -20,6 +20,18 @@ export function Tokens() {
     source: number;
     target: number;
   } | null>(null);
+  const [evolvedTokenId, setEvolvedTokenId] = useState<number | null>(null);
+
+  // Reset the evolved token highlight after a delay
+  useEffect(() => {
+    if (evolvedTokenId !== null) {
+      const timer = setTimeout(() => {
+        setEvolvedTokenId(null);
+      }, 5000); // Highlight for 5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [evolvedTokenId]);
 
   const handleTokenSelect = (tokenId: number) => {
     // If the token is already selected, unselect it
@@ -61,10 +73,15 @@ export function Tokens() {
     }
   };
 
-  const handleCompositeComplete = () => {
+  const handleCompositeComplete = (newEvolvedTokenId?: number) => {
     setShowCompositeDialog(false);
     setSelectedPair(null);
     setSelectedTokenId(null);
+
+    // If we have an evolved token ID, set it to be highlighted
+    if (newEvolvedTokenId) {
+      setEvolvedTokenId(newEvolvedTokenId);
+    }
   };
 
   if (isLoading) {
@@ -158,8 +175,11 @@ export function Tokens() {
             isSelected={selectedTokenId === token.id}
             isBurnToken={
               selectedPair?.target === token.id ||
-              (selectedTokenId !== null && selectedTokenId !== token.id)
+              (selectedTokenId !== null &&
+                selectedTokenId !== token.id &&
+                evolvedTokenId !== token.id)
             }
+            isEvolvedToken={evolvedTokenId === token.id}
           />
         ))}
       </div>

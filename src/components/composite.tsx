@@ -7,10 +7,12 @@ import { useAccount } from 'wagmi';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { getPublicClient } from '@wagmi/core';
+import { baseSepolia } from 'wagmi/chains';
 
 interface CompositeProps {
   selectedTokens: number[];
-  onCompositeComplete: () => void;
+  onCompositeComplete: (evolvedTokenId?: number) => void;
 }
 
 export function Composite({
@@ -24,21 +26,38 @@ export function Composite({
 
   const { data: hash, writeContract } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isConfirming,
+    isSuccess,
+    data: receipt,
+  } = useWaitForTransactionReceipt({
     hash,
   });
 
   useEffect(() => {
-    if (isSuccess && !successHandled.current) {
-      successHandled.current = true;
-      queryClient.invalidateQueries({ queryKey: ['tokens'] });
-      onCompositeComplete();
-      setTimeout(() => {
-        toast.success('Successfully evolved arrows!');
-      }, 0);
-      setIsPending(false);
-    }
-  }, [isSuccess, queryClient, onCompositeComplete]);
+    const handleSuccess = async () => {
+      if (isSuccess && !successHandled.current && receipt) {
+        successHandled.current = true;
+
+        // Get the evolved token ID (which is the first token in the selectedTokens array)
+        const evolvedTokenId = selectedTokens[0];
+
+        // Invalidate the tokens query to refresh the data
+        await queryClient.invalidateQueries({ queryKey: ['tokens'] });
+
+        // Pass the evolved token ID back to the parent component
+        onCompositeComplete(evolvedTokenId);
+
+        setTimeout(() => {
+          toast.success('Successfully evolved arrows!');
+        }, 0);
+
+        setIsPending(false);
+      }
+    };
+
+    handleSuccess();
+  }, [isSuccess, receipt, queryClient, onCompositeComplete, selectedTokens]);
 
   const handleComposite = async () => {
     if (!address || selectedTokens.length !== 2) return;
