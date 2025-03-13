@@ -7,8 +7,6 @@ import { useAccount } from 'wagmi';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getPublicClient } from '@wagmi/core';
-import { baseSepolia } from 'wagmi/chains';
 
 interface CompositeProps {
   selectedTokens: number[];
