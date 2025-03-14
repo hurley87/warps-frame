@@ -103,19 +103,15 @@ export function Token({
           0%,
           100% {
             transform: scale(1);
-            fill: #018a08;
           }
           25% {
             transform: scale(1.15);
-            fill: #02bd0b;
           }
           50% {
             transform: scale(1.2);
-            fill: #02bd0b;
           }
           75% {
             transform: scale(1.15);
-            fill: #02bd0b;
           }
         }
 
@@ -123,19 +119,15 @@ export function Token({
           0%,
           100% {
             transform: scale(1);
-            fill: #ef4444;
           }
           25% {
             transform: scale(1.15);
-            fill: #dc2626;
           }
           50% {
             transform: scale(1.2);
-            fill: #dc2626;
           }
           75% {
             transform: scale(1.15);
-            fill: #dc2626;
           }
         }
 
@@ -143,19 +135,15 @@ export function Token({
           0%,
           100% {
             transform: scale(1);
-            fill: #facc15;
           }
           25% {
             transform: scale(1.15);
-            fill: #fbbf24;
           }
           50% {
             transform: scale(1.2);
-            fill: #f59e0b;
           }
           75% {
             transform: scale(1.15);
-            fill: #fbbf24;
           }
         }
 

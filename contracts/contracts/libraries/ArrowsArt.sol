@@ -71,6 +71,8 @@ library ArrowsArt {
         arrow.stored = stored;
 
         // Set up the source of randomness + seed for this Arrow.
+        // Note: This seed will be overridden by the Arrows contract if needed
+        // We keep this for backward compatibility
         uint128 randomness = arrows.epochs[stored.epoch].randomness;
         arrow.seed = uint256(keccak256(abi.encodePacked(randomness, stored.seed))) % type(uint128).max;
 
@@ -328,7 +330,6 @@ library ArrowsArt {
     /// @param data The data object containing rendering settings.
     function generateArrows(ArrowRenderData memory data) public pure returns (bytes memory) {
         bytes memory arrowsBytes;
-        string[80] memory allColors = EightyColors.COLORS();
 
         uint8 arrowsCount = data.count;
         for (uint8 i; i < arrowsCount; i++) {
@@ -353,19 +354,11 @@ library ArrowsArt {
             string memory translateY = Utilities.uint2str(data.rowY);
             string memory color = data.colors[i];
             
-            // Get animation bytes if needed
-            bytes memory animationBytes = bytes('');
-            if (!data.isBlack && !data.isStatic) {
-                uint256 colorIndex = data.colorIndexes[i];
-                animationBytes = fillAnimation(data, colorIndex, allColors);
-            }
-
             // Render the current arrow.
             arrowsBytes = abi.encodePacked(arrowsBytes, abi.encodePacked(
                 '<g transform="translate(', translateX, ', ', translateY, ')">',
                     '<g transform="translate(3, 3) scale(', data.scale, ')">',
-                        '<path d="M25 43.77c2.12 0 6.68 6.9 8.68 6.17 1.99-.74 1.11-9 2.74-10.39 1.62-1.38 9.5-.93 10.55-.93 1.06 0-4.85-7.62-4.48-9.74.37-2.12 7.87-5.49 7.5-7.6-.37-2.12-8.54-2.68-9.6-4.54-1.06-1.86 2.55-9.33.93-10.72-1.62-1.38-8.24 3.53-10.23 2.79C29.08 8.07 27.12 0 25 0s-4.08 8.07-6.07 8.81c-1.99.74-8.61-4.17-10.23-2.79-1.62 1.38 1.98 8.85.93 10.72-1.06 1.86-9.24 2.42-9.6 4.54-.37 2.12 7.13 5.49 7.5 7.6.37 2.12-5.54 9.74-4.48 9.74 1.06 0 8.93-.45 10.55.93 1.62 1.38.75 9.65 2.74 10.39 1.99.74 6.56-6.17 8.68-6.17h-.01z" fill="#', color, '"',
-                            animationBytes,
+                        '<path d="M25 43.75c2.11 0 6.66 6.9 8.66 6.16 1.99-0.74 1.11-9 2.74-10.38 1.63-1.39 9.49 0.93 10.55-0.93 1.05-1.86-4.85-7.63-4.48-9.74 0.36-2.11 7.85-5.49 7.49-7.6-0.36-2.11-8.54-2.68-9.6-4.54-1.05-1.86 2.55-9.33 0.93-10.71-1.63-1.39-8.24 3.51-10.23 2.78-1.99-0.74-3.88-8.8-5.91-8.8s-4.09 8.06-6.08 8.8c-1.99 0.74-8.61-4.16-10.23-2.78-1.63 1.39 1.99 8.85 0.93 10.71-1.05 1.86-9.24 2.43-9.6 4.54-0.36 2.11 7.13 5.49 7.49 7.6 0.36 2.11-5.54 7.88-4.48 9.74 1.05 1.85 8.91-0.46 10.55 0.93 1.63 1.38 0.74 9.64 2.74 10.38 1.99 0.74 6.55-6.16 8.66-6.16Z" fill="#', color, '"',
                         '/>',
                         '<path d="M25 15.12L15.41 24.34l2.86 2.73 4.68-4.53.005 12.36h4.14V22.54l4.7 4.53 2.8-2.73L25.08 15.12H25z" fill="black"/>',
                     '</g>',

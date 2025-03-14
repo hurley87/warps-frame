@@ -10,7 +10,7 @@ interface IArrows {
         uint8 divisorIndex; // Easy access to next / previous divisor
         uint16 seed;      // A unique identifier to enable swapping
         uint24 day;      // The days since token was created
-        uint32 epoch;    // The epoch when this token was created
+        uint32 epoch;    // The epoch when this token was created (legacy field, not used for randomness)
     }
 
     struct Arrow {

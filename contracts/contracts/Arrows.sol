@@ -48,21 +48,20 @@ contract Arrows is IArrows, ARROWS721, Ownable {
 
     PrizePool public prizePool;
 
-    struct FinalizedMetadata {
-        bool isFinalized;
-        uint256 computedSeed;      // The final computed seed after epoch revelation
-        uint8[5] finalColorBands;  // Final color band values
-        uint8[5] finalGradients;   // Final gradient values
+    // Store token metadata directly instead of using epochs
+    struct TokenMetadata {
+        uint256 seed;              // The final seed used for randomization
+        uint8[5] colorBands;       // Color band values
+        uint8[5] gradients;        // Gradient values
     }
 
-    mapping(uint256 => FinalizedMetadata) private finalizedMetadata;
+    mapping(uint256 => TokenMetadata) private tokenMetadata;
 
     /// @dev Initializes the Arrows Originals contract and links the Edition contract.
     constructor() Ownable(msg.sender) {
         arrowsData.day0 = uint32(block.timestamp);
         arrowsData.minted = 0;
         arrowsData.burned = 0;
-        arrowsData.currentEpoch = 1;
         prizePool.winnerPercentage = 60; // Default 60% for winner
         prizePool.lastWinnerClaim = 0;
     }
@@ -91,34 +90,30 @@ contract Arrows is IArrows, ARROWS721, Ownable {
         emit WinnerPercentageUpdated(newPercentage);
     }
 
-    /// @notice Resolve the current epoch's randomness if necessary
-    function resolveEpochIfNecessary() public {
-        Epoch storage epoch = arrowsData.epochs[arrowsData.currentEpoch];
-        uint256 oldEpoch = arrowsData.currentEpoch;
-
-        if (!epoch.committed || (epoch.revealed == false && epoch.revealBlock < block.number - 256)) {
-            epoch.revealBlock = uint64(block.number + 50);
-            epoch.committed = true;
-        } else if (block.number > epoch.revealBlock) {
-            epoch.randomness = uint128(uint256(keccak256(
-                abi.encodePacked(
-                    blockhash(epoch.revealBlock),
-                    block.prevrandao
-                ))) % (2 ** 128 - 1)
-            );
-            epoch.revealed = true;
-
-            // Finalize metadata for all tokens in this epoch
-            for (uint256 i = 0; i < tokenMintId; i++) {
-                if (arrowsData.all[i].epoch == oldEpoch) {
-                    _finalizeMetadata(i);
-                }
-            }
-
-            emit NewEpoch(arrowsData.currentEpoch, epoch.revealBlock);
-            arrowsData.currentEpoch++;
-            resolveEpochIfNecessary();
-        }
+    /// @notice Generate randomness for a token at mint time
+    /// @param tokenId The token ID to generate randomness for
+    function _generateTokenRandomness(uint256 tokenId) internal {
+        // Create deterministic but unpredictable randomness using block data
+        uint256 seed = uint256(keccak256(abi.encodePacked(
+            block.timestamp,
+            block.prevrandao,
+            tokenId,
+            msg.sender
+        ))) % type(uint128).max;
+        
+        // Store the seed for this token
+        tokenMetadata[tokenId].seed = seed;
+        
+        // Generate and store initial color bands and gradients
+        uint256 n = Utilities.random(seed, 'band', 120);
+        uint8 colorBand = n > 80 ? 0 : n > 40 ? 1 : n > 20 ? 2 : n > 10 ? 3 : n > 4 ? 4 : n > 1 ? 5 : 6;
+        
+        n = Utilities.random(seed, 'gradient', 100);
+        uint8 gradient = n < 20 ? uint8(1 + (n % 6)) : 0;
+        
+        // Store the initial values
+        arrowsData.all[tokenId].colorBands[0] = colorBand;
+        arrowsData.all[tokenId].gradients[0] = gradient;
     }
 
     /// @notice Mint new Arrows tokens
@@ -133,9 +128,6 @@ contract Arrows is IArrows, ARROWS721, Ownable {
         prizePool.totalDeposited += msg.value;
         emit PrizePoolUpdated(prizePool.totalDeposited, prizePool.totalWithdrawn);
 
-        // Resolve epoch for randomness
-        resolveEpochIfNecessary();
-
         uint256 startTokenId = tokenMintId;
         
         // Mint the tokens
@@ -146,12 +138,12 @@ contract Arrows is IArrows, ARROWS721, Ownable {
             arrow.day = Utilities.day(arrowsData.day0, block.timestamp);
             arrow.seed = uint16(id);
             arrow.divisorIndex = 0;
-            arrow.epoch = uint32(arrowsData.currentEpoch);
+            arrow.epoch = 1; // Set to 1 for backward compatibility
+            
+            // Generate immediate randomness for this token
+            _generateTokenRandomness(id);
 
             _safeMint(recipient, id);
-            
-            // Try to finalize metadata if epoch is already revealed
-            _finalizeMetadata(id);
 
             unchecked { ++i; }
         }
@@ -193,52 +185,25 @@ contract Arrows is IArrows, ARROWS721, Ownable {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         _requireMinted(tokenId);
         
-        // Get the arrow data
-        IArrows.Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
-        
-        // If metadata is finalized, override the computed values with finalized ones
-        if (finalizedMetadata[tokenId].isFinalized) {
-            arrow.seed = finalizedMetadata[tokenId].computedSeed;
-            for (uint8 i = 0; i < 5; i++) {
-                if (i < arrow.stored.divisorIndex) {
-                    arrow.stored.colorBands[i] = finalizedMetadata[tokenId].finalColorBands[i];
-                    arrow.stored.gradients[i] = finalizedMetadata[tokenId].finalGradients[i];
-                }
-            }
-        }
-
         return ArrowsMetadata.tokenURI(tokenId, arrowsData);
     }
 
-    /// @dev Finalize metadata for a token once its epoch is revealed
-    function _finalizeMetadata(uint256 tokenId) internal {
-        if (!finalizedMetadata[tokenId].isFinalized) {
-            StoredArrow storage arrow = arrowsData.all[tokenId];
-            Epoch storage epoch = arrowsData.epochs[arrow.epoch];
-            
-            // Only finalize if the epoch has been revealed
-            if (epoch.revealed) {
-                // Get the complete arrow data to capture computed values
-                IArrows.Arrow memory computedArrow = ArrowsArt.getArrow(tokenId, arrowsData);
-                
-                // Store the computed seed and visual properties
-                finalizedMetadata[tokenId].computedSeed = computedArrow.seed;
-                for (uint8 i = 0; i < 5; i++) {
-                    finalizedMetadata[tokenId].finalColorBands[i] = arrow.colorBands[i];
-                    finalizedMetadata[tokenId].finalGradients[i] = arrow.gradients[i];
-                }
-                finalizedMetadata[tokenId].isFinalized = true;
-            }
+    /// @dev Get arrow with the stored seed instead of epoch-based randomness
+    function _getArrowWithSeed(uint256 tokenId) internal view returns (IArrows.Arrow memory) {
+        IArrows.Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
+        
+        // Override the seed with our stored seed
+        if (tokenMetadata[tokenId].seed != 0) {
+            arrow.seed = tokenMetadata[tokenId].seed;
         }
+        
+        return arrow;
     }
 
     /// @dev Composite one token into to another and burn it.
     /// @param tokenId The token ID to keep. Its art and arrow-count will change.
     /// @param burnId The token ID to burn in the process.
     function _composite(uint256 tokenId, uint256 burnId) internal {
-        // Remove finalized status for the kept token since it's being modified
-        finalizedMetadata[tokenId].isFinalized = false;
-        
         (
             StoredArrow storage toKeep,,
             uint8 divisorIndex
@@ -259,15 +224,21 @@ contract Arrows is IArrows, ARROWS721, Ownable {
         toKeep.composites[divisorIndex] = uint16(burnId);
         toKeep.divisorIndex = nextDivisor;
 
+        // Generate new randomness for the composited token
+        uint256 newSeed = uint256(keccak256(abi.encodePacked(
+            tokenMetadata[tokenId].seed,
+            tokenMetadata[burnId].seed,
+            block.timestamp
+        ))) % type(uint128).max;
+        
+        tokenMetadata[tokenId].seed = newSeed;
+
         // Perform the burn.
         _burn(burnId);
 
         // Notify DAPPs about the Composite.
         emit Composite(tokenId, burnId, ArrowsArt.DIVISORS()[toKeep.divisorIndex]);
         emit MetadataUpdate(tokenId);
-
-        // After composition is complete, try to finalize the metadata
-        _finalizeMetadata(tokenId);
     }
 
     /// @dev Composite the gradient and colorBand settings.
@@ -276,8 +247,8 @@ contract Arrows is IArrows, ARROWS721, Ownable {
     function _compositeGenes (uint256 tokenId, uint256 burnId) internal view
         returns (uint8 gradient, uint8 colorBand)
     {
-        Arrow memory keeper = ArrowsArt.getArrow(tokenId, arrowsData);
-        Arrow memory burner = ArrowsArt.getArrow(burnId, arrowsData);
+        Arrow memory keeper = _getArrowWithSeed(tokenId);
+        Arrow memory burner = _getArrowWithSeed(burnId);
 
         // Pseudorandom gene manipulation.
         uint256 randomizer = uint256(keccak256(abi.encodePacked(keeper.seed, burner.seed)));
@@ -404,7 +375,7 @@ contract Arrows is IArrows, ARROWS721, Ownable {
     function isWinningToken(uint256 tokenId) public view returns (bool) {
         if (!_exists(tokenId)) return false;
         
-        Arrow memory arrow = ArrowsArt.getArrow(tokenId, arrowsData);
+        Arrow memory arrow = _getArrowWithSeed(tokenId);
         if (arrow.arrowsCount != 1) return false;
         
         (string[] memory tokenColors,) = ArrowsArt.colors(arrow, arrowsData);
