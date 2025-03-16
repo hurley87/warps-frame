@@ -1,13 +1,11 @@
-import { createConfig, http, WagmiProvider } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { createConfig, WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { farcasterFrame } from '@farcaster/frame-wagmi-connector';
+import { chain, transport } from '@/lib/chain';
 
 export const config = createConfig({
-  chains: [base],
-  transports: {
-    [base.id]: http(),
-  },
+  chains: [chain],
+  transports: transport,
   connectors: [farcasterFrame()],
 });
 

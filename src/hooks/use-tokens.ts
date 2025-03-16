@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
-import { http, createConfig } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { createConfig } from 'wagmi';
+import { chain, transport } from '@/lib/chain';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 
 const config = createConfig({
-  chains: [base],
-  transports: {
-    [base.id]: http(),
-  },
+  chains: [chain],
+  transports: transport,
 });
 
 export interface Token {
