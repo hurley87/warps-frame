@@ -5,7 +5,7 @@ const appUrl = 'https://arrows.art';
 
 const frame = {
   version: 'next',
-  imageUrl: `${appUrl}/splash.jpg`,
+  imageUrl: `${appUrl}/arrows.gif`,
   button: {
     title: 'Join Arrows',
     action: {
