@@ -5,15 +5,13 @@ import { Abi } from 'viem';
  */
 const CONTRACT_ADDRESSES = {
   production: '0x62ec6f851e2ec5a1b599fd38b63e63debeab9cb4' as `0x${string}`,
-  development: '0x2b39dAF446784f83f53B93F3b1E92588Eb949D1D' as `0x${string}`,
+  development: '0x02C56D8ee36Bd9011CA206182f2218ede899c1Eb' as `0x${string}`,
 };
 
 /**
  * Determines if the application is running in development mode
  */
 const isDevelopment = process.env.NODE_ENV === 'development';
-
-console.log('isDevelopment', isDevelopment);
 
 /**
  * Get the appropriate contract address based on the current environment

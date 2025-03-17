@@ -7,5 +7,10 @@
     "source.fixAll.format": "explicit"
   },
   "prettier.configPath": ".prettierrc.js",
-  "solidity.remappingsUnix": ["@openzeppelin/=node_modules/@openzeppelin/"]
+  "files.exclude": {
+    "node_modules": true,
+    "dist": true,
+    "build": true,
+    ".next": true
+  }
 }
