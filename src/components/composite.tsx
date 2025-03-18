@@ -7,14 +7,7 @@ import { useAccount } from 'wagmi';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import {
-  Loader2,
-  AlertCircle,
-  RefreshCw,
-  Zap,
-  Sparkles,
-  CheckCircle2,
-} from 'lucide-react';
+import { Loader2, RefreshCw, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CompositeProps {
@@ -59,7 +52,7 @@ export function Composite({
         errorSound.volume = 0.3;
         try {
           errorSound.play();
-        } catch (e) {
+        } catch (_) {
           // Silent fail if audio can't play
         }
 
@@ -93,7 +86,7 @@ export function Composite({
         successSound.volume = 0.4;
         try {
           successSound.play();
-        } catch (e) {
+        } catch (_) {
           // Silent fail if audio can't play
         }
 
@@ -136,7 +129,7 @@ export function Composite({
     audio.volume = 0.4;
     try {
       await audio.play();
-    } catch (e) {
+    } catch (_) {
       // Silent fail if audio can't play
     }
 

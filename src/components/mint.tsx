@@ -137,7 +137,7 @@ export function Mint() {
         successSound.volume = 0.4;
         try {
           successSound.play();
-        } catch (e) {
+        } catch (_) {
           // Silent fail if audio can't play
         }
 
@@ -168,7 +168,7 @@ export function Mint() {
           return Math.random() * (max - min) + min;
         }
 
-        const interval: any = setInterval(function () {
+        const interval: NodeJS.Timeout = setInterval(function () {
           const timeLeft = animationEnd - Date.now();
 
           if (timeLeft <= 0) {
@@ -214,7 +214,7 @@ export function Mint() {
     audio.volume = 0.4;
     try {
       await audio.play();
-    } catch (e) {
+    } catch (_) {
       // Silent fail if audio can't play
     }
 
@@ -306,7 +306,7 @@ export function Mint() {
       errorSound.volume = 0.3;
       try {
         errorSound.play();
-      } catch (e) {
+      } catch (_) {
         // Silent fail if audio can't play
       }
 
