@@ -96,21 +96,44 @@ export function Tokens() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-4">
-        {[...Array(10)].map((_, i) => (
-          <div key={i} className="relative aspect-square">
-            <Image
-              src="/loadingarrow.svg"
-              alt="Loading"
-              width={300}
-              height={300}
-              className="absolute inset-0 w-full h-full"
-              priority={i < 4} // Prioritize loading first 4 images
+      <div className="flex-1 overflow-y-auto px-6 pt-4">
+        <div className="flex flex-col gap-6 text-sm pb-20">
+          <div className="space-y-2">
+            <h3 className="font-bold">Loading your game...</h3>
+            <img
+              src="/arrows.gif"
+              alt="Arrow"
+              width={150}
+              height={150}
+              className="animate-pulse"
             />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm animate-pulse" />
+            <p>
+              Arrows is a game where players compete to create the higher green
+              arrow through strategic NFT evolutions.
+            </p>
           </div>
-        ))}
+          <div className="space-y-2">
+            <h3 className="font-bold">Prize Pool</h3>
+            <Pool />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-bold">How to Play</h3>
+            <p>
+              Mint 8 tokens for 0.01 ETH. Each mint contributes to the prize
+              pool.
+            </p>
+            <p>Double click on an token to view its details.</p>
+            <p>
+              To evolve a token, first select the token you want to evolve, then
+              choose a second token to burn.
+            </p>
+            <p>
+              Your goal is to be the first to create a single higher token
+              (color #018A08). Whoever owns that token can claim the entire
+              prize pool.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
