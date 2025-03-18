@@ -59,6 +59,16 @@ export function Tokens() {
       (attr) => attr.trait_type === 'Arrows'
     )?.value;
 
+    // Check if both are single arrows (value "1")
+    if (sourceColorBand === '1' && targetColorBand === '1') {
+      toast.error(
+        'Single arrows cannot be combined. Find arrows with more bands.'
+      );
+      // Select the new token instead
+      setSelectedTokenId(tokenId);
+      return;
+    }
+
     if (
       sourceColorBand &&
       targetColorBand &&
@@ -150,7 +160,7 @@ export function Tokens() {
         <div className="flex flex-col items-center space-y-2">
           <Mint />
           <p className="text-xs text-muted-foreground">
-            Minting costs 0.01 ETH for a pack of 10 arrows
+            Minting costs 0.01 ETH for a pack of 8 arrows
           </p>
         </div>
       </div>
@@ -160,9 +170,28 @@ export function Tokens() {
   return (
     <div className="relative p-4">
       {isFetching && (
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10">
-          <div className="text-sm text-muted-foreground p-2 text-center">
-            Loading your arrows...
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center">
+          <div className="bg-background/90 rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+            <h3 className="font-bold text-xl text-primary mb-4 text-center pt-20">
+              How to Play
+            </h3>
+            <ol className="space-y-3 text-lg">
+              <li className="flex gap-2">
+                <span className="font-bold text-primary">1.</span>
+                <span>Click on one arrow to select it</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-primary">2.</span>
+                <span>
+                  Click on another arrow with the same number of arrows to
+                  combine them
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-primary">3.</span>
+                <span>Your goal is to get the higher green arrow!</span>
+              </li>
+            </ol>
           </div>
         </div>
       )}

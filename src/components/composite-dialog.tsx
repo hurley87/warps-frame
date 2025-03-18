@@ -67,15 +67,17 @@ export function CompositeDialog({
           <div>
             <DialogHeader className="text-center">
               <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
-              <DialogDescription className="text-gray-400">
-                {`To evolve, keep one and burn the other.`}
+              <DialogDescription className="text-black">
+                {`To evolve, keep one and burn the other. Evolution is irreversible.`}
               </DialogDescription>
             </DialogHeader>
 
             {sourceToken && targetToken && (
-              <div className="grid grid-cols-2 gap-8 py-8 px-4 w-full max-w-md">
+              <div className="grid grid-cols-2 gap-8 py-8 w-full max-w-md">
                 <div className="text-center source-arrow-container">
-                  <p className="text-sm text-gray-400 mb-4">Keep</p>
+                  <p className="text-sm font-bold text-green-400 mb-4 uppercase tracking-wider">
+                    🌟 Keep 🌟
+                  </p>
                   <div className="relative">
                     <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-green-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
@@ -83,7 +85,9 @@ export function CompositeDialog({
                   </div>
                 </div>
                 <div className="text-center target-arrow-container">
-                  <p className="text-sm text-gray-400 mb-4">Burn</p>
+                  <p className="text-sm font-bold text-red-400 mb-4 uppercase tracking-wider">
+                    🔥 Sacrifice 🔥
+                  </p>
                   <div className="relative">
                     <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
                     <div className="absolute -inset-4 bg-red-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
