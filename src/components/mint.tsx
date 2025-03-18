@@ -269,38 +269,6 @@ export function Mint() {
 
       console.error('Unexpected mint error:', error);
 
-      // Show more specific error message based on error pattern
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-
-      if (
-        errorMessage.includes('fee') ||
-        errorMessage.includes('gas') ||
-        errorMessage.includes('cost') ||
-        errorMessage.toLowerCase().includes('insufficient') ||
-        errorMessage.toLowerCase().includes('stopped') ||
-        errorMessage.toLowerCase().includes('protection')
-      ) {
-        toast.error(
-          'Transaction was rejected by your wallet. Try again with a higher gas price in your wallet settings.',
-          {
-            duration: 6000,
-            icon: <RefreshCw className="h-4 w-4 text-red-400" />,
-          }
-        );
-      } else if (
-        errorMessage.includes('user rejected') ||
-        errorMessage.includes('rejected') ||
-        errorMessage.includes('denied') ||
-        errorMessage.includes('cancel')
-      ) {
-        toast.error('Transaction was cancelled.', { duration: 3000 });
-      } else {
-        toast.error('Failed to mint. Please try again.', {
-          duration: 3000,
-        });
-      }
-
       // Play error sound
       const errorSound = new Audio('/sounds/composite-error.mp3');
       errorSound.volume = 0.3;

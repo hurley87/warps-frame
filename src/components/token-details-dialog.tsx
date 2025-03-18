@@ -69,20 +69,6 @@ export function TokenDetailsDialog({
                   #{token.id}
                 </span>
               </div>
-              {token.isWinning !== undefined && (
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-400 uppercase tracking-wider">
-                    Status
-                  </span>
-                  <span
-                    className={`font-medium text-xs ${
-                      token.isWinning ? 'text-green-400' : 'text-white'
-                    }`}
-                  >
-                    {token.isWinning ? 'Winning Token! 🎉' : 'Regular Token'}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>

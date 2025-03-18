@@ -86,7 +86,7 @@ export function CompositeDialog({
                 </div>
                 <div className="text-center target-arrow-container">
                   <p className="text-sm font-bold text-red-400 mb-4 uppercase tracking-wider">
-                    🔥 Sacrifice 🔥
+                    🔥 Burn 🔥
                   </p>
                   <div className="relative">
                     <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
