@@ -137,7 +137,7 @@ export function Mint() {
         successSound.volume = 0.4;
         try {
           successSound.play();
-        } catch (_) {
+        } catch {
           // Silent fail if audio can't play
         }
 
@@ -214,7 +214,7 @@ export function Mint() {
     audio.volume = 0.4;
     try {
       await audio.play();
-    } catch (_) {
+    } catch {
       // Silent fail if audio can't play
     }
 
@@ -306,7 +306,7 @@ export function Mint() {
       errorSound.volume = 0.3;
       try {
         errorSound.play();
-      } catch (_) {
+      } catch {
         // Silent fail if audio can't play
       }
 

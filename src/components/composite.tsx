@@ -52,7 +52,7 @@ export function Composite({
         errorSound.volume = 0.3;
         try {
           errorSound.play();
-        } catch (_) {
+        } catch {
           // Silent fail if audio can't play
         }
 
@@ -86,7 +86,7 @@ export function Composite({
         successSound.volume = 0.4;
         try {
           successSound.play();
-        } catch (_) {
+        } catch {
           // Silent fail if audio can't play
         }
 
@@ -129,7 +129,7 @@ export function Composite({
     audio.volume = 0.4;
     try {
       await audio.play();
-    } catch (_) {
+    } catch {
       // Silent fail if audio can't play
     }
 
