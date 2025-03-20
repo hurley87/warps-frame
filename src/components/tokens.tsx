@@ -184,7 +184,7 @@ export function Tokens() {
         <div className="flex flex-col items-center space-y-2">
           <Mint />
           <p className="text-xs text-muted-foreground">
-            Minting costs 0.08 ETH for a pack of 8 arrows
+            Minting costs 0.008 ETH for a pack of 8 arrows
           </p>
         </div>
       </div>
