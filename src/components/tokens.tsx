@@ -14,6 +14,22 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
+function LoadingScreen() {
+  return (
+    <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center">
+      <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
+        <Image
+          src="/loading.gif"
+          height={256}
+          width={256}
+          alt="loading"
+          className="mx-auto mt-24"
+        />
+      </div>
+    </div>
+  );
+}
+
 export function Tokens() {
   const { address } = useAccount();
   const {
@@ -124,19 +140,7 @@ export function Tokens() {
   };
 
   if (isLoading) {
-    return (
-      <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center ">
-        <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
-          <Image
-            src="/loading.gif"
-            height={150}
-            width={150}
-            alt="loading"
-            className="mx-auto mt-24"
-          />
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   // Check if user has any winning tokens
@@ -193,19 +197,7 @@ export function Tokens() {
 
   return (
     <div className="relative p-4">
-      {isFetching && (
-        <div className="absolute inset-0 g-background/20 backdrop-blur-sm z-10 flex items-center ">
-          <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
-            <Image
-              src="/loading.gif"
-              height={150}
-              width={150}
-              alt="loading"
-              className="mx-auto mt-24"
-            />
-          </div>
-        </div>
-      )}
+      {isFetching && <LoadingScreen />}
       <div className="flex flex-col h-[calc(100vh-140px)]">
         <div className="grid grid-cols-3 gap-4 p-4">
           {tokens.map((token) => (
