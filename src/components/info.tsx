@@ -14,7 +14,7 @@ import { useCallback } from 'react';
 
 export default function Info() {
   const openUrl = useCallback(() => {
-    sdk.actions.openUrl('https://testnets.opensea.io/collection/arrows-60');
+    sdk.actions.openUrl('https://opensea.io/collection/arrows-11');
   }, []);
   return (
     <Drawer>
