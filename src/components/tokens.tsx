@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAccount } from 'wagmi';
-import { useTokens } from '@/hooks/use-tokens';
+import { usePaginatedTokens } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
@@ -12,10 +12,17 @@ import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function Tokens() {
   const { address } = useAccount();
-  const { data: tokens = [], isLoading, isFetching } = useTokens(address);
+  const {
+    tokens = [],
+    isLoading,
+    isFetching,
+    pagination: { currentPage, totalPages, setPage, hasNextPage, hasPrevPage },
+  } = usePaginatedTokens(address);
+
   const [showCompositeDialog, setShowCompositeDialog] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
   const [selectedPair, setSelectedPair] = useState<{
@@ -23,19 +30,8 @@ export function Tokens() {
     target: number;
   } | null>(null);
   const [evolvedTokenId, setEvolvedTokenId] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const tokensPerPage = 9;
 
-  // Calculate total pages and current page tokens
-  const totalPages = Math.ceil(tokens.length / tokensPerPage);
-  const indexOfLastToken = currentPage * tokensPerPage;
-  const indexOfFirstToken = indexOfLastToken - tokensPerPage;
-  const currentTokens = tokens.slice(indexOfFirstToken, indexOfLastToken);
-
-  // Reset pagination when tokens change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [tokens.length]);
+  const queryClient = useQueryClient();
 
   // Reset the evolved token highlight after a delay
   useEffect(() => {
@@ -99,63 +95,45 @@ export function Tokens() {
   };
 
   const handleCompositeComplete = (newEvolvedTokenId?: number) => {
-    setShowCompositeDialog(false);
+    // Reset selection states immediately
     setSelectedPair(null);
     setSelectedTokenId(null);
 
-    // If we have an evolved token ID, set it to be highlighted
+    // Dialog is already closed by the CompositeDialog component
+
+    // If we have an evolved token ID, highlight it and refresh data
     if (newEvolvedTokenId) {
       setEvolvedTokenId(newEvolvedTokenId);
+
+      // Force refetch tokens to update UI
+      queryClient.invalidateQueries({
+        queryKey: ['tokens-balance'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['tokens-metadata'],
+      });
     }
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+    setPage(currentPage + 1);
   };
 
   const handlePrevPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+    setPage(currentPage - 1);
   };
 
   if (isLoading) {
     return (
-      <div className="flex-1 overflow-y-auto px-6 pt-4">
-        <div className="flex flex-col gap-6 text-sm pb-20">
-          <div className="space-y-2">
-            <h3 className="font-bold">Loading your game...</h3>
-            <img
-              src="/arrows.gif"
-              alt="Arrow"
-              width={150}
-              height={150}
-              className="animate-pulse"
-            />
-            <p>
-              Arrows is a game where players compete to create the higher green
-              arrow through strategic NFT evolutions.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold">Prize Pool</h3>
-            <Pool />
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-bold">How to Play</h3>
-            <p>
-              Mint 8 tokens for 0.08 ETH. Each mint contributes to the prize
-              pool.
-            </p>
-            <p>Double click on an token to view its details.</p>
-            <p>
-              To evolve a token, first select the token you want to evolve, then
-              choose a second token to burn.
-            </p>
-            <p>
-              Your goal is to be the first to create a single higher token
-              (color #018A08). Whoever owns that token can claim the entire
-              prize pool.
-            </p>
-          </div>
+      <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center ">
+        <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
+          <img
+            src="/loading.gif"
+            height={150}
+            width={150}
+            alt="loading"
+            className="mx-auto mt-24"
+          />
         </div>
       </div>
     );
@@ -216,8 +194,8 @@ export function Tokens() {
   return (
     <div className="relative p-4">
       {isFetching && (
-        <div className="absolute inset-0 bg-black backdrop-blur-sm z-10 flex items-center ">
-          <div className="bg-background/90 rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+        <div className="absolute inset-0 g-background/20 backdrop-blur-sm z-10 flex items-center ">
+          <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
             <img
               src="/loading.gif"
               height={150}
@@ -225,32 +203,12 @@ export function Tokens() {
               alt="loading"
               className="mx-auto mt-24"
             />
-            <h3 className="font-bold text-xl text-primary mb-4 text-center pt-4">
-              How to Play
-            </h3>
-            <ol className="space-y-3 text-lg">
-              <li className="flex gap-2">
-                <span className="font-bold text-primary">1.</span>
-                <span>Click on one arrow to select it</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-primary">2.</span>
-                <span>
-                  Click on another arrow with the same number of arrows to
-                  combine them
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-primary">3.</span>
-                <span>Your goal is to get the higher green arrow!</span>
-              </li>
-            </ol>
           </div>
         </div>
       )}
       <div className="flex flex-col h-[calc(100vh-140px)]">
-        <div className="grid grid-cols-3 gap-4 overflow-y-auto flex-1 p-4">
-          {currentTokens.map((token) => (
+        <div className="grid grid-cols-3 gap-4 p-4">
+          {tokens.map((token) => (
             <Token
               key={`token-${token.id}`}
               token={token}
@@ -274,7 +232,7 @@ export function Tokens() {
                 variant="outline"
                 size="sm"
                 onClick={handlePrevPage}
-                disabled={currentPage === 1}
+                disabled={!hasPrevPage}
                 aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -288,7 +246,7 @@ export function Tokens() {
                 variant="outline"
                 size="sm"
                 onClick={handleNextPage}
-                disabled={currentPage === totalPages}
+                disabled={!hasNextPage}
                 aria-label="Next page"
               >
                 <ChevronRight className="h-4 w-4" />

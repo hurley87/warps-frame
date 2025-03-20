@@ -56,8 +56,13 @@ export function CompositeDialog({
 
   // Handle composite completion with the evolved token ID
   const handleCompositeComplete = (evolvedTokenId?: number) => {
-    onCompositeComplete(evolvedTokenId);
+    // Immediately close the dialog
     onOpenChange(false);
+
+    // Then notify parent with the evolved token ID
+    setTimeout(() => {
+      onCompositeComplete(evolvedTokenId);
+    }, 10);
   };
 
   return (

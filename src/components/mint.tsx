@@ -151,7 +151,10 @@ export function Mint() {
           document.documentElement.classList.remove('screen-shake');
         }, 500);
 
-        queryClient.invalidateQueries({ queryKey: ['tokens'] });
+        // Invalidate token queries with the correct query keys
+        queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+        queryClient.invalidateQueries({ queryKey: ['tokens-metadata'] });
+
         setHasError(false);
 
         // Trigger confetti animation
@@ -196,6 +199,10 @@ export function Mint() {
 
         // Reset states after animation finishes
         setTimeout(() => {
+          // Second round of invalidation to ensure UI is updated
+          queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+          queryClient.invalidateQueries({ queryKey: ['tokens-metadata'] });
+
           setShowParticles(false);
           setIsSuccess(false);
           setIsPending(false);

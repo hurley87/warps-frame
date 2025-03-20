@@ -38,6 +38,20 @@ export function Composite({
     }
   }, [selectedTokens, isPending, isSuccess]);
 
+  // Reset state when selected tokens change
+  useEffect(() => {
+    // If no tokens are selected after a successful operation, keep success state
+    // Otherwise reset to allow new operations
+    if (selectedTokens.length === 0 && isSuccess) {
+      return;
+    }
+
+    // If new tokens are selected after success, reset the success state
+    if (selectedTokens.length > 0 && isSuccess) {
+      setIsSuccess(false);
+    }
+  }, [selectedTokens, isSuccess]);
+
   const {
     data: hash,
     writeContract,
@@ -90,9 +104,11 @@ export function Composite({
           // Silent fail if audio can't play
         }
 
-        // Show success particles animation
+        // Show brief success feedback
         setShowParticles(true);
         setIsSuccess(true);
+        setIsPending(false);
+        setHasError(false);
 
         // Shake the screen slightly for feedback
         document.documentElement.classList.add('screen-shake');
@@ -100,21 +116,27 @@ export function Composite({
           document.documentElement.classList.remove('screen-shake');
         }, 500);
 
-        // Invalidate the tokens query to refresh the data
-        await queryClient.invalidateQueries({ queryKey: ['tokens'] });
+        // Immediately invalidate queries to refresh data
+        await queryClient.invalidateQueries({
+          queryKey: ['tokens-balance'],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['tokens-metadata'],
+        });
 
-        // Pass the evolved token ID back to the parent component after animation
+        // Notify parent component immediately
+        onCompositeComplete(evolvedTokenId);
+
+        // Show success toast
+        toast.success('Successfully evolved arrows!', {
+          icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+          className: 'bg-gradient-to-r from-primary/30 to-primary/10',
+        });
+
+        // Clean up particle effect after a short delay
         setTimeout(() => {
-          onCompositeComplete(evolvedTokenId);
-          toast.success('Successfully evolved arrows!', {
-            icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
-            className: 'bg-gradient-to-r from-primary/30 to-primary/10',
-          });
           setShowParticles(false);
-        }, 2000);
-
-        setIsPending(false);
-        setHasError(false);
+        }, 1000);
       }
     };
 
