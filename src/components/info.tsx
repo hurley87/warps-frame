@@ -83,13 +83,6 @@ export default function Info() {
                 </p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-bold">Opensea Link</h3>
-                <p>
-                  Arrows is a game where players compete to create the higher
-                  green arrow through strategic NFT evolutions.
-                </p>
-              </div>
-              <div className="space-y-2">
                 <h3 className="font-bold">Prize Pool</h3>
                 <Pool />
               </div>
@@ -101,13 +94,13 @@ export default function Info() {
                 </p>
                 <p>Double click on an token to view its details.</p>
                 <p>
-                  To evolve a token, first select the token you want to evolve,
-                  then choose a second token to burn.
+                  To evolve a token, click the token you want to keep and a
+                  second to burn.
                 </p>
                 <p>
-                  Your goal is to be the first to create a single higher token
-                  (color #018A08). Whoever owns that token can claim the entire
-                  prize pool.
+                  Your goal is to create a single higher token with color
+                  #018A08. Whoever owns that token can claim the entire prize
+                  pool.
                 </p>
               </div>
             </div>
