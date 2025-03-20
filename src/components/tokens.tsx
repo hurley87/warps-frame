@@ -15,8 +15,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 function LoadingScreen() {
   return (
-    <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center">
-      <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
+    <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center min-h-screen h-full">
+      <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto h-full">
         <Image
           src="/loading.gif"
           height={256}
