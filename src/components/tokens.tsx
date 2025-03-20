@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAccount } from 'wagmi';
-import { usePaginatedTokens } from '@/hooks/use-tokens';
+import { useInfiniteTokens } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 function LoadingScreen() {
@@ -36,8 +35,9 @@ export function Tokens() {
     tokens = [],
     isLoading,
     isFetching,
-    pagination: { currentPage, totalPages, setPage, hasNextPage, hasPrevPage },
-  } = usePaginatedTokens(address);
+    hasMore,
+    loadMore,
+  } = useInfiniteTokens(address);
 
   const [showCompositeDialog, setShowCompositeDialog] = useState(false);
   const [selectedTokenId, setSelectedTokenId] = useState<number | null>(null);
@@ -131,14 +131,6 @@ export function Tokens() {
     }
   };
 
-  const handleNextPage = () => {
-    setPage(currentPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    setPage(currentPage - 1);
-  };
-
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -217,35 +209,16 @@ export function Tokens() {
           ))}
         </div>
 
-        <div className="flex justify-center gap-4 items-center h-10 mt-auto py-4">
-          {totalPages > 1 ? (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrevPage}
-                disabled={!hasPrevPage}
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <span className="text-sm">
-                Page {currentPage} of {totalPages}
-              </span>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-                disabled={!hasNextPage}
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          ) : (
-            <div className="h-8"></div> // Empty space holder when no pagination needed
+        <div className="flex justify-center mt-auto py-4">
+          {hasMore && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadMore}
+              className="px-6"
+            >
+              Load More
+            </Button>
           )}
         </div>
       </div>

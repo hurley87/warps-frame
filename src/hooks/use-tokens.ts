@@ -146,6 +146,43 @@ export function usePaginatedTokens(address: Address | undefined, pageSize = 9) {
   };
 }
 
+export function useInfiniteTokens(
+  address: Address | undefined,
+  initialPageSize = 9
+) {
+  const { data: balanceData, isLoading: isLoadingBalance } = useTokens(address);
+  const [displayLimit, setDisplayLimit] = useState(initialPageSize);
+
+  const visibleTokenIds = useMemo(() => {
+    if (!balanceData?.tokenIds) return [];
+    return balanceData.tokenIds.slice(0, displayLimit);
+  }, [balanceData?.tokenIds, displayLimit]);
+
+  const {
+    data: tokensData,
+    isLoading: isLoadingMetadata,
+    isFetching,
+  } = useTokensMetadata(address, visibleTokenIds);
+
+  const loadMore = () => {
+    setDisplayLimit((prev) => prev + initialPageSize);
+  };
+
+  const hasMore = useMemo(() => {
+    if (!balanceData?.total) return false;
+    return displayLimit < balanceData.total;
+  }, [balanceData?.total, displayLimit]);
+
+  return {
+    tokens: tokensData || [],
+    isLoading: isLoadingBalance || isLoadingMetadata,
+    isFetching,
+    hasMore,
+    loadMore,
+    total: balanceData?.total || 0,
+  };
+}
+
 export function useClaimPrize() {
   return async (tokenId: number) => {
     try {
