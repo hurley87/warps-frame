@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
 import { createConfig } from 'wagmi';
 import { chain, transport } from '@/lib/chain';
@@ -28,7 +28,7 @@ const decodeBase64URI = (uri: string) => {
   return JSON.parse(json);
 };
 
-export function useTokens(address: Address | undefined, pageSize = 9) {
+export function useTokens(address: Address | undefined) {
   return useQuery({
     queryKey: ['tokens-balance', address],
     queryFn: async () => {

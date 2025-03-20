@@ -127,7 +127,7 @@ export function Tokens() {
     return (
       <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center ">
         <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
-          <img
+          <Image
             src="/loading.gif"
             height={150}
             width={150}
@@ -196,7 +196,7 @@ export function Tokens() {
       {isFetching && (
         <div className="absolute inset-0 g-background/20 backdrop-blur-sm z-10 flex items-center ">
           <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto mb-20">
-            <img
+            <Image
               src="/loading.gif"
               height={150}
               width={150}
