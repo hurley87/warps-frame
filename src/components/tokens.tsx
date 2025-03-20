@@ -10,6 +10,8 @@ import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
 import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function Tokens() {
   const { address } = useAccount();
@@ -21,6 +23,19 @@ export function Tokens() {
     target: number;
   } | null>(null);
   const [evolvedTokenId, setEvolvedTokenId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tokensPerPage = 9;
+
+  // Calculate total pages and current page tokens
+  const totalPages = Math.ceil(tokens.length / tokensPerPage);
+  const indexOfLastToken = currentPage * tokensPerPage;
+  const indexOfFirstToken = indexOfLastToken - tokensPerPage;
+  const currentTokens = tokens.slice(indexOfFirstToken, indexOfLastToken);
+
+  // Reset pagination when tokens change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tokens.length]);
 
   // Reset the evolved token highlight after a delay
   useEffect(() => {
@@ -92,6 +107,14 @@ export function Tokens() {
     if (newEvolvedTokenId) {
       setEvolvedTokenId(newEvolvedTokenId);
     }
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
   if (isLoading) {
@@ -193,7 +216,7 @@ export function Tokens() {
   return (
     <div className="relative p-4">
       {isFetching && (
-        <div className="absolute inset-0 bg-black backdrop-blur-sm z-10 flex items-center">
+        <div className="absolute inset-0 bg-black backdrop-blur-sm z-10 flex items-center ">
           <div className="bg-background/90 rounded-lg shadow-lg p-4 max-w-sm mx-auto">
             <img
               src="/loading.gif"
@@ -225,22 +248,56 @@ export function Tokens() {
           </div>
         </div>
       )}
-      <div className="grid grid-cols-3 gap-4">
-        {tokens.map((token) => (
-          <Token
-            key={`token-${token.id}`}
-            token={token}
-            onSelect={handleTokenSelect}
-            isSelected={selectedTokenId === token.id}
-            isBurnToken={
-              selectedPair?.target === token.id ||
-              (selectedTokenId !== null &&
-                selectedTokenId !== token.id &&
-                evolvedTokenId !== token.id)
-            }
-            isEvolvedToken={evolvedTokenId === token.id}
-          />
-        ))}
+      <div className="flex flex-col h-[calc(100vh-140px)]">
+        <div className="grid grid-cols-3 gap-4 overflow-y-auto flex-1 p-4">
+          {currentTokens.map((token) => (
+            <Token
+              key={`token-${token.id}`}
+              token={token}
+              onSelect={handleTokenSelect}
+              isSelected={selectedTokenId === token.id}
+              isBurnToken={
+                selectedPair?.target === token.id ||
+                (selectedTokenId !== null &&
+                  selectedTokenId !== token.id &&
+                  evolvedTokenId !== token.id)
+              }
+              isEvolvedToken={evolvedTokenId === token.id}
+            />
+          ))}
+        </div>
+
+        <div className="flex justify-center gap-4 items-center h-10 mt-auto py-4">
+          {totalPages > 1 ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <span className="text-sm">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <div className="h-8"></div> // Empty space holder when no pagination needed
+          )}
+        </div>
       </div>
 
       <CompositeDialog
