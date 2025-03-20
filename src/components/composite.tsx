@@ -256,14 +256,14 @@ export function Composite({
       <AnimatePresence mode="wait">
         {isSuccess ? (
           <motion.div
-            className="relative flex items-center justify-center p-3 min-h-[40px] bg-green-950 bg-opacity-40 rounded-md border border-green-500/50 shadow-lg"
+            className="relative flex items-center justify-center p-5 min-h-[56px] bg-green-950 bg-opacity-40 rounded-md border border-green-500/50 shadow-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="flex items-center gap-2 text-green-400 font-medium z-10"
+              className="flex items-center gap-2 text-green-400 font-medium z-10 text-lg"
               animate={{
                 scale: [1, 1.05, 1],
               }}
@@ -273,7 +273,7 @@ export function Composite({
                 ease: 'easeInOut',
               }}
             >
-              <CheckCircle2 className="h-5 w-5" />
+              <CheckCircle2 className="h-6 w-6" />
               <span className="text-green-300">Evolution Complete!</span>
             </motion.div>
           </motion.div>
@@ -282,13 +282,14 @@ export function Composite({
             ref={buttonRef}
             onClick={handleComposite}
             disabled={isLoading || selectedTokens.length !== 2}
-            className={`relative group overflow-hidden border transition-all duration-300 ${
+            className={`relative group overflow-hidden border transition-all duration-300 text-lg py-6 px-8 ${
               hasError
                 ? 'bg-red-500/20 hover:bg-red-500/30'
                 : selectedTokens.length === 2 && !isLoading
                 ? 'bg-gradient-to-r from-primary/30 to-blue-500/20 hover:from-primary/40 hover:to-blue-500/30 shadow-lg shadow-primary/20'
                 : 'bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20'
             }`}
+            size="lg"
           >
             <div
               className={`absolute inset-0 rounded-md blur-xl transition-all duration-300 ${
@@ -327,14 +328,14 @@ export function Composite({
             {/* Success particles */}
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
 
-            <div className="relative flex items-center gap-2 z-10">
+            <div className="relative flex items-center gap-2 z-10 font-bold">
               {isLoading ? (
                 <motion.div
                   className="flex items-center gap-2"
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Evolving...</span>
                 </motion.div>
               ) : hasError ? (
@@ -344,7 +345,7 @@ export function Composite({
                   animate={{ x: 0 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className="h-5 w-5" />
                   <span>Try Again</span>
                 </motion.div>
               ) : (
@@ -370,7 +371,7 @@ export function Composite({
                   }
                 >
                   <Zap
-                    className={`h-4 w-4 ${
+                    className={`h-5 w-5 ${
                       selectedTokens.length === 2 ? 'text-yellow-400' : ''
                     }`}
                   />
