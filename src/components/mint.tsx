@@ -250,13 +250,14 @@ export function Mint() {
 
     try {
       // Specify a lower value for testing to ensure it doesn't run into fee protection
-      const mintValue = parseEther('0.01'); // 0.001 ETH * 10 tokens
+      const mintValue = parseEther('0.08'); // 0.001 ETH * 10 tokens
 
       await writeContract({
         ...ARROWS_CONTRACT,
         functionName: 'mint',
         args: [address],
         value: mintValue,
+        gas: BigInt(3000000),
         // Don't specify gas, let the wallet estimate it (fixes fee protection errors)
       });
 

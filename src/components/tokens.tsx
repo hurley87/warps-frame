@@ -119,7 +119,7 @@ export function Tokens() {
           <div className="space-y-2">
             <h3 className="font-bold">How to Play</h3>
             <p>
-              Mint 8 tokens for 0.01 ETH. Each mint contributes to the prize
+              Mint 8 tokens for 0.08 ETH. Each mint contributes to the prize
               pool.
             </p>
             <p>Double click on an token to view its details.</p>
@@ -183,7 +183,7 @@ export function Tokens() {
         <div className="flex flex-col items-center space-y-2">
           <Mint />
           <p className="text-xs text-muted-foreground">
-            Minting costs 0.01 ETH for a pack of 8 arrows
+            Minting costs 0.08 ETH for a pack of 8 arrows
           </p>
         </div>
       </div>
@@ -193,9 +193,16 @@ export function Tokens() {
   return (
     <div className="relative p-4">
       {isFetching && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center">
+        <div className="absolute inset-0 bg-black backdrop-blur-sm z-10 flex items-center">
           <div className="bg-background/90 rounded-lg shadow-lg p-4 max-w-sm mx-auto">
-            <h3 className="font-bold text-xl text-primary mb-4 text-center pt-20">
+            <img
+              src="/loading.gif"
+              height={150}
+              width={150}
+              alt="loading"
+              className="mx-auto mt-24"
+            />
+            <h3 className="font-bold text-xl text-primary mb-4 text-center pt-4">
               How to Play
             </h3>
             <ol className="space-y-3 text-lg">

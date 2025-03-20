@@ -9,8 +9,13 @@ import {
 } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Pool } from './pool';
+import sdk from '@farcaster/frame-sdk';
+import { useCallback } from 'react';
 
 export default function Info() {
+  const openUrl = useCallback(() => {
+    sdk.actions.openUrl('https://testnets.opensea.io/collection/arrows-60');
+  }, []);
   return (
     <Drawer>
       <DrawerTrigger>
@@ -68,6 +73,21 @@ export default function Info() {
                   Arrows is a game where players compete to create the higher
                   green arrow through strategic NFT evolutions.
                 </p>
+                <p>
+                  <span
+                    onClick={openUrl}
+                    className="text-blue-500 cursor-pointer"
+                  >
+                    View Collection on Opensea
+                  </span>
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold">Opensea Link</h3>
+                <p>
+                  Arrows is a game where players compete to create the higher
+                  green arrow through strategic NFT evolutions.
+                </p>
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold">Prize Pool</h3>
@@ -76,7 +96,7 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
                 <p>
-                  Mint 8 tokens for 0.01 ETH. Each mint contributes to the prize
+                  Mint 8 tokens for 0.08 ETH. Each mint contributes to the prize
                   pool.
                 </p>
                 <p>Double click on an token to view its details.</p>
