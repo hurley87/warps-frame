@@ -190,6 +190,17 @@ export function Tokens() {
   return (
     <div className="relative p-4">
       {isFetching && <LoadingScreen />}
+
+      {tokens.length === 8 && (
+        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
+          <p>
+            Click on an token to select it. Click another token after to evolve
+            it. Evolve tokens until you are left with a token with one arrow. If
+            that token has the higher arrow you win.
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col h-[calc(100vh-140px)]">
         <div className="grid grid-cols-3 gap-4 p-4">
           {tokens.map((token) => (
