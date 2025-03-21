@@ -196,7 +196,7 @@ export function Tokens() {
           <p>
             {`Click on a token to select it. Click another token after to evolve
             it. Evolve tokens until you are left with one arrow. If it's the
-            higher arrow you win.`}
+            higher (green and glowing) arrow you win.`}
           </p>
         </div>
       )}

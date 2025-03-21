@@ -4,8 +4,8 @@ import { Abi } from 'viem';
  * Contract addresses for different environments
  */
 export const CONTRACT_ADDRESSES = {
-  production: '0xfc9a4952a2d5c5ba6e2f968bacbc65fe5eadcf86' as `0x${string}`,
-  development: '0x413e82F990DE796CC279c180F711d720A7Ee7728' as `0x${string}`,
+  production: '0x910735369De515C76A45322bB2d9a8FD286b5255' as `0x${string}`,
+  development: '0x703dDFB464186Bae90CAb1369C6729d5C0F17edB' as `0x${string}`,
 };
 
 /**
