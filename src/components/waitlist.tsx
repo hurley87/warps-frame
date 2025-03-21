@@ -132,7 +132,7 @@ export default function Waitlist() {
           </motion.div>
 
           <p className="text-foreground/40 text-xs text-center pt-4">
-            You'll be notified when the game is ready to play
+            {`You'll be notified when the game is ready to play`}
           </p>
         </div>
       </motion.div>
