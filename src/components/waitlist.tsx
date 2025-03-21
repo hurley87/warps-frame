@@ -29,7 +29,7 @@ export default function Waitlist() {
 
   const handleShareToWarpcast = useCallback(() => {
     const shareText =
-      'I just joined the waitlist for Arrows! A fun new game coming soon 🏹';
+      'I just joined the waitlist for Arrows! A fun new game coming soon ↑';
     const shareUrl = encodeURIComponent('https://arrows.art');
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText
