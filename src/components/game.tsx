@@ -36,7 +36,7 @@ export default function Game() {
 
   const { isConnected } = useAccount();
   const { connect } = useConnect();
-  const { switchChain, isPending, error } = useSwitchChain();
+  const { switchChain } = useSwitchChain();
 
   const chainId = useChainId();
   console.log('chainId', chainId);
@@ -86,7 +86,7 @@ export default function Game() {
     try {
       await switchChain({ chainId: targetChainId });
     } catch (err) {
-      // Error handling is done in the useEffect above
+      console.error('Error switching chain:', err);
     }
   };
 
