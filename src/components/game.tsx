@@ -2,7 +2,7 @@
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount, useChainId, useConnect, useSwitchChain } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
@@ -18,6 +18,7 @@ import {
   Coins,
   Smartphone,
 } from 'lucide-react';
+import { chain } from '@/lib/chain';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -35,6 +36,10 @@ export default function Game() {
 
   const { isConnected } = useAccount();
   const { connect } = useConnect();
+  const { switchChain, isPending, error } = useSwitchChain();
+
+  const chainId = useChainId();
+  console.log('chainId', chainId);
 
   // Generate random floating arrows for the background animation
   useEffect(() => {
@@ -74,11 +79,23 @@ export default function Game() {
     }
   }, [isConnected]);
 
+  const targetChainId = chain.id;
+
+  // Function to handle chain switching
+  const handleSwitchChain = async () => {
+    try {
+      await switchChain({ chainId: targetChainId });
+    } catch (err) {
+      // Error handling is done in the useEffect above
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       const context = await sdk.context;
       setContext(context);
       sdk.actions.ready();
+      handleSwitchChain();
     };
     if (sdk && !isSDKLoaded) {
       setIsSDKLoaded(true);
