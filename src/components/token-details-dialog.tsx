@@ -3,6 +3,9 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
+import { useCallback } from 'react';
+import sdk from '@farcaster/frame-sdk';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts';
 
 interface TokenDetailsDialogProps {
   token: TokenType | null;
@@ -25,6 +28,13 @@ export function TokenDetailsDialog({
     },
     {}
   );
+
+  // OpenSea link for the token
+  const openSeaUrl = `https://opensea.io/item/base/${CONTRACT_ADDRESSES.production}/${token.id}`;
+
+  const openOpenSeaUrl = useCallback(() => {
+    sdk.actions.openUrl(openSeaUrl);
+  }, [openSeaUrl]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,7 +60,7 @@ export function TokenDetailsDialog({
 
           {/* Token details */}
           <div className="px-16">
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-6 mt-4">
               {Object.entries(attributes).map(([trait, value]) => (
                 <div key={trait} className="flex flex-col">
                   <span className="text-xs text-gray-400 uppercase tracking-wider">
@@ -68,6 +78,33 @@ export function TokenDetailsDialog({
                 <span className="font-medium text-white text-xs">
                   #{token.id}
                 </span>
+              </div>
+
+              {/* OpenSea Link */}
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-400 uppercase tracking-wider">
+                  Links
+                </span>
+                <button
+                  onClick={openOpenSeaUrl}
+                  className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
+                >
+                  <span>OpenSea</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
