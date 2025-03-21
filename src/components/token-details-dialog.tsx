@@ -18,6 +18,21 @@ export function TokenDetailsDialog({
   open,
   onOpenChange,
 }: TokenDetailsDialogProps) {
+  // Create a safe reference to token in case it's null
+  const tokenId = token?.id;
+
+  // Generate OpenSea URL safely - will be undefined if token is null
+  const openSeaUrl = token
+    ? `https://opensea.io/item/base/${CONTRACT_ADDRESSES.production}/${tokenId}`
+    : '';
+
+  // Move useCallback outside of the conditional
+  const openOpenSeaUrl = useCallback(() => {
+    if (openSeaUrl) {
+      sdk.actions.openUrl(openSeaUrl);
+    }
+  }, [openSeaUrl]);
+
   if (!token) return null;
 
   // Extract token attributes for display
@@ -28,13 +43,6 @@ export function TokenDetailsDialog({
     },
     {}
   );
-
-  // OpenSea link for the token
-  const openSeaUrl = `https://opensea.io/item/base/${CONTRACT_ADDRESSES.production}/${token.id}`;
-
-  const openOpenSeaUrl = useCallback(() => {
-    sdk.actions.openUrl(openSeaUrl);
-  }, [openSeaUrl]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
