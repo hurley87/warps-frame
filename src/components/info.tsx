@@ -10,14 +10,17 @@ import {
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Pool } from './pool';
 import sdk from '@farcaster/frame-sdk';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export default function Info() {
+  const [open, setOpen] = useState(true);
+
   const openUrl = useCallback(() => {
     sdk.actions.openUrl('https://opensea.io/collection/arrows-11');
   }, []);
+
   return (
-    <Drawer>
+    <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
         <svg
           xmlns="http://www.w3.org/2000/svg"
