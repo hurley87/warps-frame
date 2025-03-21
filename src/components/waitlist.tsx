@@ -1,6 +1,6 @@
 'use client';
 
-import sdk, { type Context } from '@farcaster/frame-sdk';
+import sdk from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { motion } from 'framer-motion';
@@ -8,12 +8,12 @@ import { Loader2, Smartphone } from 'lucide-react';
 
 export default function Waitlist() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<Context.FrameContext>();
+  const [isAddedToWaitlist, setIsAddedToWaitlist] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       const context = await sdk.context;
-      setContext(context);
+      setIsAddedToWaitlist(context?.client?.added);
       sdk.actions.ready();
     };
     if (sdk && !isSDKLoaded) {
@@ -24,6 +24,7 @@ export default function Waitlist() {
 
   const handleAddToWaitlist = async () => {
     await sdk.actions.addFrame();
+    setIsAddedToWaitlist(true);
   };
 
   // Desktop message component - same as in game component
@@ -103,7 +104,7 @@ export default function Waitlist() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            {!context?.client?.added ? (
+            {!isAddedToWaitlist ? (
               <Button
                 onClick={handleAddToWaitlist}
                 size="lg"
