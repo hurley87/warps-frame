@@ -1,10 +1,10 @@
 'use client';
 
 import sdk from '@farcaster/frame-sdk';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from './ui/button';
 import { motion } from 'framer-motion';
-import { Loader2, Smartphone } from 'lucide-react';
+import { Loader2, Smartphone, Share2 } from 'lucide-react';
 
 export default function Waitlist() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -26,6 +26,16 @@ export default function Waitlist() {
     await sdk.actions.addFrame();
     setIsAddedToWaitlist(true);
   };
+
+  const handleShareToWarpcast = useCallback(() => {
+    const shareText =
+      'I just joined the waitlist for Arrows! A fun new game coming soon 🏹';
+    const shareUrl = encodeURIComponent('https://arrows.art');
+    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      shareText
+    )}&embeds[]=${shareUrl}`;
+    sdk.actions.openUrl(warpcastUrl);
+  }, []);
 
   // Desktop message component - same as in game component
   const DesktopMessage = () => (
@@ -117,18 +127,33 @@ export default function Waitlist() {
                 Add to waitlist
               </Button>
             ) : (
-              <Button
-                disabled
-                size="lg"
-                className="w-full font-medium py-2 px-8 rounded-md border-0 opacity-90"
-                style={{
-                  background: 'linear-gradient(to right, #10b981, #059669)',
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)',
-                }}
-              >
-                <span className="mr-2">✅</span>
-                Added to waitlist
-              </Button>
+              <div className="space-y-3 w-full">
+                <Button
+                  disabled
+                  size="lg"
+                  className="w-full font-medium py-2 px-8 rounded-md border-0 opacity-90"
+                  style={{
+                    background: 'linear-gradient(to right, #10b981, #059669)',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)',
+                  }}
+                >
+                  <span className="mr-2">✅</span>
+                  Added to waitlist
+                </Button>
+
+                <Button
+                  onClick={handleShareToWarpcast}
+                  size="lg"
+                  className="w-full font-medium py-2 px-8 rounded-md transition-all duration-200 border-0 shadow-md flex items-center justify-center gap-2"
+                  style={{
+                    background: 'linear-gradient(to right, #8b5cf6, #6366f1)',
+                    boxShadow: '0 4px 14px rgba(99, 102, 241, 0.2)',
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share on Warpcast
+                </Button>
+              </div>
             )}
           </motion.div>
 
