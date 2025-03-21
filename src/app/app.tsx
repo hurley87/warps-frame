@@ -2,10 +2,10 @@
 
 import dynamic from 'next/dynamic';
 
-const Game = dynamic(() => import('@/components/game'), {
+const Waitlist = dynamic(() => import('@/components/waitlist'), {
   ssr: false,
 });
 
 export default function App() {
-  return <Game />;
+  return <Waitlist />;
 }
