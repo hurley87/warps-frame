@@ -194,9 +194,9 @@ export function Tokens() {
       {tokens.length === 8 && (
         <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
           <p>
-            Click on an token to select it. Click another token after to evolve
-            it. Evolve tokens until you are left with a token with one arrow. If
-            that token has the higher arrow you win.
+            {`Click on a token to select it. Click another token after to evolve
+            it. Evolve tokens until you are left with one arrow. If it's the
+            higher arrow you win.`}
           </p>
         </div>
       )}
