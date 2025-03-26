@@ -133,11 +133,28 @@ export default function Game() {
     }
   };
 
+  console.log('context', context);
+
   // Game content based on connection status
   const renderGameContent = () => {
     if (!isConnected) {
       return (
         <div className="relative flex flex-col items-center justify-center h-screen p-16 text-center space-y-6 overflow-hidden">
+          {/* Fixed banner for mobile frame experience */}
+          {!context && (
+            <div className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-primary/20">
+              <a
+                href="https://warpcast.com/higherarrows"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-4 py-2 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Smartphone className="h-4 w-4" />
+                <span>Play in a Farcaster Frame on mobile</span>
+              </a>
+            </div>
+          )}
+
           {/* Animated floating arrows background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {floatingArrows.map((arrow) => (
