@@ -191,6 +191,12 @@ export function Tokens() {
     <div className="relative p-4">
       {isFetching && <LoadingScreen />}
 
+      {tokens.length === 1 && (
+        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
+          <p>To continue, you have to mint more arrows.</p>
+        </div>
+      )}
+
       {tokens.length === 8 && (
         <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
           <p>
