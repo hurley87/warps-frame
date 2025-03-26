@@ -16,7 +16,7 @@ export default function Info() {
   const [open, setOpen] = useState(true);
 
   const openUrl = useCallback(() => {
-    sdk.actions.openUrl('https://opensea.io/collection/arrows-11');
+    sdk.actions.openUrl('https://opensea.io/collection/arrows-12');
   }, []);
 
   return (
@@ -43,7 +43,6 @@ export default function Info() {
             <DrawerTitle>Arrows</DrawerTitle>
             <DrawerDescription>Arrows</DrawerDescription>
           </VisuallyHidden.Root>
-
           <div className="px-6 py-4 border-b">
             <div className="flex justify-between items-center">
               <div className="text-xl">Arrows</div>
