@@ -1,10 +1,7 @@
 'use client';
 
-import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
-import { useAccount, useChainId, useConnect, useSwitchChain } from 'wagmi';
-import { config } from '@/components/providers/WagmiProvider';
-import { Button } from './ui/button';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
 import Info from './info';
@@ -16,13 +13,11 @@ import {
   Trophy,
   Flame,
   Coins,
-  Smartphone,
 } from 'lucide-react';
 import { chain } from '@/lib/chain';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-export default function Game() {
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<Context.FrameContext>();
+export default function DesktopGame() {
   const [floatingArrows, setFloatingArrows] = useState<
     Array<{
       id: number;
@@ -35,8 +30,9 @@ export default function Game() {
   >([]);
 
   const { isConnected } = useAccount();
-  const { connect } = useConnect();
   const { switchChain } = useSwitchChain();
+
+  console.log('isConnected', isConnected);
 
   const chainId = useChainId();
   console.log('chainId', chainId);
@@ -80,40 +76,26 @@ export default function Game() {
   }, [isConnected]);
 
   const targetChainId = chain.id;
+  console.log('targetChainId', targetChainId);
 
   // Function to handle chain switching
   const handleSwitchChain = async () => {
+    if (chainId === targetChainId) return;
+
+    console.log('switching chain');
     try {
       await switchChain({ chainId: targetChainId });
+      console.log('switched chain');
     } catch (err) {
       console.error('Error switching chain:', err);
     }
   };
 
   useEffect(() => {
-    const load = async () => {
-      const context = await sdk.context;
-      setContext(context);
-      sdk.actions.ready();
+    if (isConnected && chainId !== targetChainId) {
       handleSwitchChain();
-    };
-    if (sdk && !isSDKLoaded) {
-      setIsSDKLoaded(true);
-      load();
     }
-  }, [isSDKLoaded]);
-
-  useEffect(() => {
-    if (!context?.client?.added) {
-      (async () => {
-        await sdk.actions.addFrame();
-      })();
-    }
-  }, [context]);
-
-  if (!isSDKLoaded) {
-    return <div>Loading...</div>;
-  }
+  }, [isConnected, chainId]);
 
   // Helper function to render the appropriate arrow icon
   const renderArrowIcon = (type: string, color: string) => {
@@ -175,14 +157,8 @@ export default function Game() {
 
           {/* Connect wallet CTA - Moved up for prominence */}
           <div className="relative z-10 w-full max-w-md">
-            <div className="bg-black/50 backdrop-blur-md rounded-xl p-0 border-2 border-primary/50 shadow-lg shadow-primary/20 animate-pulse-slow">
-              <Button
-                size="lg"
-                onClick={() => connect({ connector: config.connectors[0] })}
-                className="w-full bg-white text-black font-bold py-6 text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-              >
-                Connect Wallet
-              </Button>
+            <div className="w-fit mx-auto">
+              <ConnectButton />
             </div>
           </div>
 
@@ -241,25 +217,6 @@ export default function Game() {
     );
   };
 
-  // Desktop message component
-  const DesktopMessage = () => (
-    <div className="hidden sm:flex flex-col items-center justify-center h-screen p-8 text-center">
-      <div className="bg-black/50 backdrop-blur-md rounded-xl p-8 border-2 border-primary/50 shadow-lg max-w-md">
-        <Smartphone className="h-12 w-12 mx-auto mb-4 text-primary" />
-        <h2 className="text-2xl font-bold mb-2">Frame Only Experience</h2>
-        <p className="text-muted-foreground mb-4">Find it on Farcaster.</p>
-      </div>
-    </div>
-  );
-
   // Return different content based on screen size
-  return (
-    <>
-      {/* Mobile view - only visible on small screens (below sm breakpoint) */}
-      <div className="sm:hidden">{renderGameContent()}</div>
-
-      {/* Desktop message - only visible on sm screens and above */}
-      <DesktopMessage />
-    </>
-  );
+  return <>{renderGameContent()}</>;
 }

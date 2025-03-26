@@ -46,7 +46,7 @@ export function TokenDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-[600px] overflow-hidden bg-black text-white border-none p-6 h-full">
+      <DialogContent className="w-full h-screen overflow-hidden bg-black text-white border-none p-6 min-h-screen">
         <VisuallyHidden.Root>
           <DialogTitle>Token #{token.id} Details</DialogTitle>
         </VisuallyHidden.Root>
@@ -68,7 +68,7 @@ export function TokenDetailsDialog({
 
           {/* Token details */}
           <div className="px-16">
-            <div className="grid grid-cols-2 gap-6 mt-4">
+            <div className="flex flex-wrap justify-center items-center gap-12 p-2">
               {Object.entries(attributes).map(([trait, value]) => (
                 <div key={trait} className="flex flex-col">
                   <span className="text-xs text-gray-400 uppercase tracking-wider">
