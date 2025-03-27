@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
+import { chain } from '@/lib/chain';
 
 export function Mint() {
   const { address } = useAccount();
@@ -216,6 +217,8 @@ export function Mint() {
   const handleMint = async () => {
     if (!address) return;
 
+    // check if
+
     // Play click sound if available
     const audio = new Audio('/sounds/composite-start.wav');
     audio.volume = 0.4;
@@ -265,6 +268,7 @@ export function Mint() {
         args: [address],
         value: mintValue,
         gas: BigInt(3000000),
+        chainId: chain.id,
         // Don't specify gas, let the wallet estimate it (fixes fee protection errors)
       });
 

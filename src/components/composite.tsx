@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { chain } from '@/lib/chain';
 
 interface CompositeProps {
   selectedTokens: number[];
@@ -174,6 +175,7 @@ export function Composite({
         functionName: 'composite',
         args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
         gas: undefined,
+        chainId: chain.id,
       });
     } catch (error) {
       console.error('Unexpected composite error:', error);
