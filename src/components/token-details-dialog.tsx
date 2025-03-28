@@ -26,12 +26,23 @@ export function TokenDetailsDialog({
     ? `https://opensea.io/item/base/${CONTRACT_ADDRESSES.production}/${tokenId}`
     : '';
 
+  // Generate Highlight URL safely - will be undefined if token is null
+  const highlightUrl = token
+    ? `https://highlight.xyz/mint/base:${CONTRACT_ADDRESSES.production}:64d248a33b573b35dbe5f5b802e2386f?tokenId=${tokenId}`
+    : '';
+
   // Move useCallback outside of the conditional
   const openOpenSeaUrl = useCallback(() => {
     if (openSeaUrl) {
       sdk.actions.openUrl(openSeaUrl);
     }
   }, [openSeaUrl]);
+
+  const openHighlightUrl = useCallback(() => {
+    if (highlightUrl) {
+      sdk.actions.openUrl(highlightUrl);
+    }
+  }, [highlightUrl]);
 
   if (!token) return null;
 
@@ -88,31 +99,53 @@ export function TokenDetailsDialog({
                 </span>
               </div>
 
-              {/* OpenSea Link */}
+              {/* Links Section */}
               <div className="flex flex-col">
                 <span className="text-xs text-gray-400 uppercase tracking-wider">
                   Links
                 </span>
-                <button
-                  onClick={openOpenSeaUrl}
-                  className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
-                >
-                  <span>OpenSea</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="size-3"
+                <div className="flex gap-4">
+                  <button
+                    onClick={openHighlightUrl}
+                    className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                    />
-                  </svg>
-                </button>
+                    <span>Highlight</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={openOpenSeaUrl}
+                    className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
+                  >
+                    <span>OpenSea</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
