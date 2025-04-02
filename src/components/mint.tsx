@@ -260,7 +260,7 @@ export function Mint() {
 
     try {
       // Specify a lower value for testing to ensure it doesn't run into fee protection
-      const mintValue = parseEther('0.008'); // 0.001 ETH * 10 tokens
+      const mintValue = parseEther('0.004'); // 0.001 ETH * 10 tokens
 
       await writeContract({
         ...ARROWS_CONTRACT,

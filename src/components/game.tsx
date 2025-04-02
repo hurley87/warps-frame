@@ -211,7 +211,7 @@ export default function Game() {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Mint Arrows</h3>
               <p className="text-xs text-muted-foreground">
-                Mint 8 arrows for 0.008 ETH. Each mint contributes to the prize
+                Mint 8 arrows for 0.004 ETH. Each mint contributes to the prize
                 pool.
               </p>
             </div>

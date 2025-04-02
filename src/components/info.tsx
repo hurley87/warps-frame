@@ -91,7 +91,7 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
                 <p>
-                  Mint 8 tokens for 0.008 ETH. Each mint contributes to the
+                  Mint 8 tokens for 0.004 ETH. Each mint contributes to the
                   prize pool.
                 </p>
                 <p>Double click on an token to view its details.</p>

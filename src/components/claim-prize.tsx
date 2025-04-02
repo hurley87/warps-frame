@@ -24,6 +24,7 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
   const [isClaimingPrize, setIsClaimingPrize] = useState(false);
 
   const handleClaimPrize = async (tokenId: number) => {
+    console.log('handleClaimPrize', tokenId);
     try {
       setIsClaimingPrize(true);
       await claimPrize(tokenId);
