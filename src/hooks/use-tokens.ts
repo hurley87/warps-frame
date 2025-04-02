@@ -1,14 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
-import { createConfig } from 'wagmi';
-import { chain, transport } from '@/lib/chain';
+import { createConfig, http } from 'wagmi';
+import { base, baseSepolia } from 'wagmi/chains';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 import { useState, useMemo } from 'react';
+import type { Transport } from 'viem';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+const chain = isDevelopment ? baseSepolia : base;
+
+type ChainId = typeof base.id | typeof baseSepolia.id;
+type TransportMap = Record<ChainId, Transport>;
 
 const config = createConfig({
   chains: [chain],
-  transports: transport,
+  transports: {
+    [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC!),
+    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC!),
+  } as TransportMap,
 });
 
 export interface Token {
