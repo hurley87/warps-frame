@@ -1,24 +1,25 @@
-import { useReadContract } from 'wagmi';
+import { useBalance } from 'wagmi';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { formatEther } from 'viem';
 
 export function Pool({ showLabel = false }: { showLabel?: boolean }) {
-  const { data: winnerShare, isLoading } = useReadContract({
+  const { data: balance, isLoading } = useBalance({
     address: ARROWS_CONTRACT.address,
-    abi: ARROWS_CONTRACT.abi,
-    functionName: 'getWinnerShare',
   });
 
+  const sixtyPercent = balance
+    ? (balance.value * BigInt(60)) / BigInt(100)
+    : BigInt(0);
   const formattedAmount = isLoading ? (
     <span className="animate-pulse">Loading...</span>
   ) : (
-    `${formatEther(winnerShare || BigInt(0))} ETH`
+    `${formatEther(sixtyPercent)} ETH`
   );
 
   if (showLabel) {
     return (
       <div className="space-y-2">
-        <h3 className="font-bold">Prize Pool</h3>
+        <h3 className="font-bold">60% of Contract Balance</h3>
         <p>{formattedAmount}</p>
       </div>
     );
