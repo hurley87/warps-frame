@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Loader2, RefreshCw, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
+import posthog from 'posthog-js';
 
 interface CompositeProps {
   selectedTokens: number[];
@@ -176,6 +177,12 @@ export function Composite({
         args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
         gas: undefined,
         chainId: chain.id,
+      });
+
+      posthog.capture('composite', {
+        address,
+        token1: selectedTokens[0],
+        token2: selectedTokens[1],
       });
     } catch (error) {
       console.error('Unexpected composite error:', error);

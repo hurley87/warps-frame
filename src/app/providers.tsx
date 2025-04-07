@@ -9,6 +9,17 @@ const WagmiProvider = dynamic(
   }
 );
 
+const PostHogProvider = dynamic(
+  () => import('./posthog').then((mod) => mod.PostHogProvider),
+  {
+    ssr: false,
+  }
+);
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <WagmiProvider>{children}</WagmiProvider>;
+  return (
+    <WagmiProvider>
+      <PostHogProvider>{children}</PostHogProvider>
+    </WagmiProvider>
+  );
 }

@@ -21,6 +21,7 @@ import {
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
+import posthog from 'posthog-js';
 
 export function Mint() {
   const { address } = useAccount();
@@ -270,6 +271,10 @@ export function Mint() {
         gas: BigInt(3000000),
         chainId: chain.id,
         // Don't specify gas, let the wallet estimate it (fixes fee protection errors)
+      });
+
+      posthog.capture('mint', {
+        address,
       });
 
       // Clear the timeout since we got past the writeContract
