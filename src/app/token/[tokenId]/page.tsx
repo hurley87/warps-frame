@@ -72,12 +72,14 @@ export async function generateMetadata({
         action: {
           type: 'launch_frame',
           name: `Arrows Token #${tokenId}`,
-          url: `${appUrl}/token/${tokenId}`,
+          url: `${appUrl}`,
           splashImageUrl: `${appUrl}/token/${tokenId}/splash`,
           splashBackgroundColor: '#000000',
         },
       },
     };
+
+    console.log('frame', frame);
 
     return {
       title: `Arrows Token #${tokenId}`,
