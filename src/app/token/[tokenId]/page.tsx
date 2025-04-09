@@ -66,14 +66,14 @@ export async function generateMetadata({
 
     const frame = {
       version: 'next',
-      imageUrl: `${appUrl}/api/og?image=${encodeURIComponent(metadata.image)}`,
+      imageUrl: `${appUrl}/arrows.gif`,
       button: {
         title: 'View Token',
         action: {
           type: 'launch_frame',
           name: `Arrows Token #${tokenId}`,
           url: `${appUrl}`,
-          splashImageUrl: `${appUrl}/token/${tokenId}/splash`,
+          splashImageUrl: `${appUrl}/splash.jpg`,
           splashBackgroundColor: '#000000',
         },
       },
