@@ -91,6 +91,7 @@ export async function generateMetadata({
     };
   } catch (error) {
     // Return a default frame for non-existent tokens
+    console.error('Error fetching token metadata:', error);
     const frame = {
       version: 'next',
       imageUrl: `${appUrl}/arrows.gif`,
