@@ -19,11 +19,35 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             width: '100%',
             height: '100%',
-            backgroundImage: `url(${imageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            background: '#000000',
+            position: 'relative',
           }}
-        />
+        >
+          {imageUrl.startsWith('data:image/svg+xml;base64,') ? (
+            <div
+              style={{
+                position: 'absolute',
+                inset: '-20%',
+                width: '140%',
+                height: '140%',
+                filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
+              }}
+              dangerouslySetInnerHTML={{
+                __html: atob(imageUrl.split(',')[1]),
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundImage: `url(${imageUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+          )}
+        </div>
       ),
       {
         width: 1200,
