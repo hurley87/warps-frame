@@ -66,7 +66,7 @@ export async function generateMetadata({
 
     const frame = {
       version: 'next',
-      imageUrl: metadata.image,
+      imageUrl: `${appUrl}/api/og?image=${encodeURIComponent(metadata.image)}`,
       button: {
         title: 'View Token',
         action: {
