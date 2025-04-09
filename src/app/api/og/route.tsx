@@ -21,16 +21,20 @@ export async function GET(request: NextRequest) {
             height: '100%',
             background: '#000000',
             position: 'relative',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {imageUrl.startsWith('data:image/svg+xml;base64,') ? (
             <div
               style={{
                 position: 'absolute',
-                inset: '-20%',
-                width: '140%',
-                height: '140%',
+                width: '800px',
+                height: '800px',
                 filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
               dangerouslySetInnerHTML={{
                 __html: atob(imageUrl.split(',')[1]),
@@ -50,7 +54,7 @@ export async function GET(request: NextRequest) {
         </div>
       ),
       {
-        width: 1200,
+        width: 630,
         height: 630,
       }
     );
