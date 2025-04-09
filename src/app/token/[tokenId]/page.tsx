@@ -2,15 +2,20 @@ import { Metadata } from 'next';
 import TokenPageClient from './token-page-client';
 import { readContract } from '@wagmi/core';
 import { createConfig, http } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
+import { chain } from '@/lib/chain';
 import { ARROWS_CONTRACT } from '@/lib/contracts';
 import { type Transport } from 'viem';
+import { base } from 'wagmi/chains';
+
+const rpc =
+  chain.id === base.id
+    ? process.env.NEXT_PUBLIC_BASE_RPC!
+    : process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC!;
 
 const config = createConfig({
-  chains: [base],
+  chains: [chain],
   transports: {
-    [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC!),
-    [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC!),
+    [chain.id]: http(rpc),
   } as Record<number, Transport>,
 });
 
@@ -52,8 +57,12 @@ export async function generateMetadata({
 }: TokenPageProps): Promise<Metadata> {
   const { tokenId } = await params;
 
+  console.log('tokenId', tokenId);
+
   try {
     const metadata = await getTokenMetadata(tokenId);
+
+    console.log('metadata', metadata);
 
     const frame = {
       version: 'next',

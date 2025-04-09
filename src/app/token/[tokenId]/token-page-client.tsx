@@ -16,7 +16,7 @@ export default function TokenPageClient({ params }: TokenPageClientProps) {
   const { tokenId } = params;
   const parsedTokenId = parseInt(tokenId, 10);
 
-  // Fetch token metadata
+  // Fetch token metadata using the hook
   const {
     data: tokens,
     isLoading,
