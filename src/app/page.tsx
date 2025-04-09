@@ -7,7 +7,7 @@ const frame = {
   version: 'next',
   imageUrl: `${appUrl}/arrows.gif`,
   button: {
-    title: 'Join Arrows',
+    title: 'Mint Arrows',
     action: {
       type: 'launch_frame',
       name: 'Arrows',
