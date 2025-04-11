@@ -115,7 +115,7 @@ export function TokenDetailsDialog({
                       href={tokenPageUrl}
                       className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
                     >
-                      <span>Token Page</span>
+                      <span>View</span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
