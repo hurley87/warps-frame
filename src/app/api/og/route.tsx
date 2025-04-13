@@ -54,14 +54,20 @@ export async function GET(request: NextRequest) {
       return new Response('Invalid image URL in metadata', { status: 400 });
     }
 
-    // Ensure the image URL is absolute and properly formatted
+    // Handle SVG data URI
     let imageUrl = metadata.image;
-    if (!imageUrl.startsWith('http')) {
-      imageUrl = `https://${imageUrl}`;
+    if (imageUrl.startsWith('data:image/svg+xml;base64,')) {
+      // Convert base64 SVG to data URL
+      const svgData = imageUrl.split(',')[1];
+      imageUrl = `data:image/svg+xml;base64,${svgData}`;
+    } else {
+      // Handle regular image URLs
+      if (!imageUrl.startsWith('http')) {
+        imageUrl = `https://${imageUrl}`;
+      }
+      // Remove any IPFS protocol prefix if present
+      imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
     }
-
-    // Remove any IPFS protocol prefix if present
-    imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
 
     return new ImageResponse(
       (
@@ -85,33 +91,15 @@ export async function GET(request: NextRequest) {
               filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
             }}
           >
-            {metadata.image.startsWith('data:image/svg+xml;base64,') ? (
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: Buffer.from(
-                    metadata.image.split(',')[1],
-                    'base64'
-                  ).toString(),
-                }}
-              />
-            ) : (
-              <img
-                src={imageUrl}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                }}
-                alt="NFT"
-              />
-            )}
+            <img
+              src={imageUrl}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+              alt="NFT"
+            />
           </div>
         </div>
       ),
