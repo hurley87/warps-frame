@@ -1,16 +1,53 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
+import { readContract } from '@wagmi/core';
+import { createConfig, http } from 'wagmi';
+import { chain } from '@/lib/chain';
+import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { type Transport } from 'viem';
+import { base } from 'wagmi/chains';
+
+const rpc =
+  chain.id === base.id
+    ? process.env.NEXT_PUBLIC_BASE_RPC!
+    : process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC!;
+
+const config = createConfig({
+  chains: [chain],
+  transports: {
+    [chain.id]: http(rpc),
+  } as Record<number, Transport>,
+});
+
+const decodeBase64URI = (uri: string) => {
+  const json = Buffer.from(uri.substring(29), 'base64').toString();
+  return JSON.parse(json);
+};
 
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const imageUrl = searchParams.get('image');
+    const tokenId = searchParams.get('tokenId');
 
-    if (!imageUrl) {
-      return new Response('Missing image parameter', { status: 400 });
+    if (!tokenId) {
+      return new Response('Missing tokenId parameter', { status: 400 });
     }
+
+    // Fetch token metadata
+    const tokenMetadata = await readContract(config, {
+      address: ARROWS_CONTRACT.address,
+      abi: ARROWS_CONTRACT.abi,
+      functionName: 'tokenURI',
+      args: [BigInt(tokenId)],
+    });
+
+    if (!tokenMetadata || tokenMetadata === '0x') {
+      return new Response('Token not found', { status: 404 });
+    }
+
+    const metadata = decodeBase64URI(tokenMetadata);
 
     return new ImageResponse(
       (
@@ -25,7 +62,7 @@ export async function GET(request: NextRequest) {
             justifyContent: 'center',
           }}
         >
-          {imageUrl.startsWith('data:image/svg+xml;base64,') ? (
+          {metadata.image.startsWith('data:image/svg+xml;base64,') ? (
             <div
               style={{
                 position: 'absolute',
@@ -37,7 +74,7 @@ export async function GET(request: NextRequest) {
                 justifyContent: 'center',
               }}
               dangerouslySetInnerHTML={{
-                __html: atob(imageUrl.split(',')[1]),
+                __html: atob(metadata.image.split(',')[1]),
               }}
             />
           ) : (
@@ -45,7 +82,7 @@ export async function GET(request: NextRequest) {
               style={{
                 width: '100%',
                 height: '100%',
-                backgroundImage: `url(${imageUrl})`,
+                backgroundImage: `url(${metadata.image})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}

@@ -70,7 +70,7 @@ export async function generateMetadata({
 
     const frame = {
       version: 'next',
-      imageUrl,
+      imageUrl: `${appUrl}/api/og?tokenId=${tokenId}`,
       button: {
         title: 'Play Arrows',
         action: {
