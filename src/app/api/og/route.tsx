@@ -49,6 +49,16 @@ export async function GET(request: NextRequest) {
 
     const metadata = decodeBase64URI(tokenMetadata);
 
+    // Verify the image URL is properly formatted
+    if (!metadata.image || typeof metadata.image !== 'string') {
+      return new Response('Invalid image URL in metadata', { status: 400 });
+    }
+
+    // Ensure the image URL is absolute
+    const imageUrl = metadata.image.startsWith('http')
+      ? metadata.image
+      : `https://${metadata.image}`;
+
     return new ImageResponse(
       (
         <div
@@ -62,22 +72,25 @@ export async function GET(request: NextRequest) {
             justifyContent: 'center',
           }}
         >
-          <div
+          <img
+            src={imageUrl}
             style={{
               width: '100%',
               height: '100%',
-              backgroundImage: `url(${metadata.image})`,
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
+              objectFit: 'contain',
               filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
             }}
+            alt="NFT"
           />
         </div>
       ),
       {
         width: 630,
         height: 630,
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
       }
     );
   } catch (error) {
