@@ -62,32 +62,17 @@ export async function GET(request: NextRequest) {
             justifyContent: 'center',
           }}
         >
-          {metadata.image.startsWith('data:image/svg+xml;base64,') ? (
-            <div
-              style={{
-                position: 'absolute',
-                width: '800px',
-                height: '800px',
-                filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: atob(metadata.image.split(',')[1]),
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundImage: `url(${metadata.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-          )}
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundImage: `url(${metadata.image})`,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
+            }}
+          />
         </div>
       ),
       {
