@@ -6,6 +6,7 @@ import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useCallback } from 'react';
 import sdk from '@farcaster/frame-sdk';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts';
+import { ShareArrowButton } from './share-arrow-button';
 
 interface TokenDetailsDialogProps {
   token: TokenType | null;
@@ -139,6 +140,7 @@ export function TokenDetailsDialog({
                       </svg>
                     </a>
                   )}
+                  <ShareArrowButton tokenId={token.id} />
                   <button
                     onClick={openHighlightUrl}
                     className="text-white text-xs border-b border-white/50 hover:border-white transition-colors flex items-center gap-1.5 w-fit"
