@@ -76,18 +76,43 @@ export async function GET(request: NextRequest) {
             justifyContent: 'center',
           }}
         >
-          <img
-            src={imageUrl}
-            width={630}
-            height={630}
+          <div
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
+              position: 'absolute',
+              inset: '-20%',
+              width: '140%',
+              height: '140%',
               filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
             }}
-            alt="NFT"
-          />
+          >
+            {metadata.image.startsWith('data:image/svg+xml;base64,') ? (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: Buffer.from(
+                    metadata.image.split(',')[1],
+                    'base64'
+                  ).toString(),
+                }}
+              />
+            ) : (
+              <img
+                src={imageUrl}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                }}
+                alt="NFT"
+              />
+            )}
+          </div>
         </div>
       ),
       {
