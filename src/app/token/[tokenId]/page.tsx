@@ -62,14 +62,15 @@ export async function generateMetadata({
   try {
     const metadata = await getTokenMetadata(tokenId);
 
-    console.log('metadata', metadata);
+    const imageUrl = `${appUrl}/api/og?image=${encodeURIComponent(
+      metadata.image
+    )}`;
+
+    console.log('imageUrl', imageUrl);
 
     const frame = {
       version: 'next',
-      imageUrl: metadata.image.replace(
-        'data:image/svg+xml;base64,',
-        'data:image/svg+xml;charset=utf-8,'
-      ),
+      imageUrl,
       button: {
         title: 'Play Arrows',
         action: {
