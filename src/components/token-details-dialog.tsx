@@ -68,7 +68,7 @@ export function TokenDetailsDialog({
       open={open}
       onOpenChange={hideCloseButton ? undefined : onOpenChange}
     >
-      <DialogContent className="w-full h-screen overflow-hidden bg-black text-white border-none p-6 min-h-screen">
+      <DialogContent className="w-full h-screen overflow-hidden bg-black text-white border-none min-h-screen overflow-y-auto">
         {!hideCloseButton && (
           <VisuallyHidden.Root>
             <DialogTitle>Token #{token.id} Details</DialogTitle>
@@ -91,8 +91,8 @@ export function TokenDetailsDialog({
           </div>
 
           {/* Token details */}
-          <div className="px-16">
-            <div className="flex flex-wrap justify-center items-center gap-12 p-2">
+          <div className="">
+            <div className="flex flex-wrap gap-12 p-2">
               {Object.entries(attributes).map(([trait, value]) => (
                 <div key={trait} className="flex flex-col">
                   <span className="text-xs text-gray-400 uppercase tracking-wider">
