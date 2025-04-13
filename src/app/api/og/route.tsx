@@ -84,11 +84,14 @@ export async function GET(request: NextRequest) {
         >
           <div
             style={{
+              display: 'flex',
               position: 'absolute',
               inset: '-20%',
               width: '140%',
               height: '140%',
               filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <img
