@@ -54,10 +54,14 @@ export async function GET(request: NextRequest) {
       return new Response('Invalid image URL in metadata', { status: 400 });
     }
 
-    // Ensure the image URL is absolute
-    const imageUrl = metadata.image.startsWith('http')
-      ? metadata.image
-      : `https://${metadata.image}`;
+    // Ensure the image URL is absolute and properly formatted
+    let imageUrl = metadata.image;
+    if (!imageUrl.startsWith('http')) {
+      imageUrl = `https://${imageUrl}`;
+    }
+
+    // Remove any IPFS protocol prefix if present
+    imageUrl = imageUrl.replace('ipfs://', 'https://ipfs.io/ipfs/');
 
     return new ImageResponse(
       (
@@ -74,6 +78,8 @@ export async function GET(request: NextRequest) {
         >
           <img
             src={imageUrl}
+            width={630}
+            height={630}
             style={{
               width: '100%',
               height: '100%',
