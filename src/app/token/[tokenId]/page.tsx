@@ -66,9 +66,9 @@ export async function generateMetadata({
 
     const frame = {
       version: 'next',
-      imageUrl: `${appUrl}/arrows.gif`,
+      imageUrl: metadata.image,
       button: {
-        title: 'View Token',
+        title: 'Play Arrows',
         action: {
           type: 'launch_frame',
           name: `Arrows Token #${tokenId}`,
