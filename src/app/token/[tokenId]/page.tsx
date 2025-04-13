@@ -66,7 +66,10 @@ export async function generateMetadata({
 
     const frame = {
       version: 'next',
-      imageUrl: metadata.image,
+      imageUrl: metadata.image.replace(
+        'data:image/svg+xml;base64,',
+        'data:image/svg+xml;charset=utf-8,'
+      ),
       button: {
         title: 'Play Arrows',
         action: {
