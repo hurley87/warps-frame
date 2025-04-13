@@ -83,6 +83,7 @@ export default function TokenPageClient({ params }: TokenPageClientProps) {
           // Handle dialog close if needed
         }}
         hideTokenPageLink={true}
+        hideCloseButton={true}
       />
     </div>
   );

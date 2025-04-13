@@ -12,6 +12,7 @@ interface TokenDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   hideTokenPageLink?: boolean;
+  hideCloseButton?: boolean;
 }
 
 export function TokenDetailsDialog({
@@ -19,6 +20,7 @@ export function TokenDetailsDialog({
   open,
   onOpenChange,
   hideTokenPageLink = false,
+  hideCloseButton = false,
 }: TokenDetailsDialogProps) {
   // Create a safe reference to token in case it's null
   const tokenId = token?.id;
@@ -61,11 +63,16 @@ export function TokenDetailsDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={hideCloseButton ? undefined : onOpenChange}
+    >
       <DialogContent className="w-full h-screen overflow-hidden bg-black text-white border-none p-6 min-h-screen">
-        <VisuallyHidden.Root>
-          <DialogTitle>Token #{token.id} Details</DialogTitle>
-        </VisuallyHidden.Root>
+        {!hideCloseButton && (
+          <VisuallyHidden.Root>
+            <DialogTitle>Token #{token.id} Details</DialogTitle>
+          </VisuallyHidden.Root>
+        )}
         <div className="flex flex-col">
           {/* Full-width image with zoom and crop effect */}
           <div className="w-full relative aspect-square overflow-hidden">
