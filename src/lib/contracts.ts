@@ -5,7 +5,7 @@ import { Abi } from 'viem';
  */
 export const CONTRACT_ADDRESSES = {
   production: '0x910735369De515C76A45322bB2d9a8FD286b5255' as `0x${string}`,
-  development: '0x703dDFB464186Bae90CAb1369C6729d5C0F17edB' as `0x${string}`,
+  development: '0x250DcC2c2D0e04BAE66deA8989235820429270aa' as `0x${string}`,
 };
 
 /**
