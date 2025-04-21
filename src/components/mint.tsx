@@ -7,7 +7,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
 } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
+import { parseUnits } from 'viem';
 import { Button } from './ui/button';
 import { useState, useEffect, useRef } from 'react';
 import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
@@ -21,12 +21,10 @@ import {
   ArrowRight,
   RefreshCw,
   Sparkles,
-  Coins,
   CheckCircle2,
   Send,
   Lock,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
 import posthog from 'posthog-js';
@@ -89,10 +87,6 @@ export function Mint() {
   const [isHovered, setIsHovered] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
 
-  // State for contract data
-  const [paymentTokenDecimals, setPaymentTokenDecimals] = useState<
-    number | undefined
-  >();
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<
     string | undefined
   >();
@@ -144,7 +138,6 @@ export function Mint() {
 
   useEffect(() => {
     if (fetchedDecimals !== undefined) {
-      setPaymentTokenDecimals(fetchedDecimals);
       const amountInWei = parseUnits(
         String(DEPOSIT_AMOUNT_TOKENS),
         fetchedDecimals
@@ -209,14 +202,13 @@ export function Mint() {
     },
   });
 
-  const { isLoading: isConfirmingApproval, isSuccess: isApprovalSuccess } =
-    useWaitForTransactionReceipt({
-      hash: approvalTxHash,
-      chainId: chain.id,
-      query: {
-        enabled: !!approvalTxHash,
-      },
-    });
+  const { isSuccess: isApprovalSuccess } = useWaitForTransactionReceipt({
+    hash: approvalTxHash,
+    chainId: chain.id,
+    query: {
+      enabled: !!approvalTxHash,
+    },
+  });
 
   useEffect(() => {
     if (isApprovalSuccess) {
@@ -232,7 +224,7 @@ export function Mint() {
         icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
       });
     }
-  }, [isApprovalSuccess, queryClient, PAYMENT_TOKEN_CONTRACT.address]);
+  }, [isApprovalSuccess, queryClient]);
 
   // --- Deposit Transaction ---
 
@@ -273,14 +265,13 @@ export function Mint() {
     },
   });
 
-  const { isLoading: isConfirmingDeposit, isSuccess: isTxDepositSuccess } =
-    useWaitForTransactionReceipt({
-      hash: depositTxHash,
-      chainId: chain.id,
-      query: {
-        enabled: !!depositTxHash,
-      },
-    });
+  const { isSuccess: isTxDepositSuccess } = useWaitForTransactionReceipt({
+    hash: depositTxHash,
+    chainId: chain.id,
+    query: {
+      enabled: !!depositTxHash,
+    },
+  });
 
   // State reset needed after success animation
   const successHandled = useRef(false);
