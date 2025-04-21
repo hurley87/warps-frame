@@ -3,7 +3,7 @@ import TokenPageClient from './token-page-client';
 import { readContract } from '@wagmi/core';
 import { createConfig, http } from 'wagmi';
 import { chain } from '@/lib/chain';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { type Transport } from 'viem';
 import { base } from 'wagmi/chains';
 
@@ -30,13 +30,13 @@ interface TokenPageProps {
   }>;
 }
 
-const appUrl = 'https://arrows.art';
+const appUrl = 'https://warps.fun';
 
 async function getTokenMetadata(tokenId: string) {
   try {
     const tokenMetadata = await readContract(config, {
-      address: ARROWS_CONTRACT.address,
-      abi: ARROWS_CONTRACT.abi,
+      address: WARPS_CONTRACT.address,
+      abi: WARPS_CONTRACT.abi,
       functionName: 'tokenURI',
       args: [BigInt(tokenId)],
     });
@@ -72,10 +72,10 @@ export async function generateMetadata({
       version: 'next',
       imageUrl: `${appUrl}/api/og?tokenId=${tokenId}`,
       button: {
-        title: 'Play Arrows',
+        title: 'Play Warps',
         action: {
           type: 'launch_frame',
-          name: `Arrows Token #${tokenId}`,
+          name: `Warps Token #${tokenId}`,
           url: `${appUrl}`,
           splashImageUrl: `${appUrl}/splash.jpg`,
           splashBackgroundColor: '#000000',
@@ -86,10 +86,10 @@ export async function generateMetadata({
     console.log('frame', frame);
 
     return {
-      title: `Arrows Token #${tokenId}`,
+      title: `Warps Token #${tokenId}`,
       openGraph: {
-        title: `Arrows Token #${tokenId}`,
-        description: 'View your Arrows token details.',
+        title: `Warps Token #${tokenId}`,
+        description: 'View your Warps token details.',
       },
       other: {
         'fc:frame': JSON.stringify(frame),
@@ -100,7 +100,7 @@ export async function generateMetadata({
     console.error('Error fetching token metadata:', error);
     const frame = {
       version: 'next',
-      imageUrl: `${appUrl}/arrows.gif`,
+      imageUrl: `${appUrl}/splash.jpg`,
       button: {
         title: 'View Token',
         action: {

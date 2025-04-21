@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useCallback } from 'react';
 import sdk from '@farcaster/frame-sdk';
-import { CONTRACT_ADDRESSES } from '@/lib/contracts';
+import { WARPS_CONTRACT_ADDRESSES } from '@/lib/contracts';
 import { ShareArrowButton } from './share-arrow-button';
 
 interface TokenDetailsDialogProps {
@@ -28,12 +28,12 @@ export function TokenDetailsDialog({
 
   // Generate OpenSea URL safely - will be undefined if token is null
   const openSeaUrl = token
-    ? `https://opensea.io/item/base/${CONTRACT_ADDRESSES.production}/${tokenId}`
+    ? `https://opensea.io/item/base/${WARPS_CONTRACT_ADDRESSES.production}/${tokenId}`
     : '';
 
   // Generate Highlight URL safely - will be undefined if token is null
   const highlightUrl = token
-    ? `https://highlight.xyz/mint/base:${CONTRACT_ADDRESSES.production}:64d248a33b573b35dbe5f5b802e2386f?tokenId=${tokenId}`
+    ? `https://highlight.xyz/mint/base:${WARPS_CONTRACT_ADDRESSES.production}:64d248a33b573b35dbe5f5b802e2386f?tokenId=${tokenId}`
     : '';
 
   // Generate token page URL

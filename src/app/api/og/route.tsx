@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 import { readContract } from '@wagmi/core';
 import { createConfig, http } from 'wagmi';
 import { chain } from '@/lib/chain';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { type Transport } from 'viem';
 import { base } from 'wagmi/chains';
 
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
 
     // Fetch token metadata
     const tokenMetadata = await readContract(config, {
-      address: ARROWS_CONTRACT.address,
-      abi: ARROWS_CONTRACT.abi,
+      address: WARPS_CONTRACT.address,
+      abi: WARPS_CONTRACT.abi,
       functionName: 'tokenURI',
       args: [BigInt(tokenId)],
     });

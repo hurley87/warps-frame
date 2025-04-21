@@ -29,8 +29,8 @@ export default function Waitlist() {
 
   const handleShareToWarpcast = useCallback(() => {
     const shareText =
-      'I just joined the waitlist for Arrows! A fun new game coming soon ↑';
-    const shareUrl = encodeURIComponent('https://arrows.art');
+      'I just joined the waitlist for Warps! A fun new game coming soon ↑';
+    const shareUrl = encodeURIComponent('https://warps.fun');
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText
     )}&embeds[]=${shareUrl}`;
@@ -95,7 +95,7 @@ export default function Waitlist() {
                         'linear-gradient(to right, #c084fc, #818cf8, #60a5fa)',
                     }}
                   >
-                    Arrows
+                    Warps
                   </h2>
                 </div>
               </div>

@@ -11,7 +11,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Token } from '@/components/token';
 import { toast } from 'sonner';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 
 interface ClaimPrizeProps {
@@ -88,7 +88,7 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
 
     try {
       writeContract({
-        ...ARROWS_CONTRACT,
+        ...WARPS_CONTRACT,
         functionName: 'claimPrize',
         args: [BigInt(tokenId)],
         chainId: chain.id,
@@ -121,7 +121,7 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isConfirming ? 'Confirming Claim...' : 'Claiming Prize...'}
+              {isConfirming ? 'Confirming...' : 'Claiming...'}
             </>
           ) : (
             'Claim Prize 🏆'

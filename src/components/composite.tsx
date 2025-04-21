@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Button } from './ui/button';
 import { useAccount } from 'wagmi';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
@@ -72,7 +72,7 @@ export function Composite({
           // Silent fail if audio can't play
         }
 
-        toast.error('Failed to evolve arrows. Please try again.');
+        toast.error('Failed to evolve warps. Please try again.');
         setIsPending(false);
         setHasError(true);
         setShowParticles(false);
@@ -130,7 +130,7 @@ export function Composite({
         onCompositeComplete(evolvedTokenId);
 
         // Show success toast
-        toast.success('Successfully evolved arrows!', {
+        toast.success('Successfully evolved warps!', {
           icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
           className: 'bg-gradient-to-r from-primary/30 to-primary/10',
         });
@@ -172,7 +172,7 @@ export function Composite({
     setIsSuccess(false);
     try {
       await writeContract({
-        ...ARROWS_CONTRACT,
+        ...WARPS_CONTRACT,
         functionName: 'composite',
         args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
         gas: undefined,

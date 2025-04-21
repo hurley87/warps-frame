@@ -80,16 +80,16 @@ export function Tokens() {
     if (!sourceToken || !targetToken) return;
 
     const sourceColorBand = sourceToken.attributes.find(
-      (attr) => attr.trait_type === 'Arrows'
+      (attr) => attr.trait_type === 'Warps'
     )?.value;
     const targetColorBand = targetToken.attributes.find(
-      (attr) => attr.trait_type === 'Arrows'
+      (attr) => attr.trait_type === 'Warps'
     )?.value;
 
-    // Check if both are single arrows (value "1")
+    // Check if both are single warp (value "1")
     if (sourceColorBand === '1' && targetColorBand === '1') {
       toast.error(
-        'Single arrows cannot be combined. Find arrows with more bands.'
+        'Single warp cannot be combined. Find warps with more bands.'
       );
       // Select the new token instead
       setSelectedTokenId(tokenId);
@@ -104,7 +104,7 @@ export function Tokens() {
       setSelectedPair({ source: selectedTokenId, target: tokenId });
       setShowCompositeDialog(true);
     } else {
-      toast.error('Tokens must have the same number of arrows');
+      toast.error('Tokens must have the same number of warps');
       // Select the new token instead
       setSelectedTokenId(tokenId);
     }
@@ -171,8 +171,8 @@ export function Tokens() {
             <Pool />
           </div>
           <p className="text-muted-foreground">
-            Every mint contributes to the prize pool. Evolve your arrows by
-            combining matching pairs. The first to find the higher arrow can
+            Every mint contributes to the prize pool. Evolve your warps by
+            combining matching pairs. The first to find the higher warp can
             claim the entire prize pool.
           </p>
         </div>
@@ -180,7 +180,7 @@ export function Tokens() {
         <div className="flex flex-col items-center space-y-2">
           <Mint />
           <p className="text-xs text-muted-foreground">
-            Minting costs 0.004 ETH for a pack of 8 arrows
+            Minting costs 0.004 ETH for a pack of 8 warps
           </p>
         </div>
       </div>
@@ -188,27 +188,17 @@ export function Tokens() {
   }
 
   return (
-    <div className="relative p-4">
+    <div className="relative p-4 bg-[#342942] h-full">
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
-        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
-          <p>To continue, you have to mint more arrows.</p>
-        </div>
-      )}
-
-      {tokens.length === 8 && (
-        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-sm border border-primary/20">
-          <p>
-            {`Click on a token to select it. Click another token after to evolve
-            it. Evolve tokens until you are left with one arrow. If it's the
-            higher (green and glowing) arrow you win.`}
-          </p>
+        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-xs border border-primary/20">
+          <p>To continue, you have to mint more warps.</p>
         </div>
       )}
 
       <div className="flex flex-col h-[calc(100vh-140px)]">
-        <div className="grid grid-cols-3 gap-4 p-4">
+        <div className="grid grid-cols-3 gap-4">
           {tokens.map((token) => (
             <Token
               key={`token-${token.id}`}

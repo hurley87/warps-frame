@@ -1,10 +1,10 @@
 import { useBalance } from 'wagmi';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { formatEther } from 'viem';
 
 export function Pool({ showLabel = false }: { showLabel?: boolean }) {
   const { data: balance, isLoading } = useBalance({
-    address: ARROWS_CONTRACT.address,
+    address: WARPS_CONTRACT.address,
   });
 
   const sixtyPercent = balance

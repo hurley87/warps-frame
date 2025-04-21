@@ -6,7 +6,7 @@ import DesktopGame from './desktop-game';
 import { chain } from '@/lib/chain';
 
 const config = getDefaultConfig({
-  appName: 'Arrows',
+  appName: 'Warps',
   projectId: 'YOUR_PROJECT_ID',
   chains: [chain],
   ssr: true,

@@ -40,12 +40,12 @@ export default function Info() {
       <DrawerContent className="h-full">
         <div className="h-full flex flex-col bg-black">
           <VisuallyHidden.Root>
-            <DrawerTitle>Arrows</DrawerTitle>
-            <DrawerDescription>Arrows</DrawerDescription>
+            <DrawerTitle>Warps</DrawerTitle>
+            <DrawerDescription>Warps</DrawerDescription>
           </VisuallyHidden.Root>
           <div className="px-6 py-4 border-b">
             <div className="flex justify-between items-center">
-              <div className="text-xl">Arrows</div>
+              <div className="text-xl">Warps</div>
               <DrawerClose>
                 <div className="text-sm text-gray-500">
                   <svg
@@ -72,8 +72,8 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">Overview</h3>
                 <p>
-                  Arrows is a game where players compete to create the higher
-                  green arrow through strategic NFT evolutions.
+                  Warps is a game where players compete to create the higher
+                  green warp through strategic NFT evolutions.
                 </p>
                 <p>
                   <span

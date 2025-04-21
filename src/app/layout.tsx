@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Arrows',
-  description: 'Up and to the right',
+  title: 'Warps',
+  description: 'Viral mini game on Base.',
 };
 
 export default function RootLayout({

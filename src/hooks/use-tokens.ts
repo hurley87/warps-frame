@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { readContract, writeContract } from '@wagmi/core';
 import { createConfig, http } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
-import { ARROWS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { type Address } from 'viem';
 import { useState, useMemo } from 'react';
 import type { Transport } from 'viem';
@@ -46,8 +46,8 @@ export function useTokens(address: Address | undefined) {
 
       // Get user's token balance
       const balance = await readContract(config, {
-        address: ARROWS_CONTRACT.address as Address,
-        abi: ARROWS_CONTRACT.abi,
+        address: WARPS_CONTRACT.address as Address,
+        abi: WARPS_CONTRACT.abi,
         functionName: 'balanceOf',
         args: [address],
       });
@@ -58,8 +58,8 @@ export function useTokens(address: Address | undefined) {
       // Get all token IDs without fetching metadata
       for (let i = 0; i < balanceNum; i++) {
         const tokenId = await readContract(config, {
-          address: ARROWS_CONTRACT.address as Address,
-          abi: ARROWS_CONTRACT.abi,
+          address: WARPS_CONTRACT.address as Address,
+          abi: WARPS_CONTRACT.abi,
           functionName: 'tokenOfOwnerByIndex',
           args: [address, BigInt(i)],
         });
@@ -91,16 +91,16 @@ export function useTokensMetadata(
 
         // Get token metadata
         const tokenMetadata = await readContract(config, {
-          address: ARROWS_CONTRACT.address as Address,
-          abi: ARROWS_CONTRACT.abi,
+          address: WARPS_CONTRACT.address as Address,
+          abi: WARPS_CONTRACT.abi,
           functionName: 'tokenURI',
           args: [tokenId],
         });
 
         // Check if token is winning
         const isWinning = await readContract(config, {
-          address: ARROWS_CONTRACT.address as Address,
-          abi: ARROWS_CONTRACT.abi,
+          address: WARPS_CONTRACT.address as Address,
+          abi: WARPS_CONTRACT.abi,
           functionName: 'isWinningToken',
           args: [tokenId],
         });
@@ -197,8 +197,8 @@ export function useClaimPrize() {
   return async (tokenId: number) => {
     try {
       const result = await writeContract(config, {
-        address: ARROWS_CONTRACT.address as Address,
-        abi: ARROWS_CONTRACT.abi,
+        address: WARPS_CONTRACT.address as Address,
+        abi: WARPS_CONTRACT.abi,
         functionName: 'claimPrize',
         args: [BigInt(tokenId)],
       });

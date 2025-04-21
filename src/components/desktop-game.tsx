@@ -18,7 +18,7 @@ import { chain } from '@/lib/chain';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function DesktopGame() {
-  const [floatingArrows, setFloatingArrows] = useState<
+  const [floatingWarps, setFloatingWarps] = useState<
     Array<{
       id: number;
       x: number;
@@ -37,11 +37,11 @@ export default function DesktopGame() {
   const chainId = useChainId();
   console.log('chainId', chainId);
 
-  // Generate random floating arrows for the background animation
+  // Generate random floating warps for the background animation
   useEffect(() => {
     if (!isConnected) {
-      const arrowTypes = ['up', 'down', 'left', 'right'];
-      const arrowColors = [
+      const warpTypes = ['up', 'down', 'left', 'right'];
+      const warpColors = [
         '#FF5A5F',
         '#3490DE',
         '#FFB400',
@@ -49,20 +49,20 @@ export default function DesktopGame() {
         '#50C878',
       ];
 
-      // Create regular arrows
-      const regularArrows = Array.from({ length: 12 }, (_, i) => {
+      // Create regular warps
+      const regularWarps = Array.from({ length: 12 }, (_, i) => {
         return {
           id: i,
           x: Math.random() * 100,
           y: Math.random() * 100,
           rotation: Math.floor(Math.random() * 360),
-          type: arrowTypes[Math.floor(Math.random() * arrowTypes.length)],
-          color: arrowColors[Math.floor(Math.random() * arrowColors.length)],
+          type: warpTypes[Math.floor(Math.random() * warpTypes.length)],
+          color: warpColors[Math.floor(Math.random() * warpColors.length)],
         };
       });
 
       // Add one special "higher" arrow (green #018A08)
-      const higherArrow = {
+      const higherWarp = {
         id: 99,
         x: 50 + (Math.random() * 30 - 15),
         y: 20 + Math.random() * 10,
@@ -71,7 +71,7 @@ export default function DesktopGame() {
         color: '#018A08', // The special higher arrow color
       };
 
-      setFloatingArrows([...regularArrows, higherArrow]);
+      setFloatingWarps([...regularWarps, higherWarp]);
     }
   }, [isConnected]);
 
@@ -120,25 +120,25 @@ export default function DesktopGame() {
     if (!isConnected) {
       return (
         <div className="relative flex flex-col items-center justify-center h-screen p-16 text-center space-y-6 overflow-hidden">
-          {/* Animated floating arrows background */}
+          {/* Animated floating warps background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {floatingArrows.map((arrow) => (
+            {floatingWarps.map((warp) => (
               <div
-                key={arrow.id}
+                key={warp.id}
                 className={`absolute animate-float transition-transform ${
-                  arrow.color === '#018A08' ? 'z-10 scale-150' : ''
+                  warp.color === '#018A08' ? 'z-10 scale-150' : ''
                 }`}
                 style={
                   {
-                    left: `${arrow.x}%`,
-                    top: `${arrow.y}%`,
-                    '--rotation': `${arrow.rotation}deg`,
-                    animationDelay: `${arrow.id * 0.2}s`,
-                    opacity: arrow.color === '#018A08' ? 0.9 : 0.5,
+                    left: `${warp.x}%`,
+                    top: `${warp.y}%`,
+                    '--rotation': `${warp.rotation}deg`,
+                    animationDelay: `${warp.id * 0.2}s`,
+                    opacity: warp.color === '#018A08' ? 0.9 : 0.5,
                   } as React.CSSProperties
                 }
               >
-                {renderArrowIcon(arrow.type, arrow.color)}
+                {renderArrowIcon(warp.type, warp.color)}
               </div>
             ))}
           </div>
@@ -146,12 +146,9 @@ export default function DesktopGame() {
           {/* Game title and intro with playful animation */}
           <div className="relative z-10 space-y-4">
             <p className="text-lg text-muted-foreground max-w-md">
-              Mint and evolve Arrows to create the iconic
-              <span className="text-[#018A08] font-bold">
-                {' '}
-                Higher Arrow
-              </span>{' '}
-              and win the prize pool!
+              Mint and evolve Warps to create the iconic
+              <span className="text-[#018A08] font-bold"> Higher Warp</span> and
+              win the prize pool!
             </p>
           </div>
 
@@ -168,9 +165,9 @@ export default function DesktopGame() {
               <div className="flex items-center justify-center mb-2">
                 <Coins className="h-6 w-6 text-[#FFB400]" />
               </div>
-              <h3 className="font-semibold mb-1 text-sm">Mint Arrows</h3>
+              <h3 className="font-semibold mb-1 text-sm">Mint Warps</h3>
               <p className="text-xs text-muted-foreground">
-                Mint 8 arrows for 0.004 ETH. Each mint contributes to the prize
+                Mint 8 warps for 0.004 ETH. Each mint contributes to the prize
                 pool.
               </p>
             </div>
@@ -181,7 +178,7 @@ export default function DesktopGame() {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Evolve</h3>
               <p className="text-xs text-muted-foreground">
-                Combine two arrows to evolve one and burn the other. Choose
+                Combine two warps to evolve one and burn the other. Choose
                 wisely!
               </p>
             </div>
@@ -192,7 +189,7 @@ export default function DesktopGame() {
               </div>
               <h3 className="font-semibold mb-1 text-sm">Win the Prize</h3>
               <p className="text-xs text-muted-foreground">
-                First to create the Higher Arrow (green #018A08) claims the
+                First to create the Higher Warp (green #018A08) claims the
                 entire prize pool!
               </p>
             </div>
@@ -206,7 +203,7 @@ export default function DesktopGame() {
         <header className="sticky top-0 bg-black z-10">
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-bold">Arrows</span>
+              <span className="font-bold">Warps</span>
               <Info />
             </div>
             <Mint />
