@@ -24,6 +24,8 @@ import {
   CheckCircle2,
   Send,
   Lock,
+  Gift,
+  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
@@ -76,7 +78,7 @@ const erc20Abi = [
 ] as const satisfies Abi;
 
 // Define the amount to approve and deposit
-const DEPOSIT_AMOUNT_TOKENS = 1000;
+export const DEPOSIT_AMOUNT_TOKENS = 1000;
 
 export function Mint() {
   const { address } = useAccount();
@@ -94,6 +96,15 @@ export function Mint() {
   const [depositAmountWei, setDepositAmountWei] = useState<
     bigint | undefined
   >();
+
+  // Add state for free mint
+  const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
+  const [isFreeMinting, setIsFreeMinting] = useState(false);
+  const [isFreeMintTxMining, setIsFreeMintTxMining] = useState(false);
+  const [freeMintTxHash, setFreeMintTxHash] = useState<
+    `0x${string}` | undefined
+  >();
+  const [isFreeMintSuccess, setIsFreeMintSuccess] = useState(false);
 
   // State for transaction flow
   const [isApproving, setIsApproving] = useState(false);
@@ -114,6 +125,25 @@ export function Mint() {
   const [currentError, setCurrentError] = useState<string | null>(null); // Store specific error messages
 
   // --- Fetch Contract Data ---
+
+  // Check if the user has used their free mint
+  const { data: fetchedHasUsedFreeMint, isLoading: isLoadingHasUsedFreeMint } =
+    useReadContract({
+      ...WARPS_CONTRACT,
+      functionName: 'hasUsedFreeMint',
+      args: [address!],
+      chainId: chain.id,
+      query: {
+        enabled: !!address,
+        refetchInterval: 5000,
+      },
+    });
+
+  useEffect(() => {
+    if (fetchedHasUsedFreeMint !== undefined) {
+      setHasUsedFreeMint(fetchedHasUsedFreeMint);
+    }
+  }, [fetchedHasUsedFreeMint]);
 
   const { data: fetchedDecimals, isLoading: isLoadingDecimals } =
     useReadContract({
@@ -316,6 +346,86 @@ export function Mint() {
     handleDepositSuccess();
   }, [isTxDepositSuccess, queryClient, paymentTokenSymbol]);
 
+  // --- Free Mint Transaction ---
+
+  const {
+    writeContract: freeMintWriteContract,
+    isPending: isFreeMintWritePending,
+  } = useWriteContract({
+    mutation: {
+      onMutate: () => {
+        setIsFreeMinting(true);
+        setHasError(false);
+        setCurrentError(null);
+      },
+      onSuccess: (hash) => {
+        setFreeMintTxHash(hash);
+        setIsFreeMintTxMining(true);
+        toast.info('Free mint transaction submitted...', {
+          icon: <Loader2 className="h-4 w-4 animate-spin" />,
+        });
+        posthog.capture('free_mint', {
+          address,
+        });
+      },
+      onError: (error: Error) => {
+        console.error('Free mint error:', error);
+        setHasError(true);
+        setCurrentError(
+          error.message.includes('rejected')
+            ? 'Transaction rejected.'
+            : 'Free mint failed. Please try again.'
+        );
+        setIsFreeMinting(false);
+        setIsFreeMintTxMining(false);
+        playErrorFeedback();
+      },
+    },
+  });
+
+  const { isSuccess: freeMintTxSuccess } = useWaitForTransactionReceipt({
+    hash: freeMintTxHash,
+    chainId: chain.id,
+    query: {
+      enabled: !!freeMintTxHash,
+    },
+  });
+
+  useEffect(() => {
+    const handleFreeMintSuccess = async () => {
+      if (freeMintTxSuccess && !successHandled.current) {
+        successHandled.current = true;
+        setIsFreeMinting(false);
+        setIsFreeMintTxMining(false);
+        setIsFreeMintSuccess(true);
+        setHasUsedFreeMint(true);
+        setHasError(false);
+        setCurrentError(null);
+
+        playSuccessSound();
+        setShowParticles(true);
+        triggerScreenShake();
+
+        queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+        queryClient.invalidateQueries({
+          queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
+        });
+
+        toast.success('Successfully claimed free mint!', {
+          icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+          className: 'bg-gradient-to-r from-primary/30 to-primary/10',
+        });
+
+        setTimeout(() => {
+          setShowParticles(false);
+          setIsFreeMintSuccess(false);
+        }, 4000);
+      }
+    };
+
+    handleFreeMintSuccess();
+  }, [freeMintTxSuccess, queryClient]);
+
   // --- Handlers ---
 
   const handleApprove = async () => {
@@ -358,11 +468,34 @@ export function Mint() {
     }
   };
 
-  // Combined handler for the button
+  // Add function to handle free mint
+  const handleFreeMint = async () => {
+    if (!address || hasUsedFreeMint) return;
+
+    playClickSound();
+    pulseButton();
+
+    successHandled.current = false;
+
+    try {
+      await freeMintWriteContract({
+        ...WARPS_CONTRACT,
+        functionName: 'freeMint',
+        args: [address as `0x${string}`],
+        chainId: chain.id,
+      });
+    } catch (error) {
+      console.error('Handle free mint triggered catch:', error);
+    }
+  };
+
+  // Update combined handler for the button
   const handleButtonClick = async () => {
     if (!address) return;
 
-    if (!isApproved) {
+    if (!hasUsedFreeMint) {
+      await handleFreeMint();
+    } else if (!isApproved) {
       await handleApprove();
     } else {
       await handleDeposit();
@@ -408,6 +541,7 @@ export function Mint() {
   };
 
   const isLoading =
+    isLoadingHasUsedFreeMint ||
     isLoadingDecimals ||
     isLoadingSymbol ||
     isLoadingAllowance ||
@@ -415,13 +549,17 @@ export function Mint() {
     isApprovalTxMining ||
     isDepositing ||
     isDepositTxMining ||
+    isFreeMinting ||
+    isFreeMintTxMining ||
     isApproveWritePending ||
-    isDepositWritePending;
+    isDepositWritePending ||
+    isFreeMintWritePending;
 
   console.log('allowance', allowance);
 
-  const showApproveButton = !isApproved;
-  const showDepositButton = isApproved && !isDepositSuccess;
+  const showFreeMintButton = !hasUsedFreeMint && !isFreeMintSuccess;
+  const showApproveButton = hasUsedFreeMint && !isApproved;
+  const showDepositButton = hasUsedFreeMint && isApproved && !isDepositSuccess;
 
   // --- Floating Warps (Kept from original Mint) ---
   const [floatingWarps, setFloatingWarps] = useState<
@@ -508,7 +646,12 @@ export function Mint() {
 
   // Get button content based on current state
   const getButtonContent = () => {
-    if (isLoadingDecimals || isLoadingSymbol || isLoadingAllowance) {
+    if (
+      isLoadingHasUsedFreeMint ||
+      isLoadingDecimals ||
+      isLoadingSymbol ||
+      isLoadingAllowance
+    ) {
       return (
         <motion.div
           className="flex items-center gap-2"
@@ -535,6 +678,29 @@ export function Mint() {
         >
           <RefreshCw className="h-4 w-4" />
           <span>Retry</span>
+        </motion.div>
+      );
+    }
+
+    if (showFreeMintButton) {
+      if (isFreeMinting || isFreeMintTxMining) {
+        return (
+          <motion.div
+            className="flex items-center justify-center gap-2"
+            whileTap={{ scale: 0.95 }}
+          >
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{isFreeMintTxMining ? 'Minting...' : 'Check Wallet'}</span>
+          </motion.div>
+        );
+      }
+      return (
+        <motion.div
+          className="flex items-center justify-center gap-2"
+          whileTap={{ scale: 0.95 }}
+        >
+          <Gift className="h-4 w-4" />
+          <span>Claim Free Mint</span>
         </motion.div>
       );
     }
@@ -578,13 +744,10 @@ export function Mint() {
       }
       return (
         <motion.div
-          className="flex items-center justify-center gap-2"
+          className="flex items-center justify-center gap-1"
           whileTap={{ scale: 0.95 }}
         >
-          <Send className="h-4 w-4" />
-          <span>
-            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
-          </span>
+          <span>Mint</span>
         </motion.div>
       );
     }
@@ -595,18 +758,20 @@ export function Mint() {
   return (
     <motion.div
       className="relative"
-      whileHover={{ scale: isDepositSuccess ? 1 : 1.02 }}
+      whileHover={{ scale: isDepositSuccess || isFreeMintSuccess ? 1 : 1.02 }}
       transition={{ type: 'spring', stiffness: 300, damping: 15 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <AnimatePresence>
-          {(isLoadingDecimals ||
+          {(isLoadingHasUsedFreeMint ||
+            isLoadingDecimals ||
             isLoadingSymbol ||
             isLoadingAllowance ||
             isApproving ||
-            isDepositing) &&
+            isDepositing ||
+            isFreeMinting) &&
             floatingWarps.map((warp) => (
               <motion.div
                 key={warp.id}
@@ -640,7 +805,7 @@ export function Mint() {
       </div>
 
       <AnimatePresence mode="wait">
-        {isDepositSuccess ? (
+        {isDepositSuccess || isFreeMintSuccess ? (
           <motion.div
             className="relative flex items-center justify-center px-3 py-2 min-h-[40px] bg-green-950 bg-opacity-50 rounded-md border border-green-500/60 shadow-lg"
             initial={{ opacity: 0, y: 10 }}
@@ -658,7 +823,11 @@ export function Mint() {
               }}
             >
               <CheckCircle2 className="h-5 w-5" />
-              <span>Deposit Successful!</span>
+              <span>
+                {isFreeMintSuccess
+                  ? 'Free Mint Successful!'
+                  : 'Deposit Successful!'}
+              </span>
             </motion.div>
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
@@ -667,6 +836,7 @@ export function Mint() {
             ref={buttonRef}
             onClick={handleButtonClick}
             disabled={
+              isLoadingHasUsedFreeMint ||
               isLoadingDecimals ||
               isLoadingSymbol ||
               isLoadingAllowance ||
@@ -674,13 +844,16 @@ export function Mint() {
               isApproving ||
               isApprovalTxMining ||
               isDepositing ||
-              isDepositTxMining
+              isDepositTxMining ||
+              isFreeMinting ||
+              isFreeMintTxMining
             }
             className={`relative group overflow-hidden transition-all duration-300 w-full ${
               isHovered
                 ? 'bg-[#7c65c1] shadow-lg shadow-primary/20'
                 : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
             } ${
+              isLoadingHasUsedFreeMint ||
               isLoadingDecimals ||
               isLoadingSymbol ||
               isLoadingAllowance ||
@@ -688,7 +861,9 @@ export function Mint() {
               isApproving ||
               isApprovalTxMining ||
               isDepositing ||
-              isDepositTxMining
+              isDepositTxMining ||
+              isFreeMinting ||
+              isFreeMintTxMining
                 ? 'opacity-60 cursor-not-allowed'
                 : ''
             }`}
@@ -697,6 +872,7 @@ export function Mint() {
             <AnimatePresence>
               {isHovered &&
                 !(
+                  isLoadingHasUsedFreeMint ||
                   isLoadingDecimals ||
                   isLoadingSymbol ||
                   isLoadingAllowance ||
@@ -704,7 +880,9 @@ export function Mint() {
                   isApproving ||
                   isApprovalTxMining ||
                   isDepositing ||
-                  isDepositTxMining
+                  isDepositTxMining ||
+                  isFreeMinting ||
+                  isFreeMintTxMining
                 ) && (
                   <motion.span
                     className="absolute inset-0 bg-white/5"
@@ -722,6 +900,7 @@ export function Mint() {
             {/* Subtle animation effect */}
             {isHovered &&
               !(
+                isLoadingHasUsedFreeMint ||
                 isLoadingDecimals ||
                 isLoadingSymbol ||
                 isLoadingAllowance ||
@@ -729,7 +908,9 @@ export function Mint() {
                 isApproving ||
                 isApprovalTxMining ||
                 isDepositing ||
-                isDepositTxMining
+                isDepositTxMining ||
+                isFreeMinting ||
+                isFreeMintTxMining
               ) && (
                 <motion.span
                   className="absolute inset-0 bg-white/10 pointer-events-none"

@@ -2,11 +2,18 @@
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState } from 'react';
-import { useAccount, useChainId, useConnect, useSwitchChain } from 'wagmi';
+import {
+  useAccount,
+  useChainId,
+  useConnect,
+  useSwitchChain,
+  useReadContract,
+} from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
+import { Warp } from './warp';
 import Info from './info';
 import {
   ArrowRight,
@@ -19,6 +26,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { chain } from '@/lib/chain';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -33,6 +41,7 @@ export default function Game() {
       color: string;
     }>
   >([]);
+  const [winningColor, setWinningColor] = useState('#018A08');
 
   const { isConnected } = useAccount();
   const { connect } = useConnect();
@@ -40,6 +49,25 @@ export default function Game() {
 
   const chainId = useChainId();
   console.log('chainId', chainId);
+
+  // Fetch the current winning color from the contract
+  const { data: fetchedWinningColor } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getCurrentWinningColor',
+    chainId: chain.id,
+    query: {
+      enabled: isConnected,
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
+  });
+
+  // Update winning color when data is fetched
+  useEffect(() => {
+    if (fetchedWinningColor) {
+      setWinningColor(fetchedWinningColor);
+    }
+  }, [fetchedWinningColor]);
 
   // Generate random floating warps for the background animation
   useEffect(() => {
@@ -243,11 +271,11 @@ export default function Game() {
       <div className="w-screen h-screen mx-auto bg-background relative bg-[#342942]">
         <header className="sticky top-0 bg-[#342942] z-10">
           <div className="px-4 py-3 flex items-center justify-between">
+            <span className="font-bold">Warps</span>
             <div className="flex items-center gap-2">
-              <span className="font-bold">Warps</span>
               <Info />
+              <Mint />
             </div>
-            <Mint />
           </div>
         </header>
         <Tokens />

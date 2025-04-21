@@ -1,14 +1,7 @@
 'use client';
 
 import { Token } from '@/components/token';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
 
 interface CompositeDialogProps {
@@ -67,7 +60,7 @@ export function CompositeDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-black border border-primary/30 shadow-xl">
+      <DialogContent className="sm:max-w-[425px] bg-black shadow-xl">
         {sourceToken && targetToken && (
           <div className="grid grid-cols-2 gap-4 py-0 w-full mx-auto px-6">
             <div className="text-center">

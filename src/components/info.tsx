@@ -10,32 +10,80 @@ import {
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Pool } from './pool';
 import sdk from '@farcaster/frame-sdk';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { useReadContract } from 'wagmi';
+import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
+import { chain } from '@/lib/chain';
+import { ArrowUp } from 'lucide-react';
+import { Warp } from './warp';
+import { DEPOSIT_AMOUNT_TOKENS } from './mint';
 
 export default function Info() {
   const [open, setOpen] = useState(true);
+  const [winningColor, setWinningColor] = useState('#018A08');
+  const [paymentTokenSymbol, setPaymentTokenSymbol] =
+    useState<string>('Tokens');
+  const [winnerClaimPercentage, setWinnerClaimPercentage] =
+    useState<number>(60);
 
   const openUrl = useCallback(() => {
     sdk.actions.openUrl('https://opensea.io/collection/arrows-12');
   }, []);
 
+  // Fetch the current winning color from the contract
+  const { data: fetchedWinningColor } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getCurrentWinningColor',
+    chainId: chain.id,
+    query: {
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
+  });
+
+  // Fetch the payment token symbol
+  const { data: fetchedSymbol } = useReadContract({
+    address: PAYMENT_TOKEN_CONTRACT.address,
+    abi: PAYMENT_TOKEN_CONTRACT.abi,
+    functionName: 'symbol',
+    chainId: chain.id,
+  });
+
+  // Fetch the winner claim percentage
+  const { data: fetchedWinnerClaimPercentage } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'winnerClaimPercentage',
+    chainId: chain.id,
+  });
+
+  // Update winning color when data is fetched
+  useEffect(() => {
+    if (fetchedWinningColor) {
+      setWinningColor(fetchedWinningColor);
+    }
+  }, [fetchedWinningColor]);
+
+  // Update token symbol when data is fetched
+  useEffect(() => {
+    if (fetchedSymbol) {
+      setPaymentTokenSymbol(fetchedSymbol);
+    }
+  }, [fetchedSymbol]);
+
+  // Update winner claim percentage when data is fetched
+  useEffect(() => {
+    if (fetchedWinnerClaimPercentage) {
+      setWinnerClaimPercentage(Number(fetchedWinnerClaimPercentage));
+    }
+  }, [fetchedWinnerClaimPercentage]);
+
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="size-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
-          />
-        </svg>
+        <span className="text-xs font-semibold cursor-pointer">
+          How To Play
+        </span>
       </DrawerTrigger>
       <DrawerContent className="h-full">
         <div className="h-full flex flex-col bg-black">
@@ -72,8 +120,8 @@ export default function Info() {
               <div className="space-y-2">
                 <h3 className="font-bold">Overview</h3>
                 <p>
-                  Warps is a game where players compete to create the higher
-                  green warp through strategic NFT evolutions.
+                  Warps is a game where players compete to create the winning
+                  warp through strategic NFT evolutions.
                 </p>
                 <p>
                   <span
@@ -85,14 +133,24 @@ export default function Info() {
                 </p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-bold">Prize Pool</h3>
+                <h3 className="font-bold">Total Token Pool</h3>
                 <Pool />
+                <p className="text-xs text-gray-400">
+                  Winner receives {winnerClaimPercentage}% of the pool (
+                  <Pool showWinningAmount={true} />)
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold">Winning Color</h3>
+                <div className="flex items-center gap-2">
+                  <Warp color={`#${winningColor}`} className="w-10 h-10" />
+                </div>
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
                 <p>
-                  Mint 8 tokens for 0.004 ETH. Each mint contributes to the
-                  prize pool.
+                  You can deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol}{' '}
+                  to mint four tokens.
                 </p>
                 <p>Double click on an token to view its details.</p>
                 <p>
@@ -100,9 +158,16 @@ export default function Info() {
                   second to burn.
                 </p>
                 <p>
-                  Your goal is to create a single higher token with color
-                  #018A08. Whoever owns that token can claim the entire prize
-                  pool.
+                  Your goal is to create a single token with winning color{' '}
+                  <span style={{ color: winningColor, fontWeight: 'bold' }}>
+                    #{winningColor}
+                  </span>
+                  . Whoever owns that token can claim {winnerClaimPercentage}%
+                  of the prize pool.
+                </p>
+                <p>
+                  The winning color changes after someone wins. The winning
+                  color is chosen at random.
                 </p>
               </div>
             </div>
