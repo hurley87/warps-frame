@@ -528,7 +528,7 @@ export function Mint() {
   } else if (hasError) {
     dialogContent = (
       <motion.div
-        className="flex flex-col items-center gap-2 text-red-400 py-4"
+        className="flex flex-col items-center gap-2 text-red-400 py-4 h-full"
         initial={{ x: 10 }}
         animate={{ x: 0 }}
         transition={{ type: 'spring', stiffness: 300 }}
@@ -761,7 +761,7 @@ export function Mint() {
                   )}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-black">
+            <DialogContent className="sm:max-w-[425px] bg-black h-screen">
               <DialogHeader>
                 <DialogTitle>Mint Warps</DialogTitle>
                 <DialogDescription>
@@ -770,7 +770,7 @@ export function Mint() {
                   enough {paymentTokenSymbol || 'tokens'} in your wallet.
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
+              <div className="py-4 h-20">
                 {/* Display Error Message if present outside the button */}
                 {hasError &&
                   currentError &&
@@ -787,8 +787,6 @@ export function Mint() {
                     ? `Approve ${paymentTokenSymbol}`
                     : `Deposit ${paymentTokenSymbol}`}
                 </div>
-              </div>
-              <DialogFooter>
                 <Button
                   onClick={dialogActionHandler}
                   disabled={dialogButtonDisabled}
@@ -800,7 +798,8 @@ export function Mint() {
                 >
                   {dialogContent}
                 </Button>
-              </DialogFooter>
+              </div>
+              <DialogFooter></DialogFooter>
             </DialogContent>
           </Dialog>
         )}
