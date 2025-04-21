@@ -240,7 +240,7 @@ export default function Game() {
     }
 
     return (
-      <div className="max-w-[425px] h-[695px] mx-auto bg-background relative">
+      <div className="w-screen h-screen mx-auto bg-background relative bg-[#342942]">
         <header className="sticky top-0 bg-[#342942] z-10">
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">

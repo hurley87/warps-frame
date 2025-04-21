@@ -15,15 +15,32 @@ import { useQueryClient } from '@tanstack/react-query';
 
 function LoadingScreen() {
   return (
-    <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-10 flex items-center min-h-screen h-full">
-      <div className="bg-background/20 rounded-lg shadow-lg p-4 max-w-sm mx-auto h-full">
+    <div className="fixed inset-0 bg-black backdrop-blur-sm z-10 flex items-center justify-center min-h-screen h-full">
+      <div className="bg-background/20 rounded-lg shadow-lg p-6 max-w-sm mx-auto flex flex-col items-center pb-20">
         <Image
-          src="/loading.gif"
+          src="/splash.jpg"
           height={256}
           width={256}
           alt="loading"
-          className="mx-auto mt-24"
+          className="mx-auto animate-pulse"
         />
+        <div className="text-center mb-32">
+          <p className="text-primary mb-2 font-bold">Loading Warps...</p>
+          <div className="flex justify-center space-x-2">
+            <div
+              className="h-2 w-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: '0ms' }}
+            ></div>
+            <div
+              className="h-2 w-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: '150ms' }}
+            ></div>
+            <div
+              className="h-2 w-2 bg-primary rounded-full animate-bounce"
+              style={{ animationDelay: '300ms' }}
+            ></div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -188,7 +205,7 @@ export function Tokens() {
   }
 
   return (
-    <div className="relative p-4 bg-[#342942] h-full">
+    <div className="relative p-4 bg-[#342942] overflow-hidden">
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
@@ -197,7 +214,7 @@ export function Tokens() {
         </div>
       )}
 
-      <div className="flex flex-col h-[calc(100vh-140px)]">
+      <div className="flex flex-col">
         <div className="grid grid-cols-3 gap-4">
           {tokens.map((token) => (
             <Token
@@ -215,9 +232,8 @@ export function Tokens() {
             />
           ))}
         </div>
-
-        <div className="flex justify-center mt-auto py-4">
-          {hasMore && (
+        {hasMore && (
+          <div className="flex justify-center mt-6 py-4">
             <Button
               variant="outline"
               size="sm"
@@ -226,8 +242,8 @@ export function Tokens() {
             >
               Load More
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <CompositeDialog

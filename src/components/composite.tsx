@@ -27,6 +27,7 @@ export function Composite({
   const [showParticles, setShowParticles] = useState(false);
   const [showReadyEffect, setShowReadyEffect] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const queryClient = useQueryClient();
   const successHandled = useRef(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -236,7 +237,7 @@ export function Composite({
   const ReadyEffect = () => {
     return (
       <motion.div
-        className="absolute -inset-1 rounded-lg bg-gradient-to-r from-primary/30 to-blue-500/30 z-0"
+        className="absolute -inset-1 rounded-lg"
         initial={{ opacity: 0 }}
         animate={{
           opacity: 1,
@@ -254,8 +255,10 @@ export function Composite({
   return (
     <motion.div
       className="relative"
-      whileHover={{ scale: isSuccess ? 1 : 1.05 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+      whileHover={{ scale: isSuccess ? 1 : 1.02 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
       {/* Ready to combine effect */}
       <AnimatePresence>
@@ -265,86 +268,61 @@ export function Composite({
       <AnimatePresence mode="wait">
         {isSuccess ? (
           <motion.div
-            className="relative flex items-center justify-center p-5 min-h-[56px] bg-green-950 bg-opacity-40 rounded-md border border-green-500/50 shadow-lg"
+            className="relative flex items-center justify-center p-3 min-h-[40px] bg-[#7c65c1] bg-opacity-50 rounded-md border border-green-500/60 shadow-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="flex items-center gap-2 text-green-400 font-medium z-10 text-lg"
-              animate={{
-                scale: [1, 1.05, 1],
-              }}
+              className="flex items-center gap-2 text-green-300 font-medium z-10"
+              animate={{ scale: [1, 1.03, 1] }}
               transition={{
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
             >
-              <CheckCircle2 className="h-6 w-6" />
-              <span className="text-green-300">Evolution Complete!</span>
+              <CheckCircle2 className="h-5 w-5" />
+              <span>Evolution Complete!</span>
             </motion.div>
+            <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
         ) : (
           <Button
             ref={buttonRef}
             onClick={handleComposite}
             disabled={isLoading || selectedTokens.length !== 2}
-            className={`relative group overflow-hidden border transition-all duration-300 text-lg py-6 px-8 ${
-              hasError
-                ? 'bg-red-500/20 hover:bg-red-500/30'
-                : selectedTokens.length === 2 && !isLoading
-                ? 'bg-gradient-to-r from-primary/30 to-blue-500/20 hover:from-primary/40 hover:to-blue-500/30 shadow-lg shadow-primary/20'
-                : 'bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20'
+            className={`relative bg-black group overflow-hidden transition-all duration-300 w-full cursor-pointer ${
+              isHovered && selectedTokens.length === 2
+                ? 'bg-primary/20 shadow-lg shadow-primary/20 border-primary/50'
+                : 'bg-primary/10 hover:bg-primary/20 border-primary/30'
+            } ${
+              isLoading || selectedTokens.length !== 2
+                ? 'opacity-60 cursor-not-allowed'
+                : ''
             }`}
-            size="lg"
           >
-            <div
-              className={`absolute inset-0 rounded-md blur-xl transition-all duration-300 ${
-                hasError
-                  ? 'bg-red-500/20 group-hover:bg-red-500/30'
-                  : 'bg-primary/20 group-hover:bg-primary/30'
-              }`}
-            />
-
-            {/* Pulsing background for active state */}
+            <div className="absolute inset-0 rounded-md blur-lg transition-all duration-300 bg-primary/15 group-hover:bg-primary/25" />
             <AnimatePresence>
-              {isLoading && (
-                <motion.div
-                  className="absolute inset-0 bg-primary/10"
+              {isHovered && selectedTokens.length === 2 && !isLoading && (
+                <motion.span
+                  className="absolute inset-0 bg-white/5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-primary/30"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.7, 0.3, 0.7],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                </motion.div>
+                />
               )}
             </AnimatePresence>
-
-            {/* Success particles */}
-            <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
-
-            <div className="relative flex items-center gap-2 z-10 font-bold">
+            <div className="relative flex items-center justify-center gap-2 z-10 min-h-[20px]">
               {isLoading ? (
                 <motion.div
                   className="flex items-center gap-2"
                   animate={{ opacity: [0.7, 1, 0.7] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   <span>Evolving...</span>
                 </motion.div>
               ) : hasError ? (
@@ -354,55 +332,33 @@ export function Composite({
                   animate={{ x: 0 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <RefreshCw className="h-5 w-5" />
+                  <RefreshCw className="h-4 w-4" />
                   <span>Try Again</span>
                 </motion.div>
               ) : (
-                <motion.div
-                  className="flex items-center gap-2"
-                  whileTap={{ scale: 0.95 }}
-                  animate={
-                    selectedTokens.length === 2
-                      ? {
-                          y: [0, -2, 0],
-                          scale: [1, 1.05, 1],
-                        }
-                      : {}
-                  }
-                  transition={
-                    selectedTokens.length === 2
-                      ? {
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                        }
-                      : {}
-                  }
-                >
+                <div className="flex items-center justify-center gap-2">
                   <Zap
-                    className={`h-5 w-5 ${
-                      selectedTokens.length === 2 ? 'text-yellow-400' : ''
+                    className={`h-4 w-4 ${
+                      selectedTokens.length === 2 ? '' : ''
                     }`}
                   />
-                  <span>Evolve</span>
-
-                  {/* Flash effect when ready */}
-                  {selectedTokens.length === 2 && (
-                    <motion.span
-                      className="absolute inset-0 bg-white/20"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: [0, 0.3, 0] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        repeatDelay: 1,
-                      }}
-                    />
-                  )}
-                </motion.div>
+                  <span>Evolve Warps</span>
+                </div>
               )}
             </div>
+            {isHovered && selectedTokens.length === 2 && !isLoading && (
+              <motion.span
+                className="absolute inset-0 bg-white/10 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.1, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  repeatDelay: 0.5,
+                }}
+              />
+            )}
           </Button>
         )}
       </AnimatePresence>
@@ -414,35 +370,33 @@ export function Composite({
             transform: translate(0, 0) rotate(0deg);
           }
           25% {
-            transform: translate(5px, 5px) rotate(1deg);
+            transform: translate(3px, 3px) rotate(0.5deg);
           }
           50% {
-            transform: translate(0, -5px) rotate(0deg);
+            transform: translate(0, -3px) rotate(0deg);
           }
           75% {
-            transform: translate(-5px, 5px) rotate(-1deg);
+            transform: translate(-3px, 3px) rotate(-0.5deg);
           }
           100% {
             transform: translate(0, 0) rotate(0deg);
           }
         }
-
         .screen-shake {
-          animation: screenShake 0.5s ease-in-out;
+          animation: screenShake 0.4s ease-in-out;
         }
 
         .button-pulse {
           animation: buttonPulse 0.5s ease-in-out;
         }
-
         @keyframes buttonPulse {
           0% {
             transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+            box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5);
           }
           50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+            transform: scale(1.03);
+            box-shadow: 0 0 0 8px rgba(124, 58, 237, 0);
           }
           100% {
             transform: scale(1);

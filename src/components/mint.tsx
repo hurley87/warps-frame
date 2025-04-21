@@ -28,15 +28,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
 import posthog from 'posthog-js';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 // Minimal ERC20 ABI for approve, allowance, decimals
 const erc20Abi = [
@@ -121,9 +112,6 @@ export function Mint() {
 
   const [hasError, setHasError] = useState(false);
   const [currentError, setCurrentError] = useState<string | null>(null); // Store specific error messages
-
-  // State for Dialog
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // --- Fetch Contract Data ---
 
@@ -370,6 +358,17 @@ export function Mint() {
     }
   };
 
+  // Combined handler for the button
+  const handleButtonClick = async () => {
+    if (!address) return;
+
+    if (!isApproved) {
+      await handleApprove();
+    } else {
+      await handleDeposit();
+    }
+  };
+
   // --- UI Helpers ---
 
   const playClickSound = () => {
@@ -507,106 +506,91 @@ export function Mint() {
     );
   };
 
-  // --- Render Logic ---
+  // Get button content based on current state
+  const getButtonContent = () => {
+    if (isLoadingDecimals || isLoadingSymbol || isLoadingAllowance) {
+      return (
+        <motion.div
+          className="flex items-center gap-2"
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Loading...</span>
+        </motion.div>
+      );
+    }
 
-  let dialogContent: React.ReactNode = null;
-  let dialogActionHandler = () => {};
-  let dialogButtonDisabled = false;
+    if (!address) {
+      return <span>Connect Wallet</span>;
+    }
 
-  if (isLoadingDecimals || isLoadingSymbol || isLoadingAllowance) {
-    dialogContent = (
-      <motion.div
-        className="flex items-center justify-center gap-2 py-4 text-muted-foreground"
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      >
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Loading Token Info...</span>
-      </motion.div>
-    );
-    dialogButtonDisabled = true; // Disable actions while loading info
-  } else if (hasError) {
-    dialogContent = (
-      <motion.div
-        className="flex flex-col items-center gap-2 text-red-400 py-4 h-full"
-        initial={{ x: 10 }}
-        animate={{ x: 0 }}
-        transition={{ type: 'spring', stiffness: 300 }}
-      >
-        <div className="flex items-center gap-1">
+    if (hasError) {
+      return (
+        <motion.div
+          className="flex items-center gap-1 text-red-200"
+          initial={{ x: 10 }}
+          animate={{ x: 0 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+        >
           <RefreshCw className="h-4 w-4" />
-          <span>Error Occurred</span>
-        </div>
-        {currentError && (
-          <span className="text-xs opacity-80">{currentError}</span>
-        )}
-      </motion.div>
-    );
-    // Allow retry if applicable
-    dialogActionHandler = showApproveButton ? handleApprove : () => {};
-    dialogButtonDisabled = !showApproveButton && !isApproved; // Disable if deposit error and not approved? review this
-  } else if (showApproveButton) {
-    dialogActionHandler = handleApprove;
-    dialogButtonDisabled = isApproving || isApprovalTxMining;
-    dialogContent = (
-      <motion.div
-        className="flex items-center justify-center gap-2"
-        whileTap={{ scale: 0.95 }}
-      >
-        {isApproving || isApprovalTxMining ? (
-          <>
+          <span>Retry</span>
+        </motion.div>
+      );
+    }
+
+    if (showApproveButton) {
+      if (isApproving || isApprovalTxMining) {
+        return (
+          <motion.div
+            className="flex items-center justify-center gap-2"
+            whileTap={{ scale: 0.95 }}
+          >
             <Loader2 className="h-4 w-4 animate-spin" />
             <span>{isApprovalTxMining ? 'Approving...' : 'Check Wallet'}</span>
-          </>
-        ) : (
-          <>
-            <Lock className="h-4 w-4" />
-            <span>
-              Approve {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
-            </span>
-          </>
-        )}
-      </motion.div>
-    );
-  } else if (showDepositButton) {
-    dialogActionHandler = handleDeposit;
-    dialogButtonDisabled = isDepositing || isDepositTxMining;
-    dialogContent = (
-      <motion.div
-        className="flex items-center justify-center gap-2"
-        whileTap={{ scale: 0.95 }}
-      >
-        {isDepositing || isDepositTxMining ? (
-          <>
+          </motion.div>
+        );
+      }
+      return (
+        <motion.div
+          className="flex items-center justify-center gap-2"
+          whileTap={{ scale: 0.95 }}
+        >
+          <Lock className="h-4 w-4" />
+          <span>
+            Approve {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
+          </span>
+        </motion.div>
+      );
+    }
+
+    if (showDepositButton) {
+      if (isDepositing || isDepositTxMining) {
+        return (
+          <motion.div
+            className="flex items-center justify-center gap-2"
+            whileTap={{ scale: 0.95 }}
+          >
             <Loader2 className="h-4 w-4 animate-spin" />
             <span>{isDepositTxMining ? 'Depositing...' : 'Check Wallet'}</span>
-          </>
-        ) : (
-          <>
-            <Send className="h-4 w-4" />
-            <span>
-              Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
-            </span>
-          </>
-        )}
-      </motion.div>
-    );
-  } else {
-    // Should not happen if dialog is controlled correctly, but have a fallback
-    dialogContent = <span>Ready</span>;
-    dialogButtonDisabled = true;
-  }
+          </motion.div>
+        );
+      }
+      return (
+        <motion.div
+          className="flex items-center justify-center gap-2"
+          whileTap={{ scale: 0.95 }}
+        >
+          <Send className="h-4 w-4" />
+          <span>
+            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
+          </span>
+        </motion.div>
+      );
+    }
 
-  // Close dialog on successful deposit or handled error
-  useEffect(() => {
-    if (isDepositSuccess || (hasError && currentError)) {
-      // Optionally add a delay for error visibility
-      // setTimeout(() => setIsDialogOpen(false), 1500);
-    }
-    if (isDepositSuccess) {
-      setIsDialogOpen(false);
-    }
-  }, [isDepositSuccess, hasError, currentError]);
+    return <span>Mint Warps</span>;
+  };
 
   return (
     <motion.div
@@ -658,7 +642,7 @@ export function Mint() {
       <AnimatePresence mode="wait">
         {isDepositSuccess ? (
           <motion.div
-            className="relative flex items-center justify-center p-3 min-h-[40px] bg-green-950 bg-opacity-50 rounded-md border border-green-500/60 shadow-lg"
+            className="relative flex items-center justify-center px-3 py-2 min-h-[40px] bg-green-950 bg-opacity-50 rounded-md border border-green-500/60 shadow-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -679,129 +663,94 @@ export function Mint() {
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
         ) : (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                ref={buttonRef}
-                // onClick={() => setIsDialogOpen(true)} // DialogTrigger handles this
-                disabled={
+          <Button
+            ref={buttonRef}
+            onClick={handleButtonClick}
+            disabled={
+              isLoadingDecimals ||
+              isLoadingSymbol ||
+              isLoadingAllowance ||
+              !address ||
+              isApproving ||
+              isApprovalTxMining ||
+              isDepositing ||
+              isDepositTxMining
+            }
+            className={`relative group overflow-hidden transition-all duration-300 w-full ${
+              isHovered
+                ? 'bg-[#7c65c1] shadow-lg shadow-primary/20'
+                : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
+            } ${
+              isLoadingDecimals ||
+              isLoadingSymbol ||
+              isLoadingAllowance ||
+              !address ||
+              isApproving ||
+              isApprovalTxMining ||
+              isDepositing ||
+              isDepositTxMining
+                ? 'opacity-60 cursor-not-allowed'
+                : ''
+            }`}
+          >
+            <div className="absolute inset-0 rounded-md blur-lg transition-all duration-300 bg-primary/15 group-hover:bg-primary/25" />
+            <AnimatePresence>
+              {isHovered &&
+                !(
                   isLoadingDecimals ||
                   isLoadingSymbol ||
                   isLoadingAllowance ||
                   !address ||
-                  !PAYMENT_TOKEN_CONTRACT.address
-                }
-                className={`relative bg-white group overflow-hidden border transition-all duration-300 w-full ${
-                  isHovered
-                    ? 'bg-gradient-to-r from-primary/30 to-primary/20 shadow-lg shadow-primary/20 border-primary/50'
-                    : 'bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border-primary/30'
-                } ${
-                  isLoadingDecimals ||
-                  isLoadingSymbol ||
-                  isLoadingAllowance ||
-                  !address
-                    ? 'opacity-60 cursor-not-allowed'
-                    : ''
-                }`}
-              >
-                <div className="absolute inset-0 rounded-md blur-lg transition-all duration-300 bg-primary/15 group-hover:bg-primary/25" />
-                <AnimatePresence>
-                  {isHovered &&
-                    !(
-                      isLoadingDecimals ||
-                      isLoadingSymbol ||
-                      isLoadingAllowance ||
-                      !address
-                    ) && (
-                      <motion.span
-                        className="absolute inset-0 bg-white/5"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-                </AnimatePresence>
-                <div className="relative flex items-center justify-center gap-2 z-10 min-h-[20px] ">
-                  {isLoadingDecimals ||
-                  isLoadingSymbol ||
-                  isLoadingAllowance ? (
-                    <motion.div
-                      className="flex items-center gap-2"
-                      animate={{ opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Loading...</span>
-                    </motion.div>
-                  ) : !address ? (
-                    <span>Connect Wallet</span>
-                  ) : (
-                    <span>Mint Warps</span>
-                  )}
-                </div>
-                {isHovered &&
-                  !(
-                    isLoadingDecimals ||
-                    isLoadingSymbol ||
-                    isLoadingAllowance ||
-                    !address
-                  ) && (
-                    <motion.span
-                      className="absolute inset-0 bg-white/10 pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: [0, 0.1, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                        repeatDelay: 0.5,
-                      }}
-                    />
-                  )}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-black h-screen">
-              <DialogHeader>
-                <DialogTitle>Mint Warps</DialogTitle>
-                <DialogDescription>
-                  Approve and deposit {DEPOSIT_AMOUNT_TOKENS}{' '}
-                  {paymentTokenSymbol || 'tokens'} to mint. Make sure you have
-                  enough {paymentTokenSymbol || 'tokens'} in your wallet.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4 h-20">
-                {/* Display Error Message if present outside the button */}
-                {hasError &&
-                  currentError &&
-                  !showApproveButton &&
-                  !showDepositButton && (
-                    <div className="text-red-400 text-center mb-4 text-sm">
-                      {currentError}
-                    </div>
-                  )}
-                {/* Content showing loading or steps */}
-                <div className="text-center text-sm text-muted-foreground mb-4">
-                  Step {showApproveButton ? 1 : 2} of 2:{' '}
-                  {showApproveButton
-                    ? `Approve ${paymentTokenSymbol}`
-                    : `Deposit ${paymentTokenSymbol}`}
-                </div>
-                <Button
-                  onClick={dialogActionHandler}
-                  disabled={dialogButtonDisabled}
-                  className={`w-full p-4 ${
-                    hasError && !dialogButtonDisabled
-                      ? 'bg-red-500/80 hover:bg-red-600/80'
-                      : 'border border-white'
-                  }`}
-                >
-                  {dialogContent}
-                </Button>
+                  isApproving ||
+                  isApprovalTxMining ||
+                  isDepositing ||
+                  isDepositTxMining
+                ) && (
+                  <motion.span
+                    className="absolute inset-0 bg-white/5"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+            </AnimatePresence>
+            <div className="relative flex items-center justify-center gap-2 z-10 min-h-[20px] font-bold cursor-pointer">
+              {getButtonContent()}
+            </div>
+
+            {/* Subtle animation effect */}
+            {isHovered &&
+              !(
+                isLoadingDecimals ||
+                isLoadingSymbol ||
+                isLoadingAllowance ||
+                !address ||
+                isApproving ||
+                isApprovalTxMining ||
+                isDepositing ||
+                isDepositTxMining
+              ) && (
+                <motion.span
+                  className="absolute inset-0 bg-white/10 pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.1, 0] }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    repeatDelay: 0.5,
+                  }}
+                />
+              )}
+
+            {/* Display error message below button if there is one */}
+            {hasError && currentError && (
+              <div className="absolute -bottom-6 left-0 right-0 text-red-400 text-xs text-center mt-1">
+                {currentError}
               </div>
-              <DialogFooter></DialogFooter>
-            </DialogContent>
-          </Dialog>
+            )}
+          </Button>
         )}
       </AnimatePresence>
 

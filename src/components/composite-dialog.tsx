@@ -67,50 +67,34 @@ export function CompositeDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-black border-green-500/20 shadow-2xl flex flex-col h-full">
-        <div className="flex-1 flex flex-col items-center justify-center pb-32">
-          <div>
-            <DialogHeader className="text-center">
-              <DialogTitle className="text-white text-2xl mb-2"></DialogTitle>
-              <DialogDescription className="text-black">
-                {`To evolve, keep one and burn the other. Evolution is irreversible.`}
-              </DialogDescription>
-            </DialogHeader>
-
-            {sourceToken && targetToken && (
-              <div className="grid grid-cols-2 gap-8 py-8 w-full max-w-md">
-                <div className="text-center source-arrow-container">
-                  <p className="text-sm font-bold text-green-400 mb-4 uppercase tracking-wider">
-                    🌟 Keep 🌟
-                  </p>
-                  <div className="relative">
-                    <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
-                    <div className="absolute -inset-4 bg-green-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token token={sourceToken} />
-                  </div>
-                </div>
-                <div className="text-center target-arrow-container">
-                  <p className="text-sm font-bold text-red-400 mb-4 uppercase tracking-wider">
-                    🔥 Burn 🔥
-                  </p>
-                  <div className="relative">
-                    <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
-                    <div className="absolute -inset-4 bg-red-500/10 rounded-2xl blur-2xl animate-pulse-slow" />
-                    <Token token={targetToken} isBurnToken={true} />
-                  </div>
-                </div>
+      <DialogContent className="sm:max-w-[425px] bg-black border border-primary/30 shadow-xl">
+        {sourceToken && targetToken && (
+          <div className="grid grid-cols-2 gap-4 py-0 w-full mx-auto px-6">
+            <div className="text-center">
+              <div className="relative">
+                <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
+                <Token token={sourceToken} />
               </div>
-            )}
+            </div>
+            <div className="text-center">
+              <div className="relative">
+                <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
+                <Token token={targetToken} isBurnToken={true} />
+              </div>
+            </div>
           </div>
+        )}
 
-          <DialogFooter className="px-6 py-4">
+        {/* Evolve button with green background matching mint button */}
+        <div className="">
+          <div className="bg-[#7c65c1] hover:bg-[#7c65c1]/90 rounded-md p-1">
             <Composite
               selectedTokens={
                 selectedPair ? [selectedPair.source, selectedPair.target] : []
               }
               onCompositeComplete={handleCompositeComplete}
             />
-          </DialogFooter>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
