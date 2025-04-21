@@ -421,14 +421,6 @@ export function Mint() {
 
   console.log('allowance', allowance);
 
-  const buttonDisabled =
-    isLoading ||
-    !address ||
-    !PAYMENT_TOKEN_CONTRACT.address ||
-    depositAmountWei === undefined ||
-    (hasError && !isApproved) ||
-    (isApproved && hasError);
-
   const showApproveButton = !isApproved;
   const showDepositButton = isApproved && !isDepositSuccess;
 
