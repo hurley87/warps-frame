@@ -1,6 +1,9 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TokenDetailsDialog } from './token-details-dialog';
+import { useReadContract } from 'wagmi';
+import { WARPS_CONTRACT } from '@/lib/contracts';
+import { chain } from '@/lib/chain';
 
 interface TokenProps {
   token: TokenType;
@@ -20,6 +23,25 @@ export function Token({
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const clickTimer = useRef<NodeJS.Timeout | null>(null);
   const clickCount = useRef<number>(0);
+  const [winningColor, setWinningColor] = useState('#018A08');
+
+  // Fetch the current winning color from the contract
+  const { data: fetchedWinningColor } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getCurrentWinningColor',
+    chainId: chain.id,
+    query: {
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
+  });
+
+  // Update winning color when data is fetched
+  useEffect(() => {
+    if (fetchedWinningColor) {
+      setWinningColor(fetchedWinningColor);
+    }
+  }, [fetchedWinningColor]);
 
   // Handle click for selection and double click for details
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -165,14 +187,14 @@ export function Token({
           }
         }
 
-        .svg-container g path[fill='#018A08'] {
+        .svg-container g path[fill='${winningColor}'] {
           transform-origin: center;
           animation: ${isBurnToken ? 'redPathPulse' : 'greenPathPulse'} 1s
             cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
         }
 
-        .evolved-token-glow g path[fill='#018A08'] {
+        .evolved-token-glow g path[fill='${winningColor}'] {
           transform-origin: center;
           animation: evolvedPathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
