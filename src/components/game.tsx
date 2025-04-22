@@ -13,7 +13,6 @@ import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
-import { Warp } from './warp';
 import Info from './info';
 import {
   ArrowRight,
@@ -41,33 +40,32 @@ export default function Game() {
       color: string;
     }>
   >([]);
-  const [winningColor, setWinningColor] = useState('#018A08');
+  const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
 
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { connect } = useConnect();
   const { switchChain } = useSwitchChain();
 
   const chainId = useChainId();
   console.log('chainId', chainId);
 
-  // Fetch the current winning color from the contract
-  const { data: fetchedWinningColor } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'getCurrentWinningColor',
+  // Check if the user has used their free mint
+  const { data: fetchedHasUsedFreeMint } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'hasUsedFreeMint',
+    args: [address!],
     chainId: chain.id,
     query: {
-      enabled: isConnected,
-      refetchInterval: 30000, // Refetch every 30 seconds
+      enabled: !!address,
+      refetchInterval: 5000,
     },
   });
 
-  // Update winning color when data is fetched
   useEffect(() => {
-    if (fetchedWinningColor) {
-      setWinningColor(fetchedWinningColor);
+    if (fetchedHasUsedFreeMint !== undefined) {
+      setHasUsedFreeMint(fetchedHasUsedFreeMint);
     }
-  }, [fetchedWinningColor]);
+  }, [fetchedHasUsedFreeMint]);
 
   // Generate random floating warps for the background animation
   useEffect(() => {
@@ -269,15 +267,17 @@ export default function Game() {
 
     return (
       <div className="w-screen h-screen mx-auto bg-background relative bg-[#342942]">
-        <header className="sticky top-0 bg-[#342942] z-10">
-          <div className="px-4 py-3 flex items-center justify-between">
-            <span className="font-bold">Warps</span>
-            <div className="flex items-center gap-2">
-              <Info />
-              <Mint />
+        {hasUsedFreeMint && (
+          <header className="sticky top-0 bg-[#342942] z-10">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <span className="font-bold">Warps</span>
+              <div className="flex items-center gap-2">
+                <Info />
+                <Mint />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
+        )}
         <Tokens />
       </div>
     );

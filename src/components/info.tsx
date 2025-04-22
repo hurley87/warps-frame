@@ -14,9 +14,8 @@ import { useCallback, useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
-import { ArrowUp } from 'lucide-react';
-import { Warp } from './warp';
 import { DEPOSIT_AMOUNT_TOKENS } from './mint';
+import { Warp } from './warp';
 
 export default function Info() {
   const [open, setOpen] = useState(true);

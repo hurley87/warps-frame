@@ -22,10 +22,8 @@ import {
   RefreshCw,
   Sparkles,
   CheckCircle2,
-  Send,
   Lock,
   Gift,
-  Plus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
@@ -75,6 +73,15 @@ const erc20Abi = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    constant: true,
+    inputs: [{ name: '_owner', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', type: 'uint256' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
+  },
 ] as const satisfies Abi;
 
 // Define the amount to approve and deposit
@@ -96,6 +103,8 @@ export function Mint() {
   const [depositAmountWei, setDepositAmountWei] = useState<
     bigint | undefined
   >();
+  const [tokenBalance, setTokenBalance] = useState<bigint | undefined>();
+  const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
 
   // Add state for free mint
   const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
@@ -198,6 +207,27 @@ export function Mint() {
       setIsApproved(fetchedAllowance >= depositAmountWei);
     }
   }, [fetchedAllowance, depositAmountWei]);
+
+  const { data: fetchedBalance, isLoading: isLoadingBalance } = useReadContract(
+    {
+      address: PAYMENT_TOKEN_CONTRACT.address,
+      abi: erc20Abi,
+      functionName: 'balanceOf',
+      args: [address!],
+      chainId: chain.id,
+      query: {
+        enabled: !!address && !!depositAmountWei,
+        refetchInterval: 5000,
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
+      setTokenBalance(fetchedBalance);
+      setHasInsufficientBalance(fetchedBalance < depositAmountWei);
+    }
+  }, [fetchedBalance, depositAmountWei]);
 
   // --- Approval Transaction ---
 
@@ -545,6 +575,7 @@ export function Mint() {
     isLoadingDecimals ||
     isLoadingSymbol ||
     isLoadingAllowance ||
+    isLoadingBalance ||
     isApproving ||
     isApprovalTxMining ||
     isDepositing ||
@@ -556,6 +587,7 @@ export function Mint() {
     isFreeMintWritePending;
 
   console.log('allowance', allowance);
+  console.log('tokenBalance', tokenBalance);
 
   const showFreeMintButton = !hasUsedFreeMint && !isFreeMintSuccess;
   const showApproveButton = hasUsedFreeMint && !isApproved;
@@ -650,7 +682,8 @@ export function Mint() {
       isLoadingHasUsedFreeMint ||
       isLoadingDecimals ||
       isLoadingSymbol ||
-      isLoadingAllowance
+      isLoadingAllowance ||
+      isLoadingBalance
     ) {
       return (
         <motion.div
@@ -682,6 +715,21 @@ export function Mint() {
       );
     }
 
+    if (hasInsufficientBalance && hasUsedFreeMint) {
+      return (
+        <motion.div
+          className="flex items-center gap-1 text-red-200"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span>
+            Need {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'tokens'}
+          </span>
+        </motion.div>
+      );
+    }
+
     if (showFreeMintButton) {
       if (isFreeMinting || isFreeMintTxMining) {
         return (
@@ -700,7 +748,7 @@ export function Mint() {
           whileTap={{ scale: 0.95 }}
         >
           <Gift className="h-4 w-4" />
-          <span>Claim Free Mint</span>
+          <span>Claim Free Warps</span>
         </motion.div>
       );
     }
@@ -769,6 +817,7 @@ export function Mint() {
             isLoadingDecimals ||
             isLoadingSymbol ||
             isLoadingAllowance ||
+            isLoadingBalance ||
             isApproving ||
             isDepositing ||
             isFreeMinting) &&
@@ -823,11 +872,7 @@ export function Mint() {
               }}
             >
               <CheckCircle2 className="h-5 w-5" />
-              <span>
-                {isFreeMintSuccess
-                  ? 'Free Mint Successful!'
-                  : 'Deposit Successful!'}
-              </span>
+              <span>Mint Successful!</span>
             </motion.div>
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
@@ -840,13 +885,15 @@ export function Mint() {
               isLoadingDecimals ||
               isLoadingSymbol ||
               isLoadingAllowance ||
+              isLoadingBalance ||
               !address ||
               isApproving ||
               isApprovalTxMining ||
               isDepositing ||
               isDepositTxMining ||
               isFreeMinting ||
-              isFreeMintTxMining
+              isFreeMintTxMining ||
+              (hasInsufficientBalance && hasUsedFreeMint)
             }
             className={`relative group overflow-hidden transition-all duration-300 w-full ${
               isHovered
@@ -857,13 +904,15 @@ export function Mint() {
               isLoadingDecimals ||
               isLoadingSymbol ||
               isLoadingAllowance ||
+              isLoadingBalance ||
               !address ||
               isApproving ||
               isApprovalTxMining ||
               isDepositing ||
               isDepositTxMining ||
               isFreeMinting ||
-              isFreeMintTxMining
+              isFreeMintTxMining ||
+              (hasInsufficientBalance && hasUsedFreeMint)
                 ? 'opacity-60 cursor-not-allowed'
                 : ''
             }`}
@@ -876,13 +925,15 @@ export function Mint() {
                   isLoadingDecimals ||
                   isLoadingSymbol ||
                   isLoadingAllowance ||
+                  isLoadingBalance ||
                   !address ||
                   isApproving ||
                   isApprovalTxMining ||
                   isDepositing ||
                   isDepositTxMining ||
                   isFreeMinting ||
-                  isFreeMintTxMining
+                  isFreeMintTxMining ||
+                  (hasInsufficientBalance && hasUsedFreeMint)
                 ) && (
                   <motion.span
                     className="absolute inset-0 bg-white/5"
@@ -904,13 +955,15 @@ export function Mint() {
                 isLoadingDecimals ||
                 isLoadingSymbol ||
                 isLoadingAllowance ||
+                isLoadingBalance ||
                 !address ||
                 isApproving ||
                 isApprovalTxMining ||
                 isDepositing ||
                 isDepositTxMining ||
                 isFreeMinting ||
-                isFreeMintTxMining
+                isFreeMintTxMining ||
+                (hasInsufficientBalance && hasUsedFreeMint)
               ) && (
                 <motion.span
                   className="absolute inset-0 bg-white/10 pointer-events-none"
@@ -929,6 +982,18 @@ export function Mint() {
             {hasError && currentError && (
               <div className="absolute -bottom-6 left-0 right-0 text-red-400 text-xs text-center mt-1">
                 {currentError}
+              </div>
+            )}
+
+            {/* Display balance info if insufficient */}
+            {hasInsufficientBalance && hasUsedFreeMint && !hasError && (
+              <div className="absolute -bottom-6 left-0 right-0 text-red-400 text-xs text-center mt-1">
+                Need {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'tokens'},
+                have{' '}
+                {tokenBalance !== undefined && fetchedDecimals !== undefined
+                  ? Number(tokenBalance) / 10 ** Number(fetchedDecimals)
+                  : '0'}{' '}
+                {paymentTokenSymbol || 'tokens'}
               </div>
             )}
           </Button>

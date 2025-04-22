@@ -60,9 +60,9 @@ export function CompositeDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-black shadow-xl">
+      <DialogContent className="sm:max-w-[425px] bg-black shadow-xl h-screen flex flex-col justify-center items-center gap-12">
         {sourceToken && targetToken && (
-          <div className="grid grid-cols-2 gap-4 py-0 w-full mx-auto px-6">
+          <div className="grid grid-cols-2 gap-6 py-0 w-full mx-auto px-6">
             <div className="text-center">
               <div className="relative">
                 <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />

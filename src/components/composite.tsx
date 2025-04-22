@@ -342,7 +342,7 @@ export function Composite({
                       selectedTokens.length === 2 ? '' : ''
                     }`}
                   />
-                  <span>Evolve Warps</span>
+                  <span>Evolve</span>
                 </div>
               )}
             </div>

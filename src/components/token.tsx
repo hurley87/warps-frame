@@ -63,7 +63,7 @@ export function Token({
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
           <div
-            className={`absolute inset-[-100%] w-[300%] h-[300%] transition-transform duration-300 group-hover:scale-110 svg-container ${
+            className={`absolute inset-[-100%] w-[302%] h-[302%] transition-transform duration-300 group-hover:scale-110 svg-container ${
               isEvolvedToken ? 'evolved-token-glow' : ''
             }`}
             style={{

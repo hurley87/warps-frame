@@ -12,6 +12,10 @@ import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
+import { AnimatedWarp } from './animated-warp';
+import { AlertCircle } from 'lucide-react';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function LoadingScreen() {
   return (
@@ -166,39 +170,27 @@ export function Tokens() {
     ? tokens.find((t) => t.id === selectedPair.target) ?? null
     : null;
 
+  console.log('tokens', tokens);
+
   if (tokens.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center p-6 space-y-6 text-center pt-0">
-        <div className="relative w-64 h-64 mb-2">
-          <Image
-            src="/loadingarrow.svg"
-            alt="Arrow"
-            width={256}
-            height={256}
-            className="animate-pulse"
-            priority
-          />
+        <div className="relative w-64 h-64 mb-2 flex items-center justify-center my-4">
+          <AnimatedWarp className="w-54 h-54 mx-auto" />
         </div>
 
         <div className="space-y-3 max-w-xs">
-          <div className="flex items-center gap-2 text-primary justify-center">
-            <span className="text-sm font-medium">Current Prize Pool</span>
-          </div>
           <div className="relative font-bold text-2xl pb-1">
-            <Pool />
+            Win <Pool showWinningAmount />
           </div>
           <p className="text-muted-foreground">
-            Every mint contributes to the prize pool. Evolve your warps by
-            combining matching pairs. The first to find the higher warp can
-            claim the entire prize pool.
+            Find a single warp with the winning color and burn it to claim{' '}
+            <Pool showWinningAmount />.
           </p>
         </div>
 
         <div className="flex flex-col items-center space-y-2">
           <Mint />
-          <p className="text-xs text-muted-foreground">
-            Minting costs 0.004 ETH for a pack of 8 warps
-          </p>
         </div>
       </div>
     );
@@ -209,28 +201,31 @@ export function Tokens() {
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
-        <div className="mb-4 p-3 bg-primary/10 rounded-lg flex items-center gap-2 text-xs border border-primary/20">
-          <p>To continue, you have to mint more warps.</p>
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle> To continue, you have to mint more warps.</AlertTitle>
+        </Alert>
       )}
 
       <div className="flex flex-col">
         <div className="grid grid-cols-3 gap-4">
-          {tokens.map((token) => (
-            <Token
-              key={`token-${token.id}`}
-              token={token}
-              onSelect={handleTokenSelect}
-              isSelected={selectedTokenId === token.id}
-              isBurnToken={
-                selectedPair?.target === token.id ||
-                (selectedTokenId !== null &&
-                  selectedTokenId !== token.id &&
-                  evolvedTokenId !== token.id)
-              }
-              isEvolvedToken={evolvedTokenId === token.id}
-            />
-          ))}
+          {[...tokens]
+            .sort((a, b) => b.id - a.id)
+            .map((token) => (
+              <Token
+                key={`token-${token.id}`}
+                token={token}
+                onSelect={handleTokenSelect}
+                isSelected={selectedTokenId === token.id}
+                isBurnToken={
+                  selectedPair?.target === token.id ||
+                  (selectedTokenId !== null &&
+                    selectedTokenId !== token.id &&
+                    evolvedTokenId !== token.id)
+                }
+                isEvolvedToken={evolvedTokenId === token.id}
+              />
+            ))}
         </div>
         {hasMore && (
           <div className="flex justify-center mt-6 py-4">
