@@ -4,7 +4,7 @@ import {
   sendNotificationResponseSchema,
 } from '@farcaster/frame-sdk';
 
-const appUrl = process.env.NEXT_PUBLIC_URL || '';
+const targetUrl = 'https://www.warps.fun';
 
 export interface Notification {
   fid: number;
@@ -64,7 +64,7 @@ export async function sendFrameNotification({
       notificationId: crypto.randomUUID(),
       title,
       body,
-      targetUrl: appUrl,
+      targetUrl,
       tokens: [notification.token],
     } satisfies SendNotificationRequest),
   });
