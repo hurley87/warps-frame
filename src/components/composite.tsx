@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, Zap, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Loader2, RefreshCw, Zap, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
 import posthog from 'posthog-js';
@@ -107,25 +107,11 @@ export function Composite({
           // Silent fail if audio can't play
         }
 
-        // Show brief success feedback
-        setShowParticles(true);
-        setIsSuccess(true);
-        setIsPending(false);
-        setHasError(false);
-
         // Shake the screen slightly for feedback
         document.documentElement.classList.add('screen-shake');
         setTimeout(() => {
           document.documentElement.classList.remove('screen-shake');
         }, 500);
-
-        // Immediately invalidate queries to refresh data
-        await queryClient.invalidateQueries({
-          queryKey: ['tokens-balance'],
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ['tokens-metadata'],
-        });
 
         // Notify parent component immediately
         onCompositeComplete(evolvedTokenId);

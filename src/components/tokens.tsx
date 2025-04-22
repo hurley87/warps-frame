@@ -152,9 +152,9 @@ export function Tokens() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  // if (isLoading) {
+  //   return <LoadingScreen />;
+  // }
 
   // Check if user has any winning tokens
   const winningToken = tokens.find((token) => token.isWinning);
