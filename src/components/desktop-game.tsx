@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
@@ -79,7 +79,7 @@ export default function DesktopGame() {
   console.log('targetChainId', targetChainId);
 
   // Function to handle chain switching
-  const handleSwitchChain = async () => {
+  const handleSwitchChain = useCallback(async () => {
     if (chainId === targetChainId) return;
 
     console.log('switching chain');
@@ -89,13 +89,13 @@ export default function DesktopGame() {
     } catch (err) {
       console.error('Error switching chain:', err);
     }
-  };
+  }, [chainId, targetChainId, switchChain]);
 
   useEffect(() => {
     if (isConnected && chainId !== targetChainId) {
       handleSwitchChain();
     }
-  }, [isConnected, chainId]);
+  }, [isConnected, chainId, handleSwitchChain, targetChainId]);
 
   // Helper function to render the appropriate arrow icon
   const renderArrowIcon = (type: string, color: string) => {

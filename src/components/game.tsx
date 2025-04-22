@@ -1,7 +1,7 @@
 'use client';
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   useAccount,
   useChainId,
@@ -108,13 +108,13 @@ export default function Game() {
   const targetChainId = chain.id;
 
   // Function to handle chain switching
-  const handleSwitchChain = async () => {
+  const handleSwitchChain = useCallback(async () => {
     try {
       await switchChain({ chainId: targetChainId });
     } catch (err) {
       console.error('Error switching chain:', err);
     }
-  };
+  }, [switchChain, targetChainId]);
 
   useEffect(() => {
     const load = async () => {
@@ -127,7 +127,7 @@ export default function Game() {
       setIsSDKLoaded(true);
       load();
     }
-  }, [isSDKLoaded]);
+  }, [isSDKLoaded, handleSwitchChain]);
 
   useEffect(() => {
     if (!context?.client?.added) {
