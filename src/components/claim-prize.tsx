@@ -24,9 +24,10 @@ interface ClaimPrizeProps {
     }>;
     isWinning?: boolean;
   };
+  username?: string;
 }
 
-export function ClaimPrize({ token }: ClaimPrizeProps) {
+export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -81,7 +82,7 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
             },
             body: JSON.stringify({
               winnerTokenId: token.id,
-              winnerAddress: address,
+              winnerAddress: username ? username : address,
             }),
           });
 

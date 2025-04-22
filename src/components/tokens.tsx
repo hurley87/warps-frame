@@ -50,7 +50,7 @@ function LoadingScreen() {
   );
 }
 
-export function Tokens() {
+export function Tokens({ username }: { username?: string }) {
   const { address } = useAccount();
   const {
     tokens = [],
@@ -160,7 +160,7 @@ export function Tokens() {
   const winningToken = tokens.find((token) => token.isWinning);
 
   if (winningToken) {
-    return <ClaimPrize token={winningToken} />;
+    return <ClaimPrize token={winningToken} username={username} />;
   }
 
   const sourceToken = selectedPair

@@ -13,14 +13,17 @@ export async function POST(request: Request) {
     }
 
     // Create notification message with truncated address for privacy
-    const truncatedAddress = `${winnerAddress.slice(
-      0,
-      6
-    )}...${winnerAddress.slice(-4)}`;
-    const notificationMessage = `🎉 ${truncatedAddress} just won a prize! Check it out!`;
+    const truncatedAddress =
+      winnerAddress.length < 12
+        ? winnerAddress
+        : `${winnerAddress.slice(0, 6)}...${winnerAddress.slice(-4)}`;
+    const notificationMessage = `🎉 ${truncatedAddress} just won!`;
 
     // Send notifications to all users using our utility function
-    const result = await notifyAllUsers('🎉 New Winner!', notificationMessage);
+    const result = await notifyAllUsers(
+      notificationMessage,
+      'Winning color updated. Check to see if you own it.'
+    );
 
     return NextResponse.json({
       message: result.message,

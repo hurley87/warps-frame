@@ -160,6 +160,7 @@ export default function Game() {
   };
 
   console.log('context', context);
+  const username = context?.user?.username;
 
   // Game content based on connection status
   const renderGameContent = () => {
@@ -278,7 +279,7 @@ export default function Game() {
             </div>
           </header>
         )}
-        <Tokens />
+        <Tokens username={username} />
       </div>
     );
   };
