@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Warp } from './warp';
-import { Pool } from './pool';
 
 // Define the color list outside the component to avoid recreation on each render
 const warpColors = [
