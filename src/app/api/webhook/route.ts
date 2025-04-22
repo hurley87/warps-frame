@@ -36,11 +36,13 @@ export async function POST(request: Request) {
             url,
             token,
           };
+          console.log('notification', notification);
 
           try {
             await insertNotification(notification);
             console.log('Notification stored in Supabase:', notification);
           } catch (error) {
+            console.log('error', error);
             // Check if the error is due to a unique constraint violation
             const pgError = error as PostgrestError;
             if (pgError.code === '23505') {
