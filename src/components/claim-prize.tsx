@@ -72,12 +72,37 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
         // Potentially invalidate prize pool query if needed
         // await queryClient.invalidateQueries({ queryKey: ['prize-pool'] });
 
+        // Notify all users about the winner
+        try {
+          const response = await fetch('/api/notify-users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              winnerTokenId: token.id,
+              winnerAddress: address,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error(
+              'Failed to send winner notifications:',
+              await response.text()
+            );
+          } else {
+            console.log('Winner notifications sent successfully');
+          }
+        } catch (error) {
+          console.error('Error sending winner notifications:', error);
+        }
+
         setIsProcessing(false); // Reset processing state on success
       }
     };
 
     handleSuccess();
-  }, [isTxSuccess, queryClient]);
+  }, [isTxSuccess, queryClient, token.id, address]);
 
   const handleClaimPrize = async (tokenId: number) => {
     if (!address || isLoading) return;
@@ -93,14 +118,13 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
         args: [BigInt(tokenId)],
         chainId: chain.id,
       });
+
+      // Notification sent in the success handler
     } catch (error) {
       console.error('Error submitting claim prize transaction:', error);
       toast.error('Failed to submit claim prize transaction.');
       setIsProcessing(false);
     }
-    // Note: We don't reset isProcessing here immediately after writeContract
-    // because we want the loading state to persist through confirmation.
-    // It will be reset in the useEffect hooks for success or error.
   };
 
   return (
@@ -113,7 +137,7 @@ export function ClaimPrize({ token }: ClaimPrizeProps) {
       <div className="max-w-sm mx-auto">
         <Token key={`token-${token.id}`} token={token} onSelect={() => {}} />
         <Button
-          className="w-full mt-4 border"
+          className="w-full mt-4 bg-[#7c65c1] hover:bg-[#7c65c1]/90"
           onClick={() => handleClaimPrize(token.id)}
           size="lg"
           disabled={isLoading}

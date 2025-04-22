@@ -42,17 +42,6 @@ export async function POST(request: Request) {
             await insertNotification(notification);
             console.log('Notification stored in Supabase:', notification);
           } catch (error) {
-            console.log('error', error);
-            // Check if the error is due to a unique constraint violation
-            const pgError = error as PostgrestError;
-            if (pgError.code === '23505') {
-              // PostgreSQL unique violation error code
-              console.log('Notification already exists for FID:', fid);
-              return NextResponse.json({
-                success: true,
-                message: 'Notification already exists',
-              });
-            }
             console.error('Failed to store notification:', error);
             return NextResponse.json(
               { error: 'Failed to store notification' },
