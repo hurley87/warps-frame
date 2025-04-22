@@ -5,7 +5,6 @@ import {
   ParseWebhookEventResult,
 } from '@farcaster/frame-node';
 import { insertNotification } from '@/lib/supabase';
-import { PostgrestError } from '@supabase/supabase-js';
 
 function isFrameEvent(
   data: ParseWebhookEventResult
