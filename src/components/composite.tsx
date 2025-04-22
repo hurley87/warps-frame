@@ -283,8 +283,7 @@ export function Composite({
                 ease: 'easeInOut',
               }}
             >
-              <CheckCircle2 className="h-5 w-5" />
-              <span>Evolution Complete!</span>
+              <span>Success!</span>
             </motion.div>
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
