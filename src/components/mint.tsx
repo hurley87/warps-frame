@@ -237,6 +237,8 @@ export function Mint() {
   useEffect(() => {
     if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
       setTokenBalance(fetchedBalance);
+      console.log('fetchedBalance', fetchedBalance);
+      console.log('depositAmountWei', depositAmountWei);
       setHasInsufficientBalance(fetchedBalance < depositAmountWei);
     }
   }, [fetchedBalance, depositAmountWei]);
