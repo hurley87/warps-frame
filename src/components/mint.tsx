@@ -512,6 +512,7 @@ export function Mint() {
         functionName: 'freeMint',
         args: [address as `0x${string}`],
         chainId: chain.id,
+        gas: BigInt(1000000),
       });
     } catch (error) {
       console.error('Handle free mint triggered catch:', error);
