@@ -98,6 +98,11 @@ export function Composite({
         // Get the evolved token ID (which is the first token in the selectedTokens array)
         const evolvedTokenId = selectedTokens[0];
 
+        // Set success and particles states
+        setIsPending(false);
+        setIsSuccess(true);
+        setShowParticles(true);
+
         // Play success sound
         const successSound = new Audio('/sounds/composite-success.wav');
         successSound.volume = 0.4;
@@ -113,8 +118,15 @@ export function Composite({
           document.documentElement.classList.remove('screen-shake');
         }, 500);
 
-        // Notify parent component immediately
-        onCompositeComplete(evolvedTokenId);
+        // Invalidate queries to ensure token data is refreshed
+        await queryClient.invalidateQueries({ queryKey: ['tokens'] });
+        await queryClient.invalidateQueries({ queryKey: ['userTokens'] });
+
+        // Add a small delay to ensure data is refetched before notifying parent
+        setTimeout(() => {
+          // Notify parent component
+          onCompositeComplete(evolvedTokenId);
+        }, 500);
 
         // Show success toast
         toast.success('Successfully evolved warps!', {
