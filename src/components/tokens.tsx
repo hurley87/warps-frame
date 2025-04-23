@@ -219,7 +219,7 @@ export function Tokens({ username }: { username?: string }) {
 
   return (
     <div className="relative p-4 bg-[#342942] overflow-hidden">
-      {/* {isFetching && <LoadingScreen />} */}
+      {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
         <Alert variant="destructive" className="mb-6">

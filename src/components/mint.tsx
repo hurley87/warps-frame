@@ -22,7 +22,6 @@ import {
   RefreshCw,
   Sparkles,
   CheckCircle2,
-  Lock,
   Gift,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
