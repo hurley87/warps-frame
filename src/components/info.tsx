@@ -112,7 +112,7 @@ export default function Info() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <span className="text-xs font-semibold cursor-pointer">
+        <span className="text-sm font-semibold cursor-pointer">
           How To Play
         </span>
       </DrawerTrigger>
