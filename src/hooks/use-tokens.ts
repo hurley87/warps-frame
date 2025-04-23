@@ -88,7 +88,6 @@ export function useTokensMetadata(
       for (const tokenIdStr of tokenIds) {
         // Convert string back to BigInt for contract calls
         const tokenId = BigInt(tokenIdStr);
-        console.log('tokenId', tokenId);
 
         // Get token metadata
         const tokenMetadata = await readContract(config, {
@@ -111,11 +110,9 @@ export function useTokensMetadata(
           isWinning,
         };
 
-        console.log('token', token);
-
         tokens.push(token);
       }
-      console.log('tokens', tokens);
+
       return tokens;
     },
     enabled: !!address && tokenIds.length > 0,
@@ -165,22 +162,16 @@ export function useInfiniteTokens(
   const { data: balanceData, isLoading: isLoadingBalance } = useTokens(address);
   const [displayLimit, setDisplayLimit] = useState(initialPageSize);
 
-  console.log('balanceData', balanceData);
-
   const visibleTokenIds = useMemo(() => {
     if (!balanceData?.tokenIds) return [];
     return balanceData.tokenIds.slice(0, displayLimit);
   }, [balanceData?.tokenIds, displayLimit]);
-
-  console.log('visibleTokenIds', visibleTokenIds);
 
   const {
     data: tokensData,
     isLoading: isLoadingMetadata,
     isFetching,
   } = useTokensMetadata(address, visibleTokenIds);
-
-  console.log('tokensData', tokensData);
 
   const loadMore = () => {
     setDisplayLimit((prev) => prev + initialPageSize);

@@ -32,10 +32,7 @@ export default function DesktopGame() {
   const { isConnected } = useAccount();
   const { switchChain } = useSwitchChain();
 
-  console.log('isConnected', isConnected);
-
   const chainId = useChainId();
-  console.log('chainId', chainId);
 
   // Generate random floating warps for the background animation
   useEffect(() => {
@@ -76,16 +73,13 @@ export default function DesktopGame() {
   }, [isConnected]);
 
   const targetChainId = chain.id;
-  console.log('targetChainId', targetChainId);
 
   // Function to handle chain switching
   const handleSwitchChain = useCallback(async () => {
     if (chainId === targetChainId) return;
 
-    console.log('switching chain');
     try {
       await switchChain({ chainId: targetChainId });
-      console.log('switched chain');
     } catch (err) {
       console.error('Error switching chain:', err);
     }

@@ -64,7 +64,6 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
     const handleSuccess = async () => {
       if (isTxSuccess && !successHandled.current) {
         successHandled.current = true;
-        console.log('Prize claimed successfully!');
         toast.success('Prize Claimed Successfully! 🏆', {
           icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
         });
@@ -90,8 +89,6 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
               'Failed to send winner notifications:',
               await response.text()
             );
-          } else {
-            console.log('Winner notifications sent successfully');
           }
         } catch (error) {
           console.error('Error sending winner notifications:', error);
@@ -108,7 +105,6 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   const handleClaimPrize = async (tokenId: number) => {
     if (!address || isLoading) return;
 
-    console.log('Attempting to claim prize for token:', tokenId);
     setIsProcessing(true);
     successHandled.current = false; // Reset success flag for new attempt
 

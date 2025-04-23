@@ -47,7 +47,6 @@ export default function Game() {
   const { switchChain } = useSwitchChain();
 
   const chainId = useChainId();
-  console.log('chainId', chainId);
 
   // Check if the user has used their free mint
   const { data: fetchedHasUsedFreeMint } = useReadContract({
@@ -159,7 +158,6 @@ export default function Game() {
     }
   };
 
-  console.log('context', context);
   const username = context?.user?.username;
 
   // Game content based on connection status

@@ -202,19 +202,13 @@ export function Mint() {
 
       // Handle the case for USDC (6 decimals) specifically
       if (Number(fetchedDecimals) === 6) {
-        console.log('Handling USDC (6 decimals)');
         // For USDC: mintPrice is already in the correct format
         const amountInWei = BigInt(mintPrice);
         setDepositAmountWei(amountInWei);
-        console.log('USDC mintPrice', mintPrice);
-        console.log('USDC amountInWei', amountInWei.toString());
       } else {
         // For other tokens, use parseUnits as before
         const amountInWei = parseUnits(mintPriceStr, fetchedDecimals);
         setDepositAmountWei(amountInWei);
-        console.log('Other token mintPrice', mintPrice);
-        console.log('Other token fetchedDecimals', fetchedDecimals);
-        console.log('Other token amountInWei', amountInWei.toString());
       }
     }
 
@@ -260,8 +254,6 @@ export function Mint() {
   useEffect(() => {
     if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
       setTokenBalance(fetchedBalance);
-      console.log('fetchedBalance', fetchedBalance);
-      console.log('depositAmountWei', depositAmountWei);
       setHasInsufficientBalance(fetchedBalance < depositAmountWei);
     }
   }, [fetchedBalance, depositAmountWei]);
@@ -631,9 +623,6 @@ export function Mint() {
     isApproveWritePending ||
     isDepositWritePending ||
     isFreeMintWritePending;
-
-  console.log('allowance', allowance);
-  console.log('tokenBalance', tokenBalance);
 
   const showFreeMintButton = !hasUsedFreeMint && !isFreeMintSuccess;
   const showApproveButton = hasUsedFreeMint && !isApproved;

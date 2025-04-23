@@ -57,16 +57,12 @@ export async function generateMetadata({
 }: TokenPageProps): Promise<Metadata> {
   const { tokenId } = await params;
 
-  console.log('tokenId', tokenId);
-
   try {
     const metadata = await getTokenMetadata(tokenId);
 
     const imageUrl = `${appUrl}/api/og?image=${encodeURIComponent(
       metadata.image
     )}`;
-
-    console.log('imageUrl', imageUrl);
 
     const frame = {
       version: 'next',
@@ -82,8 +78,6 @@ export async function generateMetadata({
         },
       },
     };
-
-    console.log('frame', frame);
 
     return {
       title: `Warps Token #${tokenId}`,

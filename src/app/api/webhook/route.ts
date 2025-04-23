@@ -16,7 +16,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const data = await parseWebhookEvent(body, verifyAppKeyWithNeynar);
-    console.log('data', data);
     const event = data.event.event;
 
     if (!isFrameEvent(data)) {
@@ -35,7 +34,6 @@ export async function POST(request: Request) {
             url,
             token,
           };
-          console.log('notification', notification);
 
           try {
             await insertNotification(notification);
