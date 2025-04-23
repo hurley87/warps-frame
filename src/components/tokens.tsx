@@ -70,28 +70,19 @@ export function Tokens({ username }: { username?: string }) {
     target: number;
   } | null>(null);
   const [evolvedTokenId, setEvolvedTokenId] = useState<number | null>(null);
-  const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<
-    string | undefined
-  >();
 
   const queryClient = useQueryClient();
 
   // Fetch the payment token symbol
-  const { data: fetchedSymbol } = useReadContract({
-    address: PAYMENT_TOKEN_CONTRACT.address,
-    abi: PAYMENT_TOKEN_CONTRACT.abi,
-    functionName: 'symbol',
-    chainId: chain.id,
-    query: {
-      enabled: !!address,
-    },
-  });
-
-  useEffect(() => {
-    if (fetchedSymbol) {
-      setPaymentTokenSymbol(fetchedSymbol);
-    }
-  }, [fetchedSymbol]);
+  // const { data: fetchedSymbol } = useReadContract({
+  //   address: PAYMENT_TOKEN_CONTRACT.address,
+  //   abi: PAYMENT_TOKEN_CONTRACT.abi,
+  //   functionName: 'symbol',
+  //   chainId: chain.id,
+  //   query: {
+  //     enabled: !!address,
+  //   },
+  // });
 
   // Reset the evolved token highlight after a delay
   useEffect(() => {
@@ -131,14 +122,14 @@ export function Tokens({ username }: { username?: string }) {
     )?.value;
 
     // Check if both are single warp (value "1")
-    // if (sourceColorBand === '1' && targetColorBand === '1') {
-    //   toast.error(
-    //     'Single warp cannot be combined. Find warps with more bands.'
-    //   );
-    //   // Select the new token instead
-    //   setSelectedTokenId(tokenId);
-    //   return;
-    // }
+    if (sourceColorBand === '1' && targetColorBand === '1') {
+      toast.error(
+        'Single warp cannot be combined. Find warps with more bands.'
+      );
+      // Select the new token instead
+      setSelectedTokenId(tokenId);
+      return;
+    }
 
     if (
       sourceColorBand &&

@@ -393,7 +393,7 @@ export function Mint() {
     };
 
     handleDepositSuccess();
-  }, [isTxDepositSuccess, queryClient, paymentTokenSymbol]);
+  }, [isTxDepositSuccess, queryClient, paymentTokenSymbol, formattedMintPrice]);
 
   // --- Free Mint Transaction ---
 
