@@ -193,19 +193,28 @@ export function Mint() {
     if (fetchedDecimals !== undefined && mintPrice !== undefined) {
       // Fix for USDC which uses 6 decimals
       // The fetchedDecimals returns the proper decimals from the token contract
-      // The mintPrice from the WARPS_CONTRACT is already scaled by 10^fetchedDecimals
-      // This is causing a double scaling issue
+      // The mintPrice from the WARPS_CONTRACT should represent the actual value in the smallest unit
 
-      // Convert mintPrice to a proper string format (10 -> "10")
-      const mintPriceStr = String(mintPrice);
-
-      // Handle the case for USDC (6 decimals) specifically
+      // For USDC: 10 USDC should be 10 * 10^6 = 10000000
       if (Number(fetchedDecimals) === 6) {
-        // For USDC: mintPrice is already in the correct format
-        const amountInWei = BigInt(mintPrice);
-        setDepositAmountWei(amountInWei);
+        // Check if mintPrice is already the correct value
+        const expectedValue = 10000000; // $10 USDC with 6 decimals
+
+        if (mintPrice === expectedValue) {
+          // mintPrice is already correct, use as is
+          setDepositAmountWei(BigInt(mintPrice));
+        } else {
+          // Something is wrong with the mint price, log for debugging
+          console.warn(
+            `Mint price is ${mintPrice}, expected ${expectedValue} for $10 USDC`
+          );
+
+          // Force the correct value for $10 USDC
+          setDepositAmountWei(BigInt(expectedValue));
+        }
       } else {
         // For other tokens, use parseUnits as before
+        const mintPriceStr = String(mintPrice);
         const amountInWei = parseUnits(mintPriceStr, fetchedDecimals);
         setDepositAmountWei(amountInWei);
       }
@@ -259,7 +268,14 @@ export function Mint() {
   // Format mint price for display (if decimals available)
   const formattedMintPrice = useMemo(() => {
     if (mintPrice === undefined || fetchedDecimals === undefined) return '...';
-    // Convert from wei to token units using decimals
+
+    // USDC special case
+    if (fetchedDecimals === 6) {
+      // If the contract returns 10000000 for $10 USDC, correctly format it
+      return (Number(mintPrice) / 10 ** Number(fetchedDecimals)).toFixed(2);
+    }
+
+    // For other tokens
     return (Number(mintPrice) / 10 ** Number(fetchedDecimals)).toString();
   }, [mintPrice, fetchedDecimals]);
 

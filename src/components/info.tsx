@@ -23,6 +23,7 @@ export default function Info() {
     useState<string>('Tokens');
   const [winnerClaimPercentage, setWinnerClaimPercentage] =
     useState<number>(60);
+  const [formattedMintPrice, setFormattedMintPrice] = useState<string>('');
 
   const openUrl = useCallback(() => {
     sdk.actions.openUrl('https://opensea.io/collection/arrows-12');
@@ -54,6 +55,38 @@ export default function Info() {
     functionName: 'winnerClaimPercentage',
     chainId: chain.id,
   });
+
+  // Fetch mint price from contract
+  const { data: mintPrice } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'mintPrice',
+    chainId: chain.id,
+  });
+
+  // Fetch token decimals
+  const { data: tokenDecimals } = useReadContract({
+    address: PAYMENT_TOKEN_CONTRACT.address,
+    abi: PAYMENT_TOKEN_CONTRACT.abi,
+    functionName: 'decimals',
+    chainId: chain.id,
+  });
+
+  // Format mint price when both price and decimals are available
+  useEffect(() => {
+    if (mintPrice !== undefined && tokenDecimals !== undefined) {
+      // Special case for USDC with 6 decimals
+      if (Number(tokenDecimals) === 6) {
+        setFormattedMintPrice(
+          (Number(mintPrice) / 10 ** Number(tokenDecimals)).toFixed(2)
+        );
+      } else {
+        setFormattedMintPrice(
+          (Number(mintPrice) / 10 ** Number(tokenDecimals)).toString()
+        );
+      }
+    }
+  }, [mintPrice, tokenDecimals]);
 
   // Update winning color when data is fetched
   useEffect(() => {
@@ -146,7 +179,10 @@ export default function Info() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
-                <p>You can deposit {paymentTokenSymbol} to mint four tokens.</p>
+                <p>
+                  You can deposit {formattedMintPrice} {paymentTokenSymbol} to
+                  mint four tokens.
+                </p>
                 <p>Double click on an token to view its details.</p>
                 <p>
                   To evolve a token, click the token you want to keep and a
