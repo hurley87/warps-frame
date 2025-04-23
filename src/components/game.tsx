@@ -2,13 +2,7 @@
 
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState, useCallback } from 'react';
-import {
-  useAccount,
-  useChainId,
-  useConnect,
-  useSwitchChain,
-  useReadContract,
-} from 'wagmi';
+import { useAccount, useConnect, useSwitchChain, useReadContract } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Mint } from './mint';
