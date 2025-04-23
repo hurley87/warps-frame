@@ -60,18 +60,16 @@ export function CompositeDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-black shadow-xl h-screen flex flex-col justify-center items-center gap-12">
+      <DialogContent className="bg-[#17101f] w-screen h-screen flex flex-col justify-center items-center gap-12 z-50">
         {sourceToken && targetToken && (
           <div className="grid grid-cols-2 gap-6 py-0 w-full mx-auto px-6">
             <div className="text-center">
               <div className="relative">
-                <div className="absolute -inset-2 bg-green-500/20 rounded-xl blur-xl animate-pulse" />
                 <Token token={sourceToken} />
               </div>
             </div>
             <div className="text-center">
               <div className="relative">
-                <div className="absolute -inset-2 bg-red-500/20 rounded-xl blur-xl animate-pulse" />
                 <Token token={targetToken} isBurnToken={true} />
               </div>
             </div>
