@@ -95,7 +95,6 @@ export function Mint() {
   const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<
     string | undefined
   >();
-  const [allowance, setAllowance] = useState<bigint | undefined>();
   const [depositAmountWei, setDepositAmountWei] = useState<
     bigint | undefined
   >();
@@ -232,7 +231,6 @@ export function Mint() {
 
   useEffect(() => {
     if (fetchedAllowance !== undefined && depositAmountWei !== undefined) {
-      setAllowance(fetchedAllowance);
       setIsApproved(fetchedAllowance >= depositAmountWei);
     }
   }, [fetchedAllowance, depositAmountWei]);

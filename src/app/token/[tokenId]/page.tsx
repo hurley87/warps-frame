@@ -1,28 +1,5 @@
 import { Metadata } from 'next';
 import TokenPageClient from './token-page-client';
-import { readContract } from '@wagmi/core';
-import { createConfig, http } from 'wagmi';
-import { chain } from '@/lib/chain';
-import { WARPS_CONTRACT } from '@/lib/contracts';
-import { type Transport } from 'viem';
-import { base } from 'wagmi/chains';
-
-const rpc =
-  chain.id === base.id
-    ? process.env.NEXT_PUBLIC_BASE_RPC!
-    : process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC!;
-
-const config = createConfig({
-  chains: [chain],
-  transports: {
-    [chain.id]: http(rpc),
-  } as Record<number, Transport>,
-});
-
-const decodeBase64URI = (uri: string) => {
-  const json = Buffer.from(uri.substring(29), 'base64').toString();
-  return JSON.parse(json);
-};
 
 interface TokenPageProps {
   params: Promise<{
@@ -32,38 +9,12 @@ interface TokenPageProps {
 
 const appUrl = 'https://warps.fun';
 
-async function getTokenMetadata(tokenId: string) {
-  try {
-    const tokenMetadata = await readContract(config, {
-      address: WARPS_CONTRACT.address,
-      abi: WARPS_CONTRACT.abi,
-      functionName: 'tokenURI',
-      args: [BigInt(tokenId)],
-    });
-
-    if (!tokenMetadata || tokenMetadata === '0x') {
-      throw new Error('Token does not exist or has been burned');
-    }
-
-    return decodeBase64URI(tokenMetadata);
-  } catch (error) {
-    console.error('Error fetching token metadata:', error);
-    throw new Error('Token does not exist or has been burned');
-  }
-}
-
 export async function generateMetadata({
   params,
 }: TokenPageProps): Promise<Metadata> {
   const { tokenId } = await params;
 
   try {
-    const metadata = await getTokenMetadata(tokenId);
-
-    const imageUrl = `${appUrl}/api/og?image=${encodeURIComponent(
-      metadata.image
-    )}`;
-
     const frame = {
       version: 'next',
       imageUrl: `${appUrl}/api/og?tokenId=${tokenId}`,

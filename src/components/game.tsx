@@ -46,8 +46,6 @@ export default function Game() {
   const { connect } = useConnect();
   const { switchChain } = useSwitchChain();
 
-  const chainId = useChainId();
-
   // Check if the user has used their free mint
   const { data: fetchedHasUsedFreeMint } = useReadContract({
     ...WARPS_CONTRACT,
