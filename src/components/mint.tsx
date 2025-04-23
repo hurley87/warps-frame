@@ -770,9 +770,8 @@ export function Mint() {
           className="flex items-center justify-center gap-2"
           whileTap={{ scale: 0.95 }}
         >
-          <Lock className="h-4 w-4" />
           <span>
-            Approve {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
+            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
           </span>
         </motion.div>
       );

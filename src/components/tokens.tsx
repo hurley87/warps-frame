@@ -8,12 +8,15 @@ import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
-import { Mint } from '@/components/mint';
+import { DEPOSIT_AMOUNT_TOKENS, Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedWarp } from './animated-warp';
 import { AlertCircle } from 'lucide-react';
+import { useReadContract } from 'wagmi';
+import { PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
+import { chain } from '@/lib/chain';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 
@@ -67,8 +70,28 @@ export function Tokens({ username }: { username?: string }) {
     target: number;
   } | null>(null);
   const [evolvedTokenId, setEvolvedTokenId] = useState<number | null>(null);
+  const [paymentTokenSymbol, setPaymentTokenSymbol] = useState<
+    string | undefined
+  >();
 
   const queryClient = useQueryClient();
+
+  // Fetch the payment token symbol
+  const { data: fetchedSymbol } = useReadContract({
+    address: PAYMENT_TOKEN_CONTRACT.address,
+    abi: PAYMENT_TOKEN_CONTRACT.abi,
+    functionName: 'symbol',
+    chainId: chain.id,
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  useEffect(() => {
+    if (fetchedSymbol) {
+      setPaymentTokenSymbol(fetchedSymbol);
+    }
+  }, [fetchedSymbol]);
 
   // Reset the evolved token highlight after a delay
   useEffect(() => {
@@ -108,14 +131,14 @@ export function Tokens({ username }: { username?: string }) {
     )?.value;
 
     // Check if both are single warp (value "1")
-    if (sourceColorBand === '1' && targetColorBand === '1') {
-      toast.error(
-        'Single warp cannot be combined. Find warps with more bands.'
-      );
-      // Select the new token instead
-      setSelectedTokenId(tokenId);
-      return;
-    }
+    // if (sourceColorBand === '1' && targetColorBand === '1') {
+    //   toast.error(
+    //     'Single warp cannot be combined. Find warps with more bands.'
+    //   );
+    //   // Select the new token instead
+    //   setSelectedTokenId(tokenId);
+    //   return;
+    // }
 
     if (
       sourceColorBand &&
@@ -196,12 +219,15 @@ export function Tokens({ username }: { username?: string }) {
 
   return (
     <div className="relative p-4 bg-[#342942] overflow-hidden">
-      {isFetching && <LoadingScreen />}
+      {/* {isFetching && <LoadingScreen />} */}
 
       {tokens.length === 1 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle> To continue, you have to mint more warps.</AlertTitle>
+          <AlertTitle>
+            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'} to
+            mint more warps.
+          </AlertTitle>
         </Alert>
       )}
 
