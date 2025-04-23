@@ -14,7 +14,6 @@ import { useCallback, useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
-import { DEPOSIT_AMOUNT_TOKENS } from './mint';
 import { Warp } from './warp';
 
 export default function Info() {
@@ -147,10 +146,7 @@ export default function Info() {
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold">How to Play</h3>
-                <p>
-                  You can deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol}{' '}
-                  to mint four tokens.
-                </p>
+                <p>You can deposit {paymentTokenSymbol} to mint four tokens.</p>
                 <p>Double click on an token to view its details.</p>
                 <p>
                   To evolve a token, click the token you want to keep and a

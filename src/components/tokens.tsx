@@ -8,7 +8,7 @@ import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
-import { DEPOSIT_AMOUNT_TOKENS, Mint } from '@/components/mint';
+import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
@@ -218,16 +218,13 @@ export function Tokens({ username }: { username?: string }) {
   }
 
   return (
-    <div className="relative p-4 bg-[#342942] overflow-hidden">
+    <div className="relative p-4 bg-[#17101f] overflow-hidden">
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>
-            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'} to
-            mint more warps.
-          </AlertTitle>
+          <AlertTitle>Deposit tokens to mint more warps.</AlertTitle>
         </Alert>
       )}
 

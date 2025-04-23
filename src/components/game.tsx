@@ -267,15 +267,12 @@ export default function Game() {
     }
 
     return (
-      <div className="w-screen h-screen mx-auto bg-background relative bg-[#342942]">
+      <div className="w-screen h-screen mx-auto bg-background relative bg-[#17101f]">
         {hasUsedFreeMint && (
-          <header className="sticky top-0 bg-[#342942] z-10">
+          <header className="sticky top-0 bg-[#17101f] z-10">
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="font-bold">Warps</span>
-              <div className="flex items-center gap-2">
-                <Info />
-                <Mint />
-              </div>
+              <Info />
+              <Mint />
             </div>
           </header>
         )}

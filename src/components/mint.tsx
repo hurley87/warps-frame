@@ -9,7 +9,7 @@ import {
 } from 'wagmi';
 import { parseUnits } from 'viem';
 import { Button } from './ui/button';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -83,9 +83,6 @@ const erc20Abi = [
   },
 ] as const satisfies Abi;
 
-// Define the amount to approve and deposit
-export const DEPOSIT_AMOUNT_TOKENS = 1000;
-
 export function Mint() {
   const { address } = useAccount();
   const queryClient = useQueryClient();
@@ -104,6 +101,7 @@ export function Mint() {
   >();
   const [tokenBalance, setTokenBalance] = useState<bigint | undefined>();
   const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
+  const [mintPrice, setMintPrice] = useState<number | undefined>();
 
   // Add state for free mint
   const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
@@ -133,6 +131,24 @@ export function Mint() {
   const [currentError, setCurrentError] = useState<string | null>(null); // Store specific error messages
 
   // --- Fetch Contract Data ---
+
+  // Fetch mintPrice from contract
+  const { data: fetchedMintPrice, isLoading: isLoadingMintPrice } =
+    useReadContract({
+      ...WARPS_CONTRACT,
+      functionName: 'mintPrice',
+      chainId: chain.id,
+      query: {
+        enabled: true,
+        refetchInterval: 5000,
+      },
+    });
+
+  useEffect(() => {
+    if (fetchedMintPrice !== undefined) {
+      setMintPrice(Number(fetchedMintPrice));
+    }
+  }, [fetchedMintPrice]);
 
   // Check if the user has used their free mint
   const { data: fetchedHasUsedFreeMint, isLoading: isLoadingHasUsedFreeMint } =
@@ -175,17 +191,14 @@ export function Mint() {
   });
 
   useEffect(() => {
-    if (fetchedDecimals !== undefined) {
-      const amountInWei = parseUnits(
-        String(DEPOSIT_AMOUNT_TOKENS),
-        fetchedDecimals
-      );
+    if (fetchedDecimals !== undefined && mintPrice !== undefined) {
+      const amountInWei = parseUnits(String(mintPrice), fetchedDecimals);
       setDepositAmountWei(amountInWei);
     }
     if (fetchedSymbol) {
       setPaymentTokenSymbol(fetchedSymbol);
     }
-  }, [fetchedDecimals, fetchedSymbol]);
+  }, [fetchedDecimals, fetchedSymbol, mintPrice]);
 
   const { data: fetchedAllowance, isLoading: isLoadingAllowance } =
     useReadContract({
@@ -227,6 +240,13 @@ export function Mint() {
       setHasInsufficientBalance(fetchedBalance < depositAmountWei);
     }
   }, [fetchedBalance, depositAmountWei]);
+
+  // Format mint price for display (if decimals available)
+  const formattedMintPrice = useMemo(() => {
+    if (mintPrice === undefined || fetchedDecimals === undefined) return '...';
+    // Convert from wei to token units using decimals
+    return (Number(mintPrice) / 10 ** Number(fetchedDecimals)).toString();
+  }, [mintPrice, fetchedDecimals]);
 
   // --- Approval Transaction ---
 
@@ -305,7 +325,7 @@ export function Mint() {
         });
         posthog.capture('deposit_tokens', {
           address,
-          amount: DEPOSIT_AMOUNT_TOKENS,
+          amount: formattedMintPrice,
           token: paymentTokenSymbol ?? PAYMENT_TOKEN_CONTRACT.address,
         });
       },
@@ -356,7 +376,7 @@ export function Mint() {
         });
 
         toast.success(
-          `Successfully deposited ${DEPOSIT_AMOUNT_TOKENS} ${
+          `Successfully deposited ${formattedMintPrice} ${
             paymentTokenSymbol || 'tokens'
           }!`,
           {
@@ -576,6 +596,7 @@ export function Mint() {
     isLoadingSymbol ||
     isLoadingAllowance ||
     isLoadingBalance ||
+    isLoadingMintPrice ||
     isApproving ||
     isApprovalTxMining ||
     isDepositing ||
@@ -724,7 +745,7 @@ export function Mint() {
           transition={{ duration: 0.3 }}
         >
           <span>
-            Need {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'tokens'}
+            Need {formattedMintPrice} {paymentTokenSymbol || 'tokens'}
           </span>
         </motion.div>
       );
@@ -771,7 +792,7 @@ export function Mint() {
           whileTap={{ scale: 0.95 }}
         >
           <span>
-            Deposit {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'Tokens'}
+            Deposit {formattedMintPrice} {paymentTokenSymbol || 'Tokens'}
           </span>
         </motion.div>
       );
@@ -987,8 +1008,7 @@ export function Mint() {
             {/* Display balance info if insufficient */}
             {hasInsufficientBalance && hasUsedFreeMint && !hasError && (
               <div className="absolute -bottom-6 left-0 right-0 text-red-400 text-xs text-center mt-1">
-                Need {DEPOSIT_AMOUNT_TOKENS} {paymentTokenSymbol || 'tokens'},
-                have{' '}
+                Need {formattedMintPrice} {paymentTokenSymbol || 'tokens'}, have{' '}
                 {tokenBalance !== undefined && fetchedDecimals !== undefined
                   ? Number(tokenBalance) / 10 ** Number(fetchedDecimals)
                   : '0'}{' '}
