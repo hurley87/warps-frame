@@ -14,9 +14,9 @@ import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedWarp } from './animated-warp';
 import { AlertCircle } from 'lucide-react';
-import { useReadContract } from 'wagmi';
-import { PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
-import { chain } from '@/lib/chain';
+// import { useReadContract } from 'wagmi';
+// import { PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
+// import { chain } from '@/lib/chain';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 
