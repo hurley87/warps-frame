@@ -272,7 +272,7 @@ export function Mint() {
     // USDC special case
     if (fetchedDecimals === 6) {
       // If the contract returns 10000000 for $10 USDC, correctly format it
-      return (Number(mintPrice) / 10 ** Number(fetchedDecimals)).toFixed(2);
+      return (Number(mintPrice) / 10 ** Number(fetchedDecimals)).toFixed(0);
     }
 
     // For other tokens
