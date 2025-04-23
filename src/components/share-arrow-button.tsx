@@ -11,7 +11,7 @@ interface ShareArrowButtonProps {
 
 export function ShareArrowButton({ tokenId }: ShareArrowButtonProps) {
   const handleShareToWarpcast = useCallback(() => {
-    const shareText = 'Check out my arrow!';
+    const shareText = 'Check out my warp!';
     const shareUrl = encodeURIComponent(`https://warps.fun/token/${tokenId}`);
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText

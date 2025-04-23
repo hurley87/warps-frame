@@ -4,12 +4,12 @@ import { Abi } from 'viem';
  * Contract addresses for different environments
  */
 export const WARPS_CONTRACT_ADDRESSES = {
-  production: '0x910735369De515C76A45322bB2d9a8FD286b5255' as `0x${string}`,
+  production: '0x8f158474e1ea98f479f1d6e5850b4eef64b0914e' as `0x${string}`,
   development: '0x225aace60c0fcba69cae2ff95d63bfa5001b5e59' as `0x${string}`,
 };
 
 export const PAYMENT_TOKEN_DDRESSES = {
-  production: '0x910735369De515C76A45322bB2d9a8FD286b5255' as `0x${string}`,
+  production: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913' as `0x${string}`,
   development: '0xB1d4113a03F4e18Ea868E0F60c7214D6061532D8' as `0x${string}`,
 };
 

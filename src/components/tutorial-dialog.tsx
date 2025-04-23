@@ -37,10 +37,6 @@ export function TutorialDialog({ isOpen, onClose }: TutorialDialogProps) {
                 When you combine two tokens, one is burned and the other
                 evolves.
               </li>
-              <li>
-                Create the single higher green arrow (color #018A08) to claim
-                the prize pool.
-              </li>
             </ul>
           </div>
         </div>
