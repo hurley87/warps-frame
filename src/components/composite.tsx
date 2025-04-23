@@ -28,6 +28,8 @@ export function Composite({
   const [showReadyEffect, setShowReadyEffect] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showFusionEffect, setShowFusionEffect] = useState(false);
+  const [fusionProgress, setFusionProgress] = useState(0);
   const queryClient = useQueryClient();
   const successHandled = useRef(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -64,20 +66,12 @@ export function Composite({
       onError: (error: Error) => {
         console.error('Composite error:', error);
 
-        // Play error sound
-        const errorSound = new Audio('/sounds/composite-error.mp3');
-        errorSound.volume = 0.3;
-        try {
-          errorSound.play();
-        } catch {
-          // Silent fail if audio can't play
-        }
-
         toast.error('Failed to evolve warps. Please try again.');
         setIsPending(false);
         setHasError(true);
         setShowParticles(false);
         setIsSuccess(false);
+        setShowFusionEffect(false);
       },
     },
   });
@@ -103,14 +97,8 @@ export function Composite({
         setIsSuccess(true);
         setShowParticles(true);
 
-        // Play success sound
-        const successSound = new Audio('/sounds/composite-success.wav');
-        successSound.volume = 0.4;
-        try {
-          successSound.play();
-        } catch {
-          // Silent fail if audio can't play
-        }
+        // Hide the fusion effect
+        setShowFusionEffect(false);
 
         // Shake the screen slightly for feedback
         document.documentElement.classList.add('screen-shake');
@@ -147,14 +135,36 @@ export function Composite({
   const handleComposite = async () => {
     if (!address || selectedTokens.length !== 2) return;
 
-    // Play click sound if available
-    const audio = new Audio('/sounds/composite-start.wav');
-    audio.volume = 0.4;
-    try {
-      await audio.play();
-    } catch {
-      // Silent fail if audio can't play
-    }
+    // Start fusion animation
+    setShowFusionEffect(true);
+    setFusionProgress(0);
+
+    // Animate fusion progress
+    const fusionDuration = 3000; // 3 seconds
+    const interval = 50; // Update every 50ms
+    const steps = fusionDuration / interval;
+    let currentStep = 0;
+
+    const progressInterval = setInterval(() => {
+      currentStep++;
+      setFusionProgress((currentStep / steps) * 100);
+
+      // Mid-progress visual effect
+      if (currentStep / steps >= 0.5 && currentStep / steps < 0.52) {
+        // Add visual intensity here instead
+        if (buttonRef.current) {
+          buttonRef.current.classList.add('button-pulse');
+          setTimeout(() => {
+            if (buttonRef.current)
+              buttonRef.current.classList.remove('button-pulse');
+          }, 300);
+        }
+      }
+
+      if (currentStep >= steps) {
+        clearInterval(progressInterval);
+      }
+    }, interval);
 
     // Apply button pulse animation
     if (buttonRef.current) {
@@ -170,21 +180,25 @@ export function Composite({
     setHasError(false);
     setIsSuccess(false);
     try {
-      await writeContract({
-        ...WARPS_CONTRACT,
-        functionName: 'composite',
-        args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
-        gas: undefined,
-        chainId: chain.id,
-      });
+      // Short delay before sending the transaction to allow animation to play
+      setTimeout(async () => {
+        await writeContract({
+          ...WARPS_CONTRACT,
+          functionName: 'composite',
+          args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
+          gas: undefined,
+          chainId: chain.id,
+        });
 
-      posthog.capture('composite', {
-        address,
-        token1: selectedTokens[0],
-        token2: selectedTokens[1],
-      });
+        posthog.capture('composite', {
+          address,
+          token1: selectedTokens[0],
+          token2: selectedTokens[1],
+        });
+      }, 1000);
     } catch (error) {
       console.error('Unexpected composite error:', error);
+      clearInterval(progressInterval);
     }
   };
 
@@ -194,19 +208,25 @@ export function Composite({
   const Particles = () => {
     return (
       <div className="particles-container">
-        {[...Array(30)].map((_, i) => (
+        {/* Explosion particles */}
+        {[...Array(40)].map((_, i) => (
           <motion.div
             key={i}
             className={`absolute rounded-full ${
-              i % 3 === 0
+              i % 5 === 0
                 ? 'bg-primary'
-                : i % 3 === 1
+                : i % 5 === 1
                 ? 'bg-yellow-400'
-                : 'bg-blue-400'
+                : i % 5 === 2
+                ? 'bg-blue-400'
+                : i % 5 === 3
+                ? 'bg-green-400'
+                : 'bg-purple-400'
             }`}
             style={{
-              width: `${Math.random() * 10 + 2}px`,
-              height: `${Math.random() * 10 + 2}px`,
+              width: `${Math.random() * 12 + 2}px`,
+              height: `${Math.random() * 12 + 2}px`,
+              boxShadow: '0 0 8px 2px rgba(255,255,255,0.3)',
             }}
             initial={{
               x: 0,
@@ -215,10 +235,10 @@ export function Composite({
               scale: 1,
             }}
             animate={{
-              x: (Math.random() - 0.5) * 400,
-              y: (Math.random() - 0.5) * 400,
+              x: (Math.random() - 0.5) * 500,
+              y: (Math.random() - 0.5) * 500,
               opacity: 0,
-              scale: Math.random() * 4 + 1,
+              scale: Math.random() * 6 + 1,
               rotate: Math.random() * 360,
             }}
             transition={{
@@ -227,6 +247,196 @@ export function Composite({
             }}
           />
         ))}
+
+        {/* Central success flash */}
+        <motion.div
+          className="absolute rounded-full bg-white"
+          style={{
+            width: '50px',
+            height: '50px',
+            boxShadow: '0 0 30px 15px rgba(255,255,255,0.8)',
+          }}
+          initial={{
+            scale: 0.1,
+            opacity: 1,
+          }}
+          animate={{
+            scale: [0.1, 4, 0.5],
+            opacity: [1, 0.8, 0],
+          }}
+          transition={{
+            duration: 0.7,
+            ease: 'easeOut',
+          }}
+        />
+
+        {/* Success stars */}
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute text-yellow-400"
+            style={{
+              fontSize: `${Math.random() * 14 + 10}px`,
+            }}
+            initial={{
+              x: 0,
+              y: 0,
+              opacity: 0,
+              rotate: Math.random() * 180,
+            }}
+            animate={{
+              x: (Math.random() - 0.5) * 300,
+              y: (Math.random() - 0.5) * 300,
+              opacity: [0, 1, 0],
+              rotate: [0, Math.random() * 360],
+              scale: [0.2, 1.5, 0.2],
+            }}
+            transition={{
+              duration: 2,
+              delay: 0.1 + Math.random() * 0.3,
+              ease: 'easeOut',
+            }}
+          >
+            ✦
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
+  // Fusion effect animation
+  const FusionEffect = () => {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden z-10">
+        <div className="relative">
+          {/* Background glow effect */}
+          <motion.div
+            className="absolute -inset-10 opacity-50 bg-gradient-to-r from-blue-500/30 via-primary/30 to-yellow-400/30 blur-xl rounded-full"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.6, 0.3],
+              rotate: [0, 180],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+          />
+
+          {/* Outer energy ring */}
+          <motion.div
+            className="absolute -inset-4 rounded-full bg-gradient-to-r from-primary via-yellow-400 to-primary"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{
+              opacity: [0, 0.8, 0.4, 0.8],
+              scale: [0.8, 1.2, 1, 1.2],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+          />
+
+          {/* Secondary ring */}
+          <motion.div
+            className="absolute -inset-6 rounded-full border-2 border-yellow-400/30"
+            animate={{
+              scale: [0.8, 1.1, 0.8],
+              opacity: [0.2, 0.5, 0.2],
+              rotate: [0, -180],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+          />
+
+          {/* Inner energy core */}
+          <motion.div
+            className="absolute inset-0 rounded-full bg-white"
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: [0.5, 1, 0.5],
+              scale: [0.8, 1.1, 0.8],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+            }}
+          />
+
+          {/* Energy particles */}
+          {[...Array(18)].map((_, i) => (
+            <motion.div
+              key={i}
+              className={`absolute w-1 h-3 ${
+                i % 3 === 0
+                  ? 'bg-primary'
+                  : i % 3 === 1
+                  ? 'bg-yellow-400'
+                  : 'bg-blue-400'
+              } rounded-full`}
+              style={{
+                top: '50%',
+                left: '50%',
+                transformOrigin: '0 0',
+                filter: 'blur(0.5px)',
+              }}
+              initial={{
+                x: 0,
+                y: 0,
+                rotate: i * 20,
+                scale: 0.5,
+                opacity: 0.3,
+              }}
+              animate={{
+                x: [0, Math.cos((i * 20 * Math.PI) / 180) * 40],
+                y: [0, Math.sin((i * 20 * Math.PI) / 180) * 40],
+                scale: [0.5, 1.5, 0.5],
+                opacity: [0.3, 1, 0.3],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: 'reverse',
+                delay: i * 0.05,
+              }}
+            />
+          ))}
+
+          {/* Additional floating energy orbs */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={`orb-${i}`}
+              className="absolute w-2 h-2 bg-white rounded-full"
+              style={{
+                top: '50%',
+                left: '50%',
+                boxShadow: '0 0 10px 2px rgba(255,255,255,0.8)',
+              }}
+              initial={{
+                x: 0,
+                y: 0,
+                opacity: 0,
+              }}
+              animate={{
+                x: [0, Math.cos((i * 45 * Math.PI) / 180) * 30 * Math.random()],
+                y: [0, Math.sin((i * 45 * Math.PI) / 180) * 30 * Math.random()],
+                opacity: [0, 0.8, 0],
+                scale: [0.2, 1, 0.2],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                delay: i * 0.2,
+              }}
+            />
+          ))}
+        </div>
       </div>
     );
   };
@@ -234,19 +444,61 @@ export function Composite({
   // Ready effect animation when two tokens are selected
   const ReadyEffect = () => {
     return (
-      <motion.div
-        className="absolute -inset-1 rounded-lg"
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          scale: [1, 1.05, 1],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+      <>
+        <motion.div
+          className="absolute -inset-1 rounded-lg bg-gradient-to-r from-primary/20 via-purple-500/10 to-primary/20"
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: [0.2, 0.5, 0.2],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+
+        {/* Subtle corner highlights */}
+        {[0, 1, 2, 3].map((corner) => (
+          <motion.div
+            key={`corner-${corner}`}
+            className="absolute w-3 h-3 bg-primary/30 rounded-full blur-sm"
+            style={{
+              top: corner < 2 ? '-5px' : 'auto',
+              bottom: corner >= 2 ? '-5px' : 'auto',
+              left: corner % 2 === 0 ? '-5px' : 'auto',
+              right: corner % 2 === 1 ? '-5px' : 'auto',
+            }}
+            animate={{
+              opacity: [0.3, 0.8, 0.3],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              delay: corner * 0.2,
+            }}
+          />
+        ))}
+
+        {/* Pulsing ready indicator */}
+        <motion.div
+          className="absolute -right-2 -top-2 w-4 h-4 rounded-full bg-green-400"
+          animate={{
+            scale: [0.8, 1.2, 0.8],
+            boxShadow: [
+              '0 0 0 0 rgba(74, 222, 128, 0.4)',
+              '0 0 0 4px rgba(74, 222, 128, 0)',
+              '0 0 0 0 rgba(74, 222, 128, 0.4)',
+            ],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+          }}
+        />
+      </>
     );
   };
 
@@ -266,7 +518,7 @@ export function Composite({
       <AnimatePresence mode="wait">
         {isSuccess ? (
           <motion.div
-            className="relative flex items-center justify-center p-3 min-h-[40px] bg-[#7c65c1] bg-opacity-50 rounded-md border border-green-500/60 shadow-lg"
+            className="relative flex items-center justify-center p-3 min-h-[40px] bg-gradient-to-r from-purple-900/50 via-primary/50 to-purple-900/50 rounded-md border border-green-500/60 shadow-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -281,8 +533,22 @@ export function Composite({
                 ease: 'easeInOut',
               }}
             >
-              <span>Success!</span>
+              <Sparkles className="h-4 w-4 text-yellow-400" />
+              <span className="text-gradient">Evolution Complete!</span>
             </motion.div>
+
+            {/* Background success glow */}
+            <motion.div
+              className="absolute inset-0 bg-green-500/20 rounded-md blur-md"
+              animate={{
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+              }}
+            />
+
             <AnimatePresence>{showParticles && <Particles />}</AnimatePresence>
           </motion.div>
         ) : (
@@ -312,6 +578,22 @@ export function Composite({
                 />
               )}
             </AnimatePresence>
+
+            {/* Fusion effect when processing */}
+            <AnimatePresence>
+              {showFusionEffect && <FusionEffect />}
+            </AnimatePresence>
+
+            {/* Fusion progress bar */}
+            {showFusionEffect && (
+              <motion.div
+                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 via-primary to-yellow-400 rounded-full"
+                initial={{ width: '0%' }}
+                animate={{ width: `${fusionProgress}%` }}
+                transition={{ duration: 0.1 }}
+              />
+            )}
+
             <div className="relative flex items-center justify-center gap-2 z-10 min-h-[20px]">
               {isLoading ? (
                 <motion.div
@@ -320,7 +602,9 @@ export function Composite({
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Evolving...</span>
+                  <span>
+                    {showFusionEffect ? 'Fusing DNA...' : 'Evolving...'}
+                  </span>
                 </motion.div>
               ) : hasError ? (
                 <motion.div
@@ -336,7 +620,7 @@ export function Composite({
                 <div className="flex items-center justify-center gap-2">
                   <Zap
                     className={`h-4 w-4 ${
-                      selectedTokens.length === 2 ? '' : ''
+                      selectedTokens.length === 2 ? 'text-yellow-400' : ''
                     }`}
                   />
                   <span>Evolve Warps</span>
@@ -409,6 +693,14 @@ export function Composite({
           height: 0;
           z-index: 50;
           pointer-events: none;
+        }
+
+        .text-gradient {
+          background: linear-gradient(to right, #4ade80, #22d3ee);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          color: transparent;
         }
       `}</style>
     </motion.div>
