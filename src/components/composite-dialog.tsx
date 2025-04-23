@@ -60,7 +60,7 @@ export function CompositeDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-[#17101f] w-screen h-screen flex flex-col justify-center items-center gap-12 z-50">
+      <DialogContent className="bg-[#17101f] w-screen h-screen flex flex-col justify-center items-center gap-12 z-50 pb-20">
         {sourceToken && targetToken && (
           <div className="grid grid-cols-2 gap-6 py-0 w-full mx-auto px-6">
             <div className="text-center">
