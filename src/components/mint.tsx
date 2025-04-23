@@ -192,9 +192,32 @@ export function Mint() {
 
   useEffect(() => {
     if (fetchedDecimals !== undefined && mintPrice !== undefined) {
-      const amountInWei = parseUnits(String(mintPrice), fetchedDecimals);
-      setDepositAmountWei(amountInWei);
+      // Fix for USDC which uses 6 decimals
+      // The fetchedDecimals returns the proper decimals from the token contract
+      // The mintPrice from the WARPS_CONTRACT is already scaled by 10^fetchedDecimals
+      // This is causing a double scaling issue
+
+      // Convert mintPrice to a proper string format (10 -> "10")
+      const mintPriceStr = String(mintPrice);
+
+      // Handle the case for USDC (6 decimals) specifically
+      if (Number(fetchedDecimals) === 6) {
+        console.log('Handling USDC (6 decimals)');
+        // For USDC: mintPrice is already in the correct format
+        const amountInWei = BigInt(mintPrice);
+        setDepositAmountWei(amountInWei);
+        console.log('USDC mintPrice', mintPrice);
+        console.log('USDC amountInWei', amountInWei.toString());
+      } else {
+        // For other tokens, use parseUnits as before
+        const amountInWei = parseUnits(mintPriceStr, fetchedDecimals);
+        setDepositAmountWei(amountInWei);
+        console.log('Other token mintPrice', mintPrice);
+        console.log('Other token fetchedDecimals', fetchedDecimals);
+        console.log('Other token amountInWei', amountInWei.toString());
+      }
     }
+
     if (fetchedSymbol) {
       setPaymentTokenSymbol(fetchedSymbol);
     }
