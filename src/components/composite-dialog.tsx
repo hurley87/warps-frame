@@ -80,6 +80,11 @@ export function CompositeDialog({
         <div className="">
           <div className="bg-[#7c65c1] hover:bg-[#7c65c1]/90 rounded-md p-1">
             <Composite
+              key={
+                selectedPair
+                  ? `${selectedPair.source}-${selectedPair.target}`
+                  : 'no-selection'
+              }
               selectedTokens={
                 selectedPair ? [selectedPair.source, selectedPair.target] : []
               }

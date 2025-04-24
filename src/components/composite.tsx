@@ -106,15 +106,14 @@ export function Composite({
           document.documentElement.classList.remove('screen-shake');
         }, 500);
 
-        // Invalidate queries to ensure token data is refreshed
-        await queryClient.invalidateQueries({ queryKey: ['tokens'] });
-        await queryClient.invalidateQueries({ queryKey: ['userTokens'] });
+        // Notify parent component right away so the dialog can close immediately
+        onCompositeComplete(evolvedTokenId);
 
-        // Add a small delay to ensure data is refetched before notifying parent
-        setTimeout(() => {
-          // Notify parent component
-          onCompositeComplete(evolvedTokenId);
-        }, 500);
+        // Trigger query refresh in background (don't block UI)
+        Promise.all([
+          queryClient.refetchQueries({ queryKey: ['tokens-balance'] }),
+          queryClient.refetchQueries({ queryKey: ['tokens-metadata'] }),
+        ]);
 
         // Show success toast
         toast.success('Successfully evolved warps!', {

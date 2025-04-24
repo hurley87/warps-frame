@@ -3,10 +3,12 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import sdk from '@farcaster/frame-sdk';
-import { WARPS_CONTRACT_ADDRESSES } from '@/lib/contracts';
+import { WARPS_CONTRACT_ADDRESSES, WARPS_CONTRACT } from '@/lib/contracts';
 import { ShareArrowButton } from './share-arrow-button';
+import { useReadContract } from 'wagmi';
+import { chain } from '@/lib/chain';
 
 interface TokenDetailsDialogProps {
   token: TokenType | null;
@@ -23,6 +25,26 @@ export function TokenDetailsDialog({
   hideTokenPageLink = false,
   hideCloseButton = false,
 }: TokenDetailsDialogProps) {
+  const [winningColor, setWinningColor] = useState('#018A08');
+
+  // Fetch the current winning color from the contract
+  const { data: fetchedWinningColor } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getCurrentWinningColor',
+    chainId: chain.id,
+    query: {
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
+  });
+
+  // Update winning color when data is fetched
+  useEffect(() => {
+    if (fetchedWinningColor) {
+      setWinningColor(fetchedWinningColor);
+    }
+  }, [fetchedWinningColor]);
+
   // Create a safe reference to token in case it's null
   const tokenId = token?.id;
 
@@ -80,7 +102,7 @@ export function TokenDetailsDialog({
             <div
               className="absolute inset-[-20%] w-[140%] h-[140%] svg-container"
               style={{
-                filter: 'drop-shadow(0 0 12px rgba(1, 138, 8, 0.7))',
+                filter: `drop-shadow(0 0 12px ${winningColor}cc)`,
               }}
               dangerouslySetInnerHTML={{
                 __html: token.image?.startsWith('data:image/svg+xml;base64,')
@@ -208,7 +230,7 @@ export function TokenDetailsDialog({
         }
 
         /* Ensure the animation styles are applied in the dialog */
-        .svg-container g path[fill='#018A08'] {
+        .svg-container g path[fill='${winningColor}'] {
           transform-origin: center;
           animation: pathPulse 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           transform-box: fill-box;
@@ -218,19 +240,19 @@ export function TokenDetailsDialog({
           0%,
           100% {
             transform: scale(1);
-            fill: #018a08;
+            fill: ${winningColor};
           }
           25% {
             transform: scale(1.15);
-            fill: #02bd0b;
+            fill: ${winningColor};
           }
           50% {
             transform: scale(1.2);
-            fill: #02bd0b;
+            fill: ${winningColor};
           }
           75% {
             transform: scale(1.15);
-            fill: #02bd0b;
+            fill: ${winningColor};
           }
         }
 

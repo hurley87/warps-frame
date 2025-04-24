@@ -1,9 +1,11 @@
 import { type Token as TokenType } from '@/hooks/use-tokens';
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { TokenDetailsDialog } from './token-details-dialog';
 import { useReadContract } from 'wagmi';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
+import { Sparkles } from 'lucide-react';
 
 interface TokenProps {
   token: TokenType;
@@ -25,6 +27,9 @@ export function Token({
   const clickCount = useRef<number>(0);
   const [winningColor, setWinningColor] = useState('#018A08');
 
+  // Ensure evolved token comes into view & catches attention
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
     address: WARPS_CONTRACT.address,
@@ -42,6 +47,16 @@ export function Token({
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
+
+  useEffect(() => {
+    if (isEvolvedToken && containerRef.current) {
+      containerRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      });
+    }
+  }, [isEvolvedToken]);
 
   // Handle click for selection and double click for details
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -80,7 +95,10 @@ export function Token({
   return (
     <>
       <div
-        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${getRingStyle()}`}
+        ref={containerRef}
+        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${getRingStyle()} ${
+          isEvolvedToken ? 'animate-evolved-pop' : ''
+        }`}
         onClick={handleClick}
       >
         <div className="absolute inset-0 overflow-hidden rounded-lg">
@@ -110,7 +128,49 @@ export function Token({
               ? 'bg-red-500/0 group-hover:bg-red-500/5 group-hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]'
               : 'bg-green-500/0 group-hover:bg-green-500/5 group-hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]'
           } transition-all duration-300 rounded-lg group-hover:scale-105`}
-        />
+        >
+          {/* Extra glow overlay when evolved */}
+          {isEvolvedToken && (
+            <motion.div
+              className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-md"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: [0.6, 0.2, 0.6], scale: [0.9, 1.05, 0.9] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          )}
+        </div>
+
+        {/* NEW badge */}
+        {isEvolvedToken && (
+          <motion.div
+            className="absolute -top-2 -right-2 bg-yellow-400 text-[#17101f] text-[10px] font-bold rounded px-1 py-[1px] shadow-md pointer-events-none"
+            initial={{ scale: 0, rotate: 45, opacity: 0 }}
+            animate={{ scale: [1.4, 1], rotate: [45, 0], opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          >
+            NEW
+          </motion.div>
+        )}
+
+        {/* Sparkle icon pulse */}
+        {isEvolvedToken && (
+          <motion.div
+            className="absolute -bottom-1 -left-1 text-yellow-300"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{
+              scale: [0, 1.2, 0.9, 1],
+              opacity: [0, 1, 1, 0],
+              rotate: [0, 45, 90],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <Sparkles className="w-4 h-4" />
+          </motion.div>
+        )}
       </div>
 
       {/* Token Details Dialog */}
@@ -246,6 +306,23 @@ export function Token({
 
         .target-arrow-container .group .absolute {
           background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        /* Pop in when evolved */
+        @keyframes evolvedPop {
+          0% {
+            transform: scale(0.8);
+          }
+          60% {
+            transform: scale(1.15);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .animate-evolved-pop {
+          animation: evolvedPop 0.4s ease-out;
         }
       `}</style>
     </>

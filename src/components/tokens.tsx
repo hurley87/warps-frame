@@ -89,7 +89,7 @@ export function Tokens({ username }: { username?: string }) {
     if (evolvedTokenId !== null) {
       const timer = setTimeout(() => {
         setEvolvedTokenId(null);
-      }, 5000); // Highlight for 5 seconds
+      }, 12000); // Highlight for 12 seconds so it remains after fetching overlay
 
       return () => clearTimeout(timer);
     }
@@ -146,23 +146,20 @@ export function Tokens({ username }: { username?: string }) {
   };
 
   const handleCompositeComplete = (newEvolvedTokenId?: number) => {
-    // Reset selection states immediately
+    // Close dialog & reset selection states
+    setShowCompositeDialog(false);
     setSelectedPair(null);
     setSelectedTokenId(null);
-
-    // Dialog is already closed by the CompositeDialog component
 
     // If we have an evolved token ID, highlight it and refresh data
     if (newEvolvedTokenId) {
       setEvolvedTokenId(newEvolvedTokenId);
 
-      // Force refetch tokens to update UI
-      queryClient.invalidateQueries({
-        queryKey: ['tokens-balance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['tokens-metadata'],
-      });
+      // Force refetch tokens to update UI and wait for completion
+      Promise.all([
+        queryClient.refetchQueries({ queryKey: ['tokens-balance'] }),
+        queryClient.refetchQueries({ queryKey: ['tokens-metadata'] }),
+      ]);
     }
   };
 
