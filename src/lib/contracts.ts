@@ -5,7 +5,7 @@ import { Abi } from 'viem';
  */
 export const WARPS_CONTRACT_ADDRESSES = {
   production: '0x8f158474e1ea98f479f1d6e5850b4eef64b0914e' as `0x${string}`,
-  development: '0xbbd68bfa01e5c89371e613b1b59ee3c9f6717666' as `0x${string}`,
+  development: '0xfee47a40eafa0796ec519d9be5bad7e119869585' as `0x${string}`,
 };
 
 export const PAYMENT_TOKEN_DDRESSES = {

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
+import { Warp } from './warp';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -35,10 +36,28 @@ export default function Game() {
     }>
   >([]);
   const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
+  const [winningColor, setWinningColor] = useState('#018A08');
 
   const { isConnected, address } = useAccount();
   const { connect } = useConnect();
   const { switchChain } = useSwitchChain();
+
+  // Fetch the current winning color from the contract
+  const { data: fetchedWinningColor } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'getCurrentWinningColor',
+    chainId: chain.id,
+    query: {
+      refetchInterval: 30000, // Refetch every 30 seconds
+    },
+  });
+
+  // Update winning color when data is fetched
+  useEffect(() => {
+    if (fetchedWinningColor) {
+      setWinningColor(fetchedWinningColor);
+    }
+  }, [fetchedWinningColor]);
 
   // Check if the user has used their free mint
   const { data: fetchedHasUsedFreeMint } = useReadContract({
@@ -89,12 +108,12 @@ export default function Game() {
         y: 20 + Math.random() * 10,
         rotation: 0,
         type: 'up',
-        color: '#018A08', // The special higher arrow color
+        color: winningColor, // Use the dynamic winning color
       };
 
       setFloatingWarps([...regularWarps, higherWarp]);
     }
-  }, [isConnected]);
+  }, [isConnected, winningColor]);
 
   const targetChainId = chain.id;
 
@@ -178,7 +197,7 @@ export default function Game() {
               <div
                 key={warp.id}
                 className={`absolute animate-float transition-transform ${
-                  warp.color === '#018A08' ? 'z-10 scale-150' : ''
+                  warp.color === winningColor ? 'z-10 scale-150' : ''
                 }`}
                 style={
                   {
@@ -186,7 +205,7 @@ export default function Game() {
                     top: `${warp.y}%`,
                     '--rotation': `${warp.rotation}deg`,
                     animationDelay: `${warp.id * 0.2}s`,
-                    opacity: warp.color === '#018A08' ? 0.9 : 0.5,
+                    opacity: warp.color === winningColor ? 0.9 : 0.5,
                   } as React.CSSProperties
                 }
               >
@@ -198,9 +217,12 @@ export default function Game() {
           {/* Game title and intro with playful animation */}
           <div className="relative z-10 space-y-4">
             <p className="text-lg text-muted-foreground max-w-md">
-              Mint and evolve Warps to create the iconic
-              <span className="text-[#018A08] font-bold"> Higher Warp</span> and
-              win the prize pool!
+              Mint and evolve Warps to create the
+              <span className={`font-bold`} style={{ color: winningColor }}>
+                {' '}
+                Warp with the winning color
+              </span>{' '}
+              and win the prize pool!
             </p>
           </div>
 
@@ -256,12 +278,15 @@ export default function Game() {
       );
     }
 
+    console.log('winningColor', winningColor);
+
     return (
       <div className="w-screen h-screen mx-auto bg-background relative bg-[#17101f]">
         {hasUsedFreeMint && (
           <header className="sticky top-0 bg-[#17101f] z-10">
             <div className="px-4 py-3 flex items-center justify-between">
               <Info />
+              <Warp color={`#${winningColor}`} />
               <Mint />
             </div>
           </header>

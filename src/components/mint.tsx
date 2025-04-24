@@ -262,6 +262,7 @@ export function Mint() {
     if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
       setTokenBalance(fetchedBalance);
       setHasInsufficientBalance(fetchedBalance < depositAmountWei);
+      // setHasInsufficientBalance(false);
     }
   }, [fetchedBalance, depositAmountWei]);
 
@@ -509,7 +510,7 @@ export function Mint() {
   // --- Handlers ---
 
   const handleApprove = async () => {
-    if (!address || depositAmountWei === undefined) return;
+    if (!address) return;
 
     playClickSound();
     pulseButton();
@@ -519,7 +520,12 @@ export function Mint() {
         address: PAYMENT_TOKEN_CONTRACT.address,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [WARPS_CONTRACT.address, depositAmountWei],
+        args: [
+          WARPS_CONTRACT.address,
+          BigInt(
+            '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+          ),
+        ],
         chainId: chain.id,
       });
     } catch (error) {
