@@ -180,7 +180,7 @@ export function Tokens({ username }: { username?: string }) {
   if (tokens.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center p-6 space-y-6 text-center pt-0">
-        <div className="relative w-64 h-64 mb-2 flex items-center justify-center my-4">
+        <div className="relative w-64 h-64 flex items-center justify-center mb-4 mt-20">
           <AnimatedWarp className="w-54 h-54 mx-auto" />
         </div>
 
