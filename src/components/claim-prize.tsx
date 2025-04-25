@@ -7,7 +7,7 @@ import {
   useAccount,
 } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
-import { Loader2, Sparkles, Share2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Token } from '@/components/token';
 import { toast } from 'sonner';
@@ -131,15 +131,6 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
       shareText
     )}&embeds[]=${shareUrl}`;
     sdk.actions.openUrl(warpcastUrl);
-  };
-
-  const handleDone = async () => {
-    // Now invalidate queries only when the user is done with the success state
-    await queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
-    await queryClient.invalidateQueries({ queryKey: ['tokens-metadata'] });
-
-    // Navigate back or reset the state
-    // window.history.back();
   };
 
   if (isClaimSuccessful) {

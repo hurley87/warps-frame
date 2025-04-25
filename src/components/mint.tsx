@@ -261,8 +261,8 @@ export function Mint() {
   useEffect(() => {
     if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
       setTokenBalance(fetchedBalance);
-      // setHasInsufficientBalance(fetchedBalance < depositAmountWei);
-      setHasInsufficientBalance(false);
+      setHasInsufficientBalance(fetchedBalance < depositAmountWei);
+      // setHasInsufficientBalance(false);
     }
   }, [fetchedBalance, depositAmountWei]);
 
