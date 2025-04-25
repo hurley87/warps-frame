@@ -113,7 +113,9 @@ export default function Info() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <Button variant="outline">How To Play</Button>
+        <Button className="bg-[#7c65c1] rounded-lg text-white font-bold">
+          How To Play
+        </Button>
       </DrawerTrigger>
       <DrawerContent className="h-full">
         <div className="h-full flex flex-col bg-black">

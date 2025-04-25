@@ -21,6 +21,7 @@ import {
 import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
+import { Pool } from './pool';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -286,7 +287,11 @@ export default function Game() {
           <header className="sticky top-0 bg-[#17101f] z-10">
             <div className="px-4 py-3 flex items-center justify-between">
               <Info />
-              <Warp color={`#${winningColor}`} />
+              <div className="flex items-center gap-2">
+                <Warp color={`#${winningColor}`} />
+                <span className="text-xs text-muted-foreground">=</span>
+                <Pool showWinningAmount={true} />
+              </div>
             </div>
           </header>
         )}

@@ -96,7 +96,7 @@ export function Token({
     <>
       <div
         ref={containerRef}
-        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${getRingStyle()} ${
+        className={`relative aspect-square group cursor-pointer transition-all duration-200${getRingStyle()} ${
           isEvolvedToken ? 'animate-evolved-pop' : ''
         }`}
         onClick={handleClick}

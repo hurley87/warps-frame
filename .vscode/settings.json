@@ -8,7 +8,6 @@
   },
   "prettier.configPath": ".prettierrc.js",
   "files.exclude": {
-    "node_modules": true,
     "dist": true,
     "build": true,
     ".next": true

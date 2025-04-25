@@ -824,7 +824,8 @@ export function Mint() {
           whileTap={{ scale: 0.95 }}
         >
           <span>
-            Deposit {formattedMintPrice} {paymentTokenSymbol || 'Tokens'}
+            Deposit {formattedMintPrice} {paymentTokenSymbol || 'Tokens'} to
+            Mint
           </span>
         </motion.div>
       );

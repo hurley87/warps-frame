@@ -206,7 +206,7 @@ export function Tokens({ username }: { username?: string }) {
       {tokens.length === 1 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Deposit tokens to mint more warps.</AlertTitle>
+          <AlertTitle>Deposit 4 USDC to mint 4 more warps.</AlertTitle>
         </Alert>
       )}
 
