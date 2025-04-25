@@ -185,7 +185,7 @@ export function Composite({
           ...WARPS_CONTRACT,
           functionName: 'composite',
           args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
-          gas: undefined,
+          gas: BigInt(1000000),
           chainId: chain.id,
         });
 
