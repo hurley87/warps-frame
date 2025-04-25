@@ -200,7 +200,7 @@ export function Tokens({ username }: { username?: string }) {
   }
 
   return (
-    <div className="relative p-3q bg-[#17101f] overflow-hidden">
+    <div className="relative p-3 bg-[#17101f] overflow-hidden">
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
