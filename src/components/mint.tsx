@@ -22,7 +22,6 @@ import {
   RefreshCw,
   Sparkles,
   CheckCircle2,
-  Gift,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
@@ -802,7 +801,6 @@ export function Mint() {
           className="flex items-center justify-center gap-2"
           whileTap={{ scale: 0.95 }}
         >
-          <Gift className="h-4 w-4" />
           <span>Claim Free Warps</span>
         </motion.div>
       );
