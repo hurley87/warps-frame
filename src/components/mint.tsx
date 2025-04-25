@@ -261,8 +261,8 @@ export function Mint() {
   useEffect(() => {
     if (fetchedBalance !== undefined && depositAmountWei !== undefined) {
       setTokenBalance(fetchedBalance);
-      setHasInsufficientBalance(fetchedBalance < depositAmountWei);
-      // setHasInsufficientBalance(false);
+      // setHasInsufficientBalance(fetchedBalance < depositAmountWei);
+      setHasInsufficientBalance(false);
     }
   }, [fetchedBalance, depositAmountWei]);
 
@@ -949,7 +949,7 @@ export function Mint() {
               isFreeMintTxMining ||
               (hasInsufficientBalance && hasUsedFreeMint)
             }
-            className={`relative group overflow-hidden transition-all duration-300 w-full ${
+            className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full ${
               isHovered
                 ? 'bg-[#7c65c1] shadow-lg shadow-primary/20'
                 : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'

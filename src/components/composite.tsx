@@ -480,23 +480,6 @@ export function Composite({
             }}
           />
         ))}
-
-        {/* Pulsing ready indicator */}
-        <motion.div
-          className="absolute -right-2 -top-2 w-4 h-4 rounded-full bg-green-400"
-          animate={{
-            scale: [0.8, 1.2, 0.8],
-            boxShadow: [
-              '0 0 0 0 rgba(74, 222, 128, 0.4)',
-              '0 0 0 4px rgba(74, 222, 128, 0)',
-              '0 0 0 0 rgba(74, 222, 128, 0.4)',
-            ],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-          }}
-        />
       </>
     );
   };
@@ -555,10 +538,10 @@ export function Composite({
             ref={buttonRef}
             onClick={handleComposite}
             disabled={isLoading || selectedTokens.length !== 2}
-            className={`relative bg-black group overflow-hidden transition-all duration-300 w-full cursor-pointer ${
+            className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full ${
               isHovered && selectedTokens.length === 2
-                ? 'bg-primary/20 shadow-lg shadow-primary/20 border-primary/50'
-                : 'bg-primary/10 hover:bg-primary/20 border-primary/30'
+                ? 'bg-[#7c65c1] shadow-lg shadow-primary/20'
+                : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
             } ${
               isLoading || selectedTokens.length !== 2
                 ? 'opacity-60 cursor-not-allowed'
@@ -593,7 +576,7 @@ export function Composite({
               />
             )}
 
-            <div className="relative flex items-center justify-center gap-2 z-10 min-h-[20px]">
+            <div className="relative flex items-center justify-center gap-2 font-bold">
               {isLoading ? (
                 <motion.div
                   className="flex items-center gap-2"
@@ -616,12 +599,7 @@ export function Composite({
                   <span>Try Again</span>
                 </motion.div>
               ) : (
-                <div className="flex items-center justify-center gap-2">
-                  <Zap
-                    className={`h-4 w-4 ${
-                      selectedTokens.length === 2 ? 'text-yellow-400' : ''
-                    }`}
-                  />
+                <div className="flex items-center justify-center gap-2 font-bold">
                   <span>Evolve Warps</span>
                 </div>
               )}

@@ -8,15 +8,11 @@ import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
-import { Mint } from '@/components/mint';
 import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedWarp } from './animated-warp';
 import { AlertCircle } from 'lucide-react';
-// import { useReadContract } from 'wagmi';
-// import { PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
-// import { chain } from '@/lib/chain';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 
@@ -198,15 +194,13 @@ export function Tokens({ username }: { username?: string }) {
           </p>
         </div>
 
-        <div className="flex flex-col items-center space-y-2">
-          <Mint />
-        </div>
+        {/* Mint button moved to persistent footer in Game component */}
       </div>
     );
   }
 
   return (
-    <div className="relative p-4 bg-[#17101f] overflow-hidden">
+    <div className="relative p-3q bg-[#17101f] overflow-hidden">
       {isFetching && <LoadingScreen />}
 
       {tokens.length === 1 && (
@@ -217,7 +211,7 @@ export function Tokens({ username }: { username?: string }) {
       )}
 
       <div className="flex flex-col">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {[...tokens]
             .sort((a, b) => b.id - a.id)
             .map((token) => (

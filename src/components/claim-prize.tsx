@@ -125,7 +125,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   };
 
   const handleShareToWarpcast = async () => {
-    const shareText = `🏆 I just won with my Arrow on Warps! Check it out!`;
+    const shareText = `🏆 I am the champion, my friend 🏆`;
     const shareUrl = 'https://warps.fun';
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText
@@ -144,32 +144,19 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
 
   if (isClaimSuccessful) {
     return (
-      <div className="relative p-4 bg-gradient-to-b from-[#7c65c1]/20 to-transparent rounded-xl">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 bg-[#17101f] bottom-0 left-0 right-0 top-0">
         <div className="mb-6 text-center">
-          <h2 className="text-xl font-bold text-green-500 mb-2">
-            {`🎉 Prize Claimed Successfully! 🎉`}
+          <h2 className="text-7xl font-bold text-white mb-2">
+            Please share this so others can feel as good as you do right now.
           </h2>
         </div>
 
-        <div className="max-w-sm mx-auto">
-          <Token key={`token-${token.id}`} token={token} onSelect={() => {}} />
-
+        <div className="w-full max-w-sm mx-auto">
           <Button
-            className="w-full mt-4 bg-[#7c65c1] hover:bg-[#7c65c1]/90"
+            className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl font-bold w-full mt-4 bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90 rounded-md shadow-lg"
             onClick={handleShareToWarpcast}
-            size="lg"
           >
-            <Share2 className="mr-2 h-4 w-4" />
-            Share Your Win on Warpcast
-          </Button>
-
-          <Button
-            className="w-full mt-2 variant-ghost"
-            onClick={handleDone}
-            variant="ghost"
-            size="sm"
-          >
-            Done
+            Share Your Win
           </Button>
         </div>
       </div>
@@ -177,18 +164,25 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   }
 
   return (
-    <div className="relative p-4">
-      <div className="mb-6 text-center">
-        <h2 className="text-lg font-bold text-green-500 mb-2">
-          {`🎉 Congratulations! You've Won! 🎉`}
-        </h2>
-      </div>
-      <div className="max-w-sm mx-auto">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-[#17101f] bottom-0 left-0 right-0 top-0">
+      {/* Central content */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
+        <div className="text-center">
+          <h2 className="text-7xl font-bold text-white mb-2">{`Hurray and claim your prize before someone else does!`}</h2>
+        </div>
+
         <Token key={`token-${token.id}`} token={token} onSelect={() => {}} />
+      </div>
+
+      {/* Fixed footer with claim button */}
+      <footer className="fixed bottom-0 left-0 right-0 p-4 bg-[#17101f]">
         <Button
-          className="w-full mt-4 bg-[#7c65c1] hover:bg-[#7c65c1]/90"
+          className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full rounded-md shadow-lg ${
+            isLoading
+              ? 'opacity-60 cursor-not-allowed bg-[#7c65c1]/60'
+              : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
+          }`}
           onClick={() => handleClaimPrize(token.id)}
-          size="lg"
           disabled={isLoading}
         >
           {isLoading ? (
@@ -200,7 +194,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
             'Claim Prize 🏆'
           )}
         </Button>
-      </div>
+      </footer>
     </div>
   );
 }

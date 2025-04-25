@@ -15,6 +15,7 @@ import { useReadContract } from 'wagmi';
 import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import { Warp } from './warp';
+import { Button } from './ui/button';
 
 export default function Info() {
   const [open, setOpen] = useState(true);
@@ -112,9 +113,7 @@ export default function Info() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <span className="text-sm font-semibold cursor-pointer">
-          How To Play
-        </span>
+        <Button variant="outline">How To Play</Button>
       </DrawerTrigger>
       <DrawerContent className="h-full">
         <div className="h-full flex flex-col bg-black">
