@@ -838,7 +838,7 @@ export function Mint() {
             whileTap={{ scale: 0.95 }}
           >
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>{isDepositTxMining ? 'Depositing...' : 'Check Wallet'}</span>
+            <span>{isDepositTxMining ? 'Minting...' : 'Check Wallet'}</span>
           </motion.div>
         );
       }
