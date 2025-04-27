@@ -15,11 +15,13 @@ import posthog from 'posthog-js';
 interface CompositeProps {
   selectedTokens: number[];
   onCompositeComplete: (evolvedTokenId?: number) => void;
+  onMergeStart?: () => boolean;
 }
 
 export function Composite({
   selectedTokens,
   onCompositeComplete,
+  onMergeStart,
 }: CompositeProps) {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
@@ -132,38 +134,16 @@ export function Composite({
   }, [isTxSuccess, receipt, queryClient, onCompositeComplete, selectedTokens]);
 
   const handleComposite = async () => {
+    // Call onMergeStart if provided, and return early if it returns false
+    if (onMergeStart && !onMergeStart()) {
+      return;
+    }
+
     if (!address || selectedTokens.length !== 2) return;
 
-    // Start fusion animation
-    setShowFusionEffect(true);
+    // Reset progress tracking and start fusion animation
     setFusionProgress(0);
-
-    // Animate fusion progress
-    const fusionDuration = 3000; // 3 seconds
-    const interval = 50; // Update every 50ms
-    const steps = fusionDuration / interval;
-    let currentStep = 0;
-
-    const progressInterval = setInterval(() => {
-      currentStep++;
-      setFusionProgress((currentStep / steps) * 100);
-
-      // Mid-progress visual effect
-      if (currentStep / steps >= 0.5 && currentStep / steps < 0.52) {
-        // Add visual intensity here instead
-        if (buttonRef.current) {
-          buttonRef.current.classList.add('button-pulse');
-          setTimeout(() => {
-            if (buttonRef.current)
-              buttonRef.current.classList.remove('button-pulse');
-          }, 300);
-        }
-      }
-
-      if (currentStep >= steps) {
-        clearInterval(progressInterval);
-      }
-    }, interval);
+    setShowFusionEffect(true);
 
     // Apply button pulse animation
     if (buttonRef.current) {
@@ -178,6 +158,32 @@ export function Composite({
     setIsPending(true);
     setHasError(false);
     setIsSuccess(false);
+
+    // Start progress animation
+    const progressInterval = setInterval(() => {
+      setFusionProgress((prev) => {
+        const newProgress = prev + 1;
+
+        // Mid-progress visual effect
+        if (prev >= 50 && prev < 52) {
+          // Add visual intensity here
+          if (buttonRef.current) {
+            buttonRef.current.classList.add('button-pulse');
+            setTimeout(() => {
+              if (buttonRef.current)
+                buttonRef.current.classList.remove('button-pulse');
+            }, 300);
+          }
+        }
+
+        if (newProgress >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 50);
+
     try {
       // Short delay before sending the transaction to allow animation to play
       setTimeout(async () => {

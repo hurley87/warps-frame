@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Token } from '@/components/token';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
+import { cn } from '@/lib/utils';
 
 interface CompositeDialogProps {
   open: boolean;
@@ -38,11 +40,14 @@ export function CompositeDialog({
   selectedPair,
   onCompositeComplete,
 }: CompositeDialogProps) {
+  const [isMerging, setIsMerging] = useState(false);
+
   // Handle dialog close to reset selection state
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       // If dialog is closing, call onCompositeComplete to reset selection state
       onCompositeComplete();
+      setIsMerging(false);
     }
     onOpenChange(newOpen);
   };
@@ -51,11 +56,22 @@ export function CompositeDialog({
   const handleCompositeComplete = (evolvedTokenId?: number) => {
     // Immediately close the dialog
     onOpenChange(false);
+    setIsMerging(false);
 
     // Then notify parent with the evolved token ID
     setTimeout(() => {
       onCompositeComplete(evolvedTokenId);
     }, 10);
+  };
+
+  // Start merging animation when user clicks on the composite button
+  const handleStartMerge = () => {
+    if (sourceToken && targetToken) {
+      setIsMerging(true);
+      // Allow animation to run before actual merging process
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -71,10 +87,20 @@ export function CompositeDialog({
         <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center gap-0 pb-20">
           {sourceToken && targetToken && (
             <div className="flex flex-col gap-6 w-full max-w-[220px] mx-auto">
-              <div className="text-center">
+              <div
+                className={cn(
+                  'text-center transition-all duration-1000 ease-in-out',
+                  isMerging && 'animate-bounce translate-y-8 scale-110'
+                )}
+              >
                 <Token token={sourceToken} />
               </div>
-              <div className="text-center">
+              <div
+                className={cn(
+                  'text-center transition-all duration-1000 ease-in-out',
+                  isMerging && 'animate-spin-slow -translate-y-8 scale-110'
+                )}
+              >
                 <Token token={targetToken} isBurnToken={true} />
               </div>
             </div>
@@ -94,6 +120,7 @@ export function CompositeDialog({
                 selectedPair ? [selectedPair.source, selectedPair.target] : []
               }
               onCompositeComplete={handleCompositeComplete}
+              onMergeStart={handleStartMerge}
             />
           </div>
         </footer>
