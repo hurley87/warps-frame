@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Token } from '@/components/token';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
