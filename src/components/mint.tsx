@@ -509,7 +509,7 @@ export function Mint() {
   // --- Handlers ---
 
   const handleApprove = async () => {
-    if (!address) return;
+    if (!address || depositAmountWei === undefined) return;
 
     playClickSound();
     pulseButton();
@@ -519,12 +519,7 @@ export function Mint() {
         address: PAYMENT_TOKEN_CONTRACT.address,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [
-          WARPS_CONTRACT.address,
-          BigInt(
-            '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-          ),
-        ],
+        args: [WARPS_CONTRACT.address, depositAmountWei],
         chainId: chain.id,
       });
     } catch (error) {
