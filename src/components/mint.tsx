@@ -109,6 +109,8 @@ export function Mint() {
     `0x${string}` | undefined
   >();
   const [isFreeMintSuccess, setIsFreeMintSuccess] = useState(false);
+  const [freeMintTimeoutId, setFreeMintTimeoutId] =
+    useState<NodeJS.Timeout | null>(null);
 
   // State for transaction flow
   const [isApproving, setIsApproving] = useState(false);
@@ -124,6 +126,8 @@ export function Mint() {
     `0x${string}` | undefined
   >();
   const [isDepositSuccess, setIsDepositSuccess] = useState(false);
+  const [depositTimeoutId, setDepositTimeoutId] =
+    useState<NodeJS.Timeout | null>(null);
 
   const [hasError, setHasError] = useState(false);
   const [currentError, setCurrentError] = useState<string | null>(null); // Store specific error messages
@@ -347,6 +351,21 @@ export function Mint() {
         setIsDepositing(true);
         setHasError(false);
         setCurrentError(null);
+        // Clear any existing timeout
+        if (depositTimeoutId) {
+          clearTimeout(depositTimeoutId);
+        }
+        // Set new timeout
+        const timeoutId = setTimeout(() => {
+          if (isDepositing || isDepositTxMining) {
+            setHasError(true);
+            setCurrentError('Transaction timed out. Please try again.');
+            setIsDepositing(false);
+            setIsDepositTxMining(false);
+            playErrorFeedback();
+          }
+        }, 5000);
+        setDepositTimeoutId(timeoutId);
       },
       onSuccess: (hash) => {
         setDepositTxHash(hash);
@@ -371,6 +390,11 @@ export function Mint() {
         setIsDepositing(false);
         setIsDepositTxMining(false);
         playErrorFeedback();
+        // Clear timeout on error
+        if (depositTimeoutId) {
+          clearTimeout(depositTimeoutId);
+          setDepositTimeoutId(null);
+        }
       },
     },
   });
@@ -395,6 +419,11 @@ export function Mint() {
         setIsDepositSuccess(true);
         setHasError(false);
         setCurrentError(null);
+        // Clear timeout on success
+        if (depositTimeoutId) {
+          clearTimeout(depositTimeoutId);
+          setDepositTimeoutId(null);
+        }
 
         playSuccessSound();
         setShowParticles(true);
@@ -437,6 +466,21 @@ export function Mint() {
         setIsFreeMinting(true);
         setHasError(false);
         setCurrentError(null);
+        // Clear any existing timeout
+        if (freeMintTimeoutId) {
+          clearTimeout(freeMintTimeoutId);
+        }
+        // Set new timeout
+        const timeoutId = setTimeout(() => {
+          if (isFreeMinting || isFreeMintTxMining) {
+            setHasError(true);
+            setCurrentError('Transaction timed out. Please try again.');
+            setIsFreeMinting(false);
+            setIsFreeMintTxMining(false);
+            playErrorFeedback();
+          }
+        }, 5000);
+        setFreeMintTimeoutId(timeoutId);
       },
       onSuccess: (hash) => {
         setFreeMintTxHash(hash);
@@ -459,6 +503,11 @@ export function Mint() {
         setIsFreeMinting(false);
         setIsFreeMintTxMining(false);
         playErrorFeedback();
+        // Clear timeout on error
+        if (freeMintTimeoutId) {
+          clearTimeout(freeMintTimeoutId);
+          setFreeMintTimeoutId(null);
+        }
       },
     },
   });
@@ -481,6 +530,11 @@ export function Mint() {
         setHasUsedFreeMint(true);
         setHasError(false);
         setCurrentError(null);
+        // Clear timeout on success
+        if (freeMintTimeoutId) {
+          clearTimeout(freeMintTimeoutId);
+          setFreeMintTimeoutId(null);
+        }
 
         playSuccessSound();
         setShowParticles(true);
