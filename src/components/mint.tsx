@@ -8,10 +8,7 @@ import { WARPS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2, Sparkles } from 'lucide-react';
-import {
-  DaimoPayButton,
-  // useDaimoPayStatus
-} from '@daimo/pay';
+import { DaimoPayButton, useDaimoPayStatus } from '@daimo/pay';
 
 export function Mint() {
   const { address } = useAccount();
@@ -22,7 +19,7 @@ export function Mint() {
   const [paymentStatus, setPaymentStatus] = useState<
     'idle' | 'started' | 'completed' | 'bounced'
   >('idle');
-  // const { reset } = useDaimoPayStatus();
+  const { reset } = useDaimoPayStatus();
 
   const playErrorFeedback = () => {
     const errorSound = new Audio('/sounds/composite-error.mp3');
@@ -90,6 +87,9 @@ export function Mint() {
         toast.error('Payment failed. Please try again.', {
           icon: '❌',
         });
+      }}
+      onClose={() => {
+        reset();
       }}
     >
       {({ show }) => (
