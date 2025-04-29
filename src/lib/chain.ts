@@ -2,7 +2,9 @@ import { base, baseSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 import { type Transport } from 'viem';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+// const isDevelopment = process.env.NODE_ENV === 'development';
+
+const isDevelopment = false;
 
 export const chain = isDevelopment ? baseSepolia : base;
 

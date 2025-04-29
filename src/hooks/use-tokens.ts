@@ -7,7 +7,8 @@ import { type Address } from 'viem';
 import { useState, useMemo } from 'react';
 import type { Transport } from 'viem';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+// const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = false;
 const chain = isDevelopment ? baseSepolia : base;
 
 type ChainId = typeof base.id | typeof baseSepolia.id;

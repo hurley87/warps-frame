@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@daimo/pay": "^1.7.3",
     "@farcaster/frame-node": "^0.0.21",
     "@farcaster/frame-sdk": "^0.0.31",
     "@farcaster/frame-wagmi-connector": "^0.0.19",

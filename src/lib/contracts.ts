@@ -16,7 +16,8 @@ export const PAYMENT_TOKEN_DDRESSES = {
 /**
  * Determines if the application is running in development mode
  */
-const isWarpsDevelopment = process.env.NODE_ENV === 'development';
+// const isWarpsDevelopment = process.env.NODE_ENV === 'development';
+const isWarpsDevelopment = false;
 
 /**
  * Get the appropriate contract address based on the current environment

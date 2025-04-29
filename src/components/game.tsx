@@ -5,7 +5,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAccount, useConnect, useSwitchChain, useReadContract } from 'wagmi';
 import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
-import { Mint } from './mint';
 import { Tokens } from './tokens';
 import Info from './info';
 import {
@@ -22,6 +21,7 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { Pool } from './pool';
+import { MintContainer } from './mint-container';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -303,7 +303,7 @@ export default function Game() {
 
         {/* Fixed footer Mint button */}
         <footer className="fixed bottom-0 left-0 right-0 bg-[#17101f] p-4 z-20">
-          <Mint />
+          <MintContainer />
         </footer>
       </div>
     );
