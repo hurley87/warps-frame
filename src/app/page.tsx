@@ -5,7 +5,7 @@ const appUrl = 'https://warps.fun';
 
 const frame = {
   version: 'next',
-  imageUrl: `${appUrl}/splash.jpg`,
+  imageUrl: `${appUrl}/warps.gif`,
   button: {
     title: 'Play Warps',
     action: {
