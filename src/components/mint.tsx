@@ -89,6 +89,8 @@ export function Mint() {
         });
       }}
       onClose={() => {
+        console.log('Payment closed');
+        window.location.reload();
         reset();
       }}
     >
