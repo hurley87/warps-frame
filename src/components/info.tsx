@@ -18,7 +18,7 @@ import { Warp } from './warp';
 import { Button } from './ui/button';
 
 export default function Info() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [winningColor, setWinningColor] = useState('#018A08');
   const [paymentTokenSymbol, setPaymentTokenSymbol] =
     useState<string>('Tokens');
