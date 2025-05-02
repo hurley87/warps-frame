@@ -228,16 +228,19 @@ export function Tokens({ username }: { username?: string }) {
                   }
                   isEvolvedToken={evolvedTokenId === token.id}
                 />
-                <button
-                  className={`w-full rounded-b-md p-2 transition-all duration-200 ${
-                    selectedTokenId === token.id
-                      ? 'bg-purple-500 text-white'
-                      : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'
-                  }`}
-                  onClick={() => handleTokenSelect(token.id)}
-                >
-                  {selectedTokenId === token.id ? 'Selected' : 'Select'}
-                </button>
+                {token.attributes.find((attr) => attr.trait_type === 'Warps')
+                  ?.value !== '1' && (
+                  <button
+                    className={`w-full rounded-b-md p-2 transition-all duration-200 ${
+                      selectedTokenId === token.id
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'
+                    }`}
+                    onClick={() => handleTokenSelect(token.id)}
+                  >
+                    {selectedTokenId === token.id ? 'Selected' : 'Select'}
+                  </button>
+                )}
               </div>
             ))}
         </div>
