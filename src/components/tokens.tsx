@@ -215,19 +215,31 @@ export function Tokens({ username }: { username?: string }) {
           {[...tokens]
             .sort((a, b) => b.id - a.id)
             .map((token) => (
-              <Token
-                key={`token-${token.id}`}
-                token={token}
-                onSelect={handleTokenSelect}
-                isSelected={selectedTokenId === token.id}
-                isBurnToken={
-                  selectedPair?.target === token.id ||
-                  (selectedTokenId !== null &&
-                    selectedTokenId !== token.id &&
-                    evolvedTokenId !== token.id)
-                }
-                isEvolvedToken={evolvedTokenId === token.id}
-              />
+              <div key={`token-${token.id}`}>
+                <Token
+                  key={`token-${token.id}`}
+                  token={token}
+                  onSelect={handleTokenSelect}
+                  isSelected={selectedTokenId === token.id}
+                  isBurnToken={
+                    selectedPair?.target === token.id ||
+                    (selectedTokenId !== null &&
+                      selectedTokenId !== token.id &&
+                      evolvedTokenId !== token.id)
+                  }
+                  isEvolvedToken={evolvedTokenId === token.id}
+                />
+                <button
+                  className={`w-full rounded-b-md p-2 transition-all duration-200 ${
+                    selectedTokenId === token.id
+                      ? 'bg-purple-500 text-white'
+                      : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'
+                  }`}
+                  onClick={() => handleTokenSelect(token.id)}
+                >
+                  {selectedTokenId === token.id ? 'Selected' : 'Select'}
+                </button>
+              </div>
             ))}
         </div>
         {hasMore && (

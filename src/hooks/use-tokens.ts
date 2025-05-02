@@ -40,6 +40,7 @@ const decodeBase64URI = (uri: string) => {
 };
 
 export function useTokens(address: Address | undefined) {
+  console.log('address', address);
   return useQuery({
     queryKey: ['tokens-balance', address],
     queryFn: async () => {

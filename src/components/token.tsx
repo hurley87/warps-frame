@@ -82,26 +82,16 @@ export function Token({
     }
   };
 
-  // Determine the appropriate ring style based on the token state
-  const getRingStyle = () => {
-    if (isEvolvedToken) {
-      return 'ring-2 ring-yellow-400 animate-pulse-evolved rounded-lg';
-    } else if (isSelected) {
-      return isBurnToken ? 'ring-2 ring-red-500' : 'ring-2 ring-purple-500';
-    }
-    return '';
-  };
-
   return (
     <>
       <div
         ref={containerRef}
-        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${getRingStyle()} ${
+        className={`relative aspect-square group cursor-pointer transition-all duration-200 ${
           isEvolvedToken ? 'animate-evolved-pop' : ''
         }`}
         onClick={handleClick}
       >
-        <div className="absolute inset-0 overflow-hidden rounded-lg">
+        <div className="absolute inset-0 overflow-hidden rounded-t-lg">
           <div
             className={`absolute inset-[-20%] w-[140%] h-[140%] transition-transform duration-300 group-hover:scale-110 svg-container ${
               isEvolvedToken ? 'evolved-token-glow' : ''

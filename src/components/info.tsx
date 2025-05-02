@@ -9,10 +9,9 @@ import {
 } from '@/components/ui/drawer';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Pool } from './pool';
-import sdk from '@farcaster/frame-sdk';
-import { useCallback, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
-import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import { Warp } from './warp';
 import { Button } from './ui/button';
@@ -20,15 +19,8 @@ import { Button } from './ui/button';
 export default function Info() {
   const [open, setOpen] = useState(false);
   const [winningColor, setWinningColor] = useState('#018A08');
-  const [paymentTokenSymbol, setPaymentTokenSymbol] =
-    useState<string>('Tokens');
   const [winnerClaimPercentage, setWinnerClaimPercentage] =
     useState<number>(60);
-  const [formattedMintPrice, setFormattedMintPrice] = useState<string>('');
-
-  const openUrl = useCallback(() => {
-    sdk.actions.openUrl('https://opensea.io/collection/warps-5');
-  }, []);
 
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
@@ -41,14 +33,6 @@ export default function Info() {
     },
   });
 
-  // Fetch the payment token symbol
-  const { data: fetchedSymbol } = useReadContract({
-    address: PAYMENT_TOKEN_CONTRACT.address,
-    abi: PAYMENT_TOKEN_CONTRACT.abi,
-    functionName: 'symbol',
-    chainId: chain.id,
-  });
-
   // Fetch the winner claim percentage
   const { data: fetchedWinnerClaimPercentage } = useReadContract({
     address: WARPS_CONTRACT.address,
@@ -57,51 +41,12 @@ export default function Info() {
     chainId: chain.id,
   });
 
-  // Fetch mint price from contract
-  const { data: mintPrice } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'mintPrice',
-    chainId: chain.id,
-  });
-
-  // Fetch token decimals
-  const { data: tokenDecimals } = useReadContract({
-    address: PAYMENT_TOKEN_CONTRACT.address,
-    abi: PAYMENT_TOKEN_CONTRACT.abi,
-    functionName: 'decimals',
-    chainId: chain.id,
-  });
-
-  // Format mint price when both price and decimals are available
-  useEffect(() => {
-    if (mintPrice !== undefined && tokenDecimals !== undefined) {
-      // Special case for USDC with 6 decimals
-      if (Number(tokenDecimals) === 6) {
-        setFormattedMintPrice(
-          (Number(mintPrice) / 10 ** Number(tokenDecimals)).toFixed(2)
-        );
-      } else {
-        setFormattedMintPrice(
-          (Number(mintPrice) / 10 ** Number(tokenDecimals)).toString()
-        );
-      }
-    }
-  }, [mintPrice, tokenDecimals]);
-
   // Update winning color when data is fetched
   useEffect(() => {
     if (fetchedWinningColor) {
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
-
-  // Update token symbol when data is fetched
-  useEffect(() => {
-    if (fetchedSymbol) {
-      setPaymentTokenSymbol(fetchedSymbol);
-    }
-  }, [fetchedSymbol]);
 
   // Update winner claim percentage when data is fetched
   useEffect(() => {
@@ -149,19 +94,28 @@ export default function Info() {
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
             <div className="flex flex-col gap-6 text-sm pb-20">
-              <div className="space-y-2">
-                <h3 className="font-bold">Overview</h3>
+              <div className="space-y-2 text-md">
+                <p>Mint your first 4 warps for free.</p>
                 <p>
-                  Warps is a game where players compete to create the winning
-                  warp through strategic NFT evolutions.
+                  Combine 2 tokens with the same number of warps to create a new
+                  token with one fewer warp
                 </p>
                 <p>
+                  Continue evolving until you have a single token with 1 warp.
+                </p>
+                <p>
+                  Your goal is to create a single token with winning color{' '}
                   <span
-                    onClick={openUrl}
-                    className="text-blue-500 cursor-pointer"
+                    style={{ color: `#${winningColor}`, fontWeight: 'bold' }}
                   >
-                    View Collection on Opensea
+                    #{winningColor}
                   </span>
+                  . Whoever owns that token can claim {winnerClaimPercentage}%
+                  of the prize pool.
+                </p>
+                <p>
+                  Once claimed, a new winning color is chosen at random and the
+                  race begins again.
                 </p>
               </div>
               <div className="space-y-2">
@@ -177,30 +131,6 @@ export default function Info() {
                 <div className="flex items-center gap-2">
                   <Warp color={`#${winningColor}`} className="w-10 h-10" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-bold">How to Play</h3>
-                <p>
-                  You can deposit {formattedMintPrice} {paymentTokenSymbol} to
-                  mint four tokens.
-                </p>
-                <p>Double click on an token to view its details.</p>
-                <p>
-                  To evolve a token, click the token you want to keep and a
-                  second to burn.
-                </p>
-                <p>
-                  Your goal is to create a single token with winning color{' '}
-                  <span style={{ color: winningColor, fontWeight: 'bold' }}>
-                    #{winningColor}
-                  </span>
-                  . Whoever owns that token can claim {winnerClaimPercentage}%
-                  of the prize pool.
-                </p>
-                <p>
-                  The winning color changes after someone wins. The winning
-                  color is chosen at random.
-                </p>
               </div>
             </div>
           </div>

@@ -279,8 +279,6 @@ export default function Game() {
       );
     }
 
-    console.log('winningColor', winningColor);
-
     return (
       <div className="w-screen h-screen mx-auto bg-background bg-[#17101f] flex flex-col">
         {hasUsedFreeMint && (
