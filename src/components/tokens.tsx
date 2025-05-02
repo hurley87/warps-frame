@@ -220,7 +220,6 @@ export function Tokens({ username }: { username?: string }) {
                   key={`token-${token.id}`}
                   token={token}
                   onSelect={handleTokenSelect}
-                  isSelected={selectedTokenId === token.id}
                   isBurnToken={
                     selectedPair?.target === token.id ||
                     (selectedTokenId !== null &&

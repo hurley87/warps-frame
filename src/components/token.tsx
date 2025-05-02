@@ -10,7 +10,6 @@ import { Sparkles } from 'lucide-react';
 interface TokenProps {
   token: TokenType;
   onSelect?: (tokenId: number) => void;
-  isSelected?: boolean;
   isBurnToken?: boolean;
   isEvolvedToken?: boolean;
 }
@@ -18,7 +17,6 @@ interface TokenProps {
 export function Token({
   token,
   onSelect,
-  isSelected = false,
   isBurnToken = false,
   isEvolvedToken = false,
 }: TokenProps) {
