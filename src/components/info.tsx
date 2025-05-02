@@ -27,7 +27,7 @@ export default function Info() {
   const [formattedMintPrice, setFormattedMintPrice] = useState<string>('');
 
   const openUrl = useCallback(() => {
-    sdk.actions.openUrl('https://opensea.io/collection/arrows-12');
+    sdk.actions.openUrl('https://opensea.io/collection/warps-5');
   }, []);
 
   // Fetch the current winning color from the contract
