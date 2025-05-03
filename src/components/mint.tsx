@@ -93,8 +93,6 @@ export function Mint() {
           className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer ${
             hasError
               ? 'bg-red-500 hover:bg-red-600'
-              : paymentStatus === 'completed'
-              ? 'bg-green-500 hover:bg-green-600'
               : 'bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90'
           } font-bold ${
             isPaymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
@@ -107,8 +105,6 @@ export function Mint() {
               <Loader2 className="h-4 w-4 animate-spin" />
               Processing...
             </div>
-          ) : paymentStatus === 'completed' ? (
-            'Mint Successful!'
           ) : hasError ? (
             'Retry Payment'
           ) : (
