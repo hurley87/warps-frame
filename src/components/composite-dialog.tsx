@@ -89,16 +89,16 @@ export function CompositeDialog({
             <div className="flex flex-col gap-6 w-full max-w-[220px] mx-auto">
               <div
                 className={cn(
-                  'text-center transition-all duration-1000 ease-in-out',
-                  isMerging && 'animate-bounce translate-y-8 scale-110'
+                  'text-center transition-all duration-[10000ms] ease-in-out',
+                  isMerging && 'animate-spin-slow scale-0 opacity-0'
                 )}
               >
                 <Token token={sourceToken} />
               </div>
               <div
                 className={cn(
-                  'text-center transition-all duration-1000 ease-in-out',
-                  isMerging && 'animate-spin-slow -translate-y-8 scale-110'
+                  'text-center transition-all duration-[10000ms] ease-in-out',
+                  isMerging && 'animate-spin-slow scale-0 opacity-0'
                 )}
               >
                 <Token token={targetToken} isBurnToken={true} />

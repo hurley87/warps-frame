@@ -8,7 +8,7 @@ import { WARPS_CONTRACT } from '@/lib/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2, Sparkles } from 'lucide-react';
-import { DaimoPayButton, useDaimoPayStatus } from '@daimo/pay';
+import { DaimoPayButton } from '@daimo/pay';
 
 export function Mint() {
   const { address } = useAccount();
@@ -19,7 +19,6 @@ export function Mint() {
   const [paymentStatus, setPaymentStatus] = useState<
     'idle' | 'started' | 'completed' | 'bounced'
   >('idle');
-  const { reset } = useDaimoPayStatus();
 
   const playErrorFeedback = () => {
     const errorSound = new Audio('/sounds/composite-error.mp3');
@@ -65,7 +64,6 @@ export function Mint() {
         setPaymentStatus('completed');
         setHasError(false);
         triggerScreenShake();
-        // reset(); -> this doesn't work
 
         // Invalidate relevant queries
         queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
@@ -88,11 +86,6 @@ export function Mint() {
           icon: '❌',
         });
       }}
-      onClose={() => {
-        console.log('Payment closed');
-        window.location.reload();
-        reset();
-      }}
     >
       {({ show }) => (
         <Button
@@ -105,13 +98,7 @@ export function Mint() {
           } font-bold ${
             isPaymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
           }`}
-          onClick={() => {
-            if (paymentStatus === 'completed') {
-              // reset(); -> this doesn't work
-            } else {
-              show();
-            }
-          }}
+          onClick={show}
           disabled={isPaymentProcessing}
         >
           {isPaymentProcessing ? (

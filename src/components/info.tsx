@@ -97,8 +97,8 @@ export default function Info() {
               <div className="space-y-2 text-md">
                 <p>Mint your first 4 warps for free.</p>
                 <p>
-                  Combine 2 tokens with the same number of warps to create a new
-                  token with one fewer warp
+                  Select two tokens with the same number of warps to create a
+                  new token with one fewer warp
                 </p>
                 <p>
                   Continue evolving until you have a single token with 1 warp.
