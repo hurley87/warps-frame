@@ -89,7 +89,7 @@ export function CompositeDialog({
             <div className="flex flex-col gap-6 w-full max-w-[220px] mx-auto">
               <div
                 className={cn(
-                  'text-center transition-all duration-[20000ms] ease-in-out',
+                  'text-center transition-all duration-[30000ms] ease-in-out',
                   isMerging && 'animate-spin-slow scale-0 opacity-0'
                 )}
               >
@@ -97,7 +97,7 @@ export function CompositeDialog({
               </div>
               <div
                 className={cn(
-                  'text-center transition-all duration-[20000ms] ease-in-out',
+                  'text-center transition-all duration-[30000ms] ease-in-out',
                   isMerging && 'animate-spin-slow scale-0 opacity-0'
                 )}
               >
