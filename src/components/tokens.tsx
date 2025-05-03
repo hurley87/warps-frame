@@ -201,7 +201,7 @@ export function Tokens({ username }: { username?: string }) {
       {tokens.length === 1 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Mint more Warps to continue.</AlertTitle>
+          <AlertTitle>Mint Warps to continue.</AlertTitle>
         </Alert>
       )}
 
