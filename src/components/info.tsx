@@ -95,13 +95,13 @@ export default function Info() {
           <div className="flex-1 overflow-y-auto px-6 pt-4">
             <div className="flex flex-col gap-6 text-sm pb-20">
               <div className="space-y-2 text-md">
-                <p>Mint your first 4 warps for free.</p>
                 <p>
-                  Select two tokens with the same number of warps to create a
-                  new token with one fewer warp
+                  Select two tokens with the same number of warps and combine
+                  them. The new token will inherit colors from both parent
+                  tokens.
                 </p>
                 <p>
-                  Continue evolving until you have a single token with 1 warp.
+                  Continue combining until you have a single token with 1 warp.
                 </p>
                 <p>
                   Your goal is to create a single token with winning color{' '}

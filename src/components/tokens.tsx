@@ -185,12 +185,8 @@ export function Tokens({ username }: { username?: string }) {
         </div>
 
         <div className="space-y-3 max-w-xs">
-          <div className="relative font-bold text-2xl pb-1">
-            Win <Pool showWinningAmount />
-          </div>
-          <p className="text-muted-foreground">
-            Find a single warp with the winning color and burn it to claim{' '}
-            <Pool showWinningAmount />.
+          <p className="text-muted-foreground text-4xl font-bold">
+            Mint and combine warps to win
           </p>
         </div>
 
