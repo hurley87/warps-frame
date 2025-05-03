@@ -6,6 +6,29 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Composite } from '@/components/composite';
 import { cn } from '@/lib/utils';
 
+const ConfettiEffect = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {[...Array(30)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            left: '50%',
+            top: '50%',
+            backgroundColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            transform: `translate(-50%, -50%) rotate(${
+              Math.random() * 360
+            }deg)`,
+            animation: `confetti 1s ease-out forwards`,
+            animationDelay: `${Math.random() * 0.5}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 interface CompositeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -86,7 +109,7 @@ export function CompositeDialog({
         {/* Scrollable token preview area */}
         <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center gap-0 pb-20">
           {sourceToken && targetToken && (
-            <div className="flex flex-col gap-6 w-full max-w-[220px] mx-auto">
+            <div className="flex flex-col gap-6 w-full max-w-[220px] mx-auto relative">
               <div
                 className={cn(
                   'text-center transition-all duration-[30000ms] ease-in-out',
@@ -95,6 +118,7 @@ export function CompositeDialog({
               >
                 <Token token={sourceToken} />
               </div>
+              {isMerging && <ConfettiEffect />}
               <div
                 className={cn(
                   'text-center transition-all duration-[30000ms] ease-in-out',
@@ -125,6 +149,26 @@ export function CompositeDialog({
           </div>
         </footer>
       </DialogContent>
+
+      <style jsx global>{`
+        @keyframes confetti {
+          0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          100% {
+            transform: translate(
+                calc(-50% + ${Math.random() * 200 - 100}px),
+                calc(-50% + ${Math.random() * 200 - 100}px)
+              )
+              rotate(${Math.random() * 720}deg) scale(1);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </Dialog>
   );
 }
