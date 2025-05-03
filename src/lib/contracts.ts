@@ -3,9 +3,10 @@ import { Abi } from 'viem';
 /**
  * Contract addresses for different environments
  */
-// 0x1EE8da4d492aCbd8F28b79F8157060A8cCd1a374
+//
+// 0x2B48D8EB7f6CC235ee6C9e5de9191c19421fCF0A
 export const WARPS_CONTRACT_ADDRESSES = {
-  production: '0x2B48D8EB7f6CC235ee6C9e5de9191c19421fCF0A' as `0x${string}`,
+  production: '0x1EE8da4d492aCbd8F28b79F8157060A8cCd1a374' as `0x${string}`,
   development: '0x4087a72e96a6125ec7dae02852f90828c928aa6d' as `0x${string}`,
 };
 
