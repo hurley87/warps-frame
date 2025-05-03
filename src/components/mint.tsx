@@ -16,9 +16,6 @@ export function Mint() {
 
   const [hasError, setHasError] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<
-    'idle' | 'started' | 'completed' | 'bounced'
-  >('idle');
 
   const playErrorFeedback = () => {
     const errorSound = new Audio('/sounds/composite-error.mp3');
@@ -52,7 +49,6 @@ export function Mint() {
       onPaymentStarted={(e) => {
         console.log('Payment started:', e);
         setIsPaymentProcessing(true);
-        setPaymentStatus('started');
         setHasError(false);
         toast.info('Payment initiated...', {
           icon: <Loader2 className="h-4 w-4 animate-spin" />,
@@ -61,7 +57,6 @@ export function Mint() {
       onPaymentCompleted={(e) => {
         console.log('Payment completed:', e);
         setIsPaymentProcessing(false);
-        setPaymentStatus('completed');
         setHasError(false);
         triggerScreenShake();
 
@@ -80,7 +75,6 @@ export function Mint() {
       onPaymentBounced={(e) => {
         console.log('Payment bounced:', e);
         setIsPaymentProcessing(false);
-        setPaymentStatus('bounced');
         setHasError(true);
         playErrorFeedback();
         toast.error('Payment failed. Please try again.', {
