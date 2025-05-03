@@ -8,7 +8,6 @@ import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
 import { CompositeDialog } from '@/components/composite-dialog';
 import { toast } from 'sonner';
-import { Pool } from '@/components/pool';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedWarp } from './animated-warp';
