@@ -8,11 +8,11 @@ import { WARPS_CONTRACT } from '@/lib/contracts';
 import { toast } from 'sonner';
 import { Loader2, Sparkles } from 'lucide-react';
 import { DaimoPayButton } from '@daimo/pay';
-import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function Mint() {
   const { address } = useAccount();
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [hasError, setHasError] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
@@ -66,12 +66,17 @@ export function Mint() {
         triggerScreenShake();
 
         // Invalidate relevant queries
-        router.push('/thanks');
+        queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+        queryClient.invalidateQueries({
+          queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
+        });
+
         toast.success('Payment successful! NFT minted!', {
           icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
           className: 'bg-gradient-to-r from-primary/30 to-primary/10',
         });
       }}
+      resetOnSuccess
       onPaymentBounced={(e) => {
         console.log('Payment bounced:', e);
         setIsPaymentProcessing(false);
