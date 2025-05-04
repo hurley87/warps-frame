@@ -102,8 +102,8 @@ export function FreeMint() {
 
         // Refresh both token queries to ensure UI updates
         await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ['tokens-balance'] }),
-          queryClient.invalidateQueries({ queryKey: ['tokens-metadata'] }),
+          queryClient.refetchQueries({ queryKey: ['tokens-balance'] }),
+          queryClient.refetchQueries({ queryKey: ['tokens-metadata'] }),
         ]);
 
         toast.success('Successfully claimed free mint!', {
