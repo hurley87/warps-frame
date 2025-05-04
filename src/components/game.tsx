@@ -3,7 +3,6 @@
 import sdk, { type Context } from '@farcaster/frame-sdk';
 import { useEffect, useState, useCallback } from 'react';
 import { useAccount, useConnect, useSwitchChain, useReadContract } from 'wagmi';
-import { config } from '@/components/providers/WagmiProvider';
 import { Button } from './ui/button';
 import { Tokens } from './tokens';
 import Info from './info';
@@ -39,7 +38,7 @@ export default function Game() {
   const [winningColor, setWinningColor] = useState('#018A08');
 
   const { isConnected, address } = useAccount();
-  const { connect } = useConnect();
+  const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
 
   // Fetch the current winning color from the contract
@@ -231,7 +230,7 @@ export default function Game() {
             <div className="bg-black/50 backdrop-blur-md rounded-xl p-0 border-2 border-primary/50 shadow-lg shadow-primary/20 animate-pulse-slow">
               <Button
                 size="lg"
-                onClick={() => connect({ connector: config.connectors[0] })}
+                onClick={() => connect({ connector: connectors[0] })}
                 className="w-full bg-white text-black font-bold py-6 text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
                 Connect Wallet
