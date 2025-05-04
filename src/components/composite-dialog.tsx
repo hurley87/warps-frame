@@ -182,7 +182,7 @@ export function CompositeDialog({
         </div>
 
         {/* Fixed footer with evolve button */}
-        <footer className="fixed bottom-0 left-0 right-0 bg-[#17101f] p-4">
+        <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
           <div className="bg-[#7c65c1] hover:bg-[#7c65c1]/90 rounded-md p-1">
             <Composite
               key={
