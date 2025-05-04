@@ -20,7 +20,6 @@ import {
 import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
-import { Pool } from './pool';
 import { MintContainer } from './mint-container';
 
 export default function Game() {
@@ -283,13 +282,9 @@ export default function Game() {
       <div className="w-screen h-screen mx-auto bg-background bg-[#17101f] flex flex-col">
         {hasUsedFreeMint && (
           <header className="sticky top-0 bg-[#17101f] z-10">
-            <div className="px-4 py-3 flex items-center justify-between">
+            <div className="px-6 py-3 flex items-center justify-between">
+              <Warp color={`#${winningColor}`} />
               <Info />
-              <div className="flex items-center gap-2 font-bold">
-                <Warp color={`#${winningColor}`} />
-                <span className="text-xs text-muted-foreground">=</span>
-                <Pool showWinningAmount={true} />
-              </div>
             </div>
           </header>
         )}
