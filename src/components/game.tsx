@@ -181,7 +181,7 @@ export default function Game() {
           {!context && (
             <div className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-primary/20">
               <a
-                href="https://warpcast.com/higherarrows"
+                href="https://warpcast.com/warpsfun/0x745273b9"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-4 py-2 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
