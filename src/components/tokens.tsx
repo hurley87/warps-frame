@@ -204,6 +204,18 @@ export function Tokens({ username }: { username?: string }) {
           <AlertTitle>Mint Warps to continue.</AlertTitle>
         </Alert>
       )}
+      {tokens.length > 0 && selectedTokenId === null && (
+        <Alert variant="default" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Select a token</AlertTitle>
+        </Alert>
+      )}
+      {tokens.length > 0 && selectedTokenId !== null && (
+        <Alert variant="default" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Select a different token</AlertTitle>
+        </Alert>
+      )}
 
       <div className="flex flex-col">
         <div className="grid grid-cols-2 gap-4">

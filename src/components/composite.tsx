@@ -522,7 +522,7 @@ export function Composite({
               }}
             >
               <Sparkles className="h-4 w-4 text-yellow-400" />
-              <span className="text-gradient">Evolution Complete!</span>
+              <span className="text-gradient">Complete!</span>
             </motion.div>
 
             {/* Background success glow */}
@@ -606,7 +606,7 @@ export function Composite({
                 </motion.div>
               ) : (
                 <div className="flex items-center justify-center gap-2 font-bold">
-                  <span>Evolve Warps</span>
+                  <span>Combine Warps</span>
                 </div>
               )}
             </div>
