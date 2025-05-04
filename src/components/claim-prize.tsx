@@ -134,7 +134,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
     sdk.actions.openUrl(warpcastUrl);
   };
 
-  if (!isClaimSuccessful) {
+  if (isClaimSuccessful) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#17101f] bottom-0 left-0 right-0 top-0">
         <div className="mb-6 text-center h-full justify-center flex items-center">
