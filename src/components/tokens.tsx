@@ -91,6 +91,19 @@ export function Tokens({ username }: { username?: string }) {
   }, [evolvedTokenId]);
 
   const handleTokenSelect = (tokenId: number) => {
+    // Find the token being selected
+    const tokenToSelect = tokens.find((t) => t.id === tokenId);
+    if (!tokenToSelect) return;
+
+    // Check if the token has a single warp
+    const warps = tokenToSelect.attributes.find(
+      (attr) => attr.trait_type === 'Warps'
+    )?.value;
+    if (warps === '1') {
+      toast.error('Cannot select a token with a single warp');
+      return;
+    }
+
     // If the token is already selected, unselect it
     if (selectedTokenId === tokenId) {
       setSelectedTokenId(null);
@@ -115,16 +128,6 @@ export function Tokens({ username }: { username?: string }) {
     const targetColorBand = targetToken.attributes.find(
       (attr) => attr.trait_type === 'Warps'
     )?.value;
-
-    // Check if both are single warp (value "1")
-    if (sourceColorBand === '1' && targetColorBand === '1') {
-      toast.error(
-        'Single warp cannot be combined. Find warps with more bands.'
-      );
-      // Select the new token instead
-      setSelectedTokenId(tokenId);
-      return;
-    }
 
     if (
       sourceColorBand &&
@@ -176,6 +179,13 @@ export function Tokens({ username }: { username?: string }) {
     ? tokens.find((t) => t.id === selectedPair.target) ?? null
     : null;
 
+  const hasTokensWithMultipleWarps = tokens.some((token) => {
+    const warps = token.attributes.find(
+      (attr) => attr.trait_type === 'Warps'
+    )?.value;
+    return warps && warps !== '1';
+  });
+
   if (tokens.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center p-6 space-y-6 text-center pt-0">
@@ -204,18 +214,22 @@ export function Tokens({ username }: { username?: string }) {
           <AlertTitle>Mint Warps to continue.</AlertTitle>
         </Alert>
       )}
-      {tokens.length > 0 && selectedTokenId === null && (
-        <Alert variant="default" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Select a token</AlertTitle>
-        </Alert>
-      )}
-      {tokens.length > 0 && selectedTokenId !== null && (
-        <Alert variant="default" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Select a different token</AlertTitle>
-        </Alert>
-      )}
+      {tokens.length > 0 &&
+        selectedTokenId === null &&
+        hasTokensWithMultipleWarps && (
+          <Alert variant="default" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Select a token</AlertTitle>
+          </Alert>
+        )}
+      {tokens.length > 0 &&
+        selectedTokenId !== null &&
+        hasTokensWithMultipleWarps && (
+          <Alert variant="default" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Select a different token</AlertTitle>
+          </Alert>
+        )}
 
       <div className="flex flex-col">
         <div className="grid grid-cols-2 gap-4">
@@ -224,7 +238,10 @@ export function Tokens({ username }: { username?: string }) {
             .map((token) => (
               <div
                 className={`border-2 ${
-                  token.id === selectedTokenId
+                  token.attributes.find((attr) => attr.trait_type === 'Warps')
+                    ?.value === '1'
+                    ? 'border-transparent'
+                    : token.id === selectedTokenId
                     ? 'border-purple-500'
                     : 'border-purple-500/20'
                 } rounded-md`}

@@ -29,6 +29,50 @@ const ConfettiEffect = () => {
   );
 };
 
+// Add new background flicker effect component
+const BackgroundFlicker = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-primary/20 to-blue-900/20 animate-pulse-slow" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent animate-pulse-slow" />
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-1 rounded-full bg-white/30"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animation: `flicker ${
+              0.5 + Math.random() * 0.5
+            }s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 0.5}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Add new energy beam effect component
+const EnergyBeams = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-full bg-gradient-to-b from-transparent via-primary/30 to-transparent"
+          style={{
+            left: `${(i * 100) / 8}%`,
+            transform: `rotate(${Math.random() * 360}deg)`,
+            animation: `energyBeam 2s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 2}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 interface CompositeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -118,7 +162,13 @@ export function CompositeDialog({
               >
                 <Token token={sourceToken} />
               </div>
-              {isMerging && <ConfettiEffect />}
+              {isMerging && (
+                <>
+                  <ConfettiEffect />
+                  <BackgroundFlicker />
+                  <EnergyBeams />
+                </>
+              )}
               <div
                 className={cn(
                   'text-center transition-all duration-[30000ms] ease-in-out',
@@ -166,6 +216,44 @@ export function CompositeDialog({
               )
               rotate(${Math.random() * 720}deg) scale(1);
             opacity: 0;
+          }
+        }
+
+        @keyframes flicker {
+          0%,
+          100% {
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.2);
+          }
+        }
+
+        @keyframes energyBeam {
+          0%,
+          100% {
+            opacity: 0.1;
+            transform: rotate(var(--rotation)) scaleY(0.8);
+          }
+          50% {
+            opacity: 0.4;
+            transform: rotate(var(--rotation)) scaleY(1.2);
+          }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.6;
           }
         }
       `}</style>
