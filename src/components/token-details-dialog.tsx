@@ -60,9 +60,6 @@ export function TokenDetailsDialog({
     ? `https://highlight.xyz/mint/base:${WARPS_CONTRACT_ADDRESSES.production}:64d248a33b573b35dbe5f5b802e2386f?tokenId=${tokenId}`
     : '';
 
-  // Generate token page URL
-  const tokenPageUrl = token ? `/token/${tokenId}` : '';
-
   // Move useCallback outside of the conditional
   const openOpenSeaUrl = useCallback(() => {
     if (openSeaUrl) {
