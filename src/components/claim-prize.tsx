@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import sdk from '@farcaster/frame-sdk';
+import { Pool } from './pool';
 
 interface ClaimPrizeProps {
   token: {
@@ -125,7 +126,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   };
 
   const handleShareToWarpcast = async () => {
-    const shareText = `🏆 I am the champion, my friend 🏆`;
+    const shareText = `🏆 I just won USDC playing Warps! 🏆`;
     const shareUrl = 'https://warps.fun';
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText
@@ -133,16 +134,16 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
     sdk.actions.openUrl(warpcastUrl);
   };
 
-  if (isClaimSuccessful) {
+  if (!isClaimSuccessful) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 bg-[#17101f] bottom-0 left-0 right-0 top-0">
-        <div className="mb-6 text-center">
-          <h2 className="text-7xl font-bold text-white mb-2">
-            Please share this so others can feel as good as you do right now.
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#17101f] bottom-0 left-0 right-0 top-0">
+        <div className="mb-6 text-center h-full justify-center flex items-center">
+          <h2 className="text-4xl font-bold text-white mb-2">
+            Share your win with your friends!
           </h2>
         </div>
 
-        <div className="w-full max-w-sm mx-auto">
+        <div className="w-full mx-auto bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
           <Button
             className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl font-bold w-full mt-4 bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90 rounded-md shadow-lg"
             onClick={handleShareToWarpcast}
@@ -158,15 +159,17 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-[#17101f] bottom-0 left-0 right-0 top-0">
       {/* Central content */}
       <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
-        <div className="text-center">
-          <h2 className="text-7xl font-bold text-white mb-2">{`Hurray and claim your prize before someone else does!`}</h2>
+        <div className="text-center p-4">
+          <h2 className="text-4xl font-bold text-white mb-2">
+            {`You won! You can claim `} <Pool showWinningAmount={true} />.
+          </h2>
         </div>
 
         <Token key={`token-${token.id}`} token={token} onSelect={() => {}} />
       </div>
 
       {/* Fixed footer with claim button */}
-      <footer className="fixed bottom-0 left-0 right-0 p-4 bg-[#17101f]">
+      <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
         <Button
           className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full rounded-md shadow-lg ${
             isLoading
