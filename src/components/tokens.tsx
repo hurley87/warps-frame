@@ -210,7 +210,14 @@ export function Tokens({ username }: { username?: string }) {
           {[...tokens]
             .sort((a, b) => b.id - a.id)
             .map((token) => (
-              <div key={`token-${token.id}`}>
+              <div
+                className={`border-2 ${
+                  token.id === selectedTokenId
+                    ? 'border-purple-500'
+                    : 'border-purple-500/20'
+                } rounded-md`}
+                key={`token-${token.id}`}
+              >
                 <Token
                   key={`token-${token.id}`}
                   token={token}
