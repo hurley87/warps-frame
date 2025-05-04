@@ -185,25 +185,41 @@ export function Composite({
     }, 50);
 
     try {
-      // Short delay before sending the transaction to allow animation to play
-      setTimeout(async () => {
-        await writeContract({
-          ...WARPS_CONTRACT,
-          functionName: 'composite',
-          args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
-          gas: BigInt(1000000),
-          chainId: chain.id,
-        });
+      // Remove the setTimeout and directly execute the transaction
+      await writeContract({
+        ...WARPS_CONTRACT,
+        functionName: 'composite',
+        args: [BigInt(selectedTokens[0]), BigInt(selectedTokens[1])],
+        gas: BigInt(2000000),
+        chainId: chain.id,
+      });
 
-        posthog.capture('composite', {
-          address,
-          token1: selectedTokens[0],
-          token2: selectedTokens[1],
-        });
-      }, 1000);
+      posthog.capture('composite', {
+        address,
+        token1: selectedTokens[0],
+        token2: selectedTokens[1],
+      });
     } catch (error) {
-      console.error('Unexpected composite error:', error);
+      console.error('Composite transaction error:', error);
       clearInterval(progressInterval);
+      setShowFusionEffect(false);
+      setHasError(true);
+      setIsPending(false);
+
+      // Show specific error message based on the error type
+      if (error instanceof Error) {
+        if (error.message.includes('user rejected')) {
+          toast.error('Transaction was rejected. Please try again.');
+        } else if (error.message.includes('insufficient funds')) {
+          toast.error(
+            'Insufficient funds for gas. Please add more ETH to your wallet.'
+          );
+        } else {
+          toast.error('Failed to execute transaction. Please try again.');
+        }
+      } else {
+        toast.error('An unexpected error occurred. Please try again.');
+      }
     }
   };
 

@@ -79,7 +79,9 @@ export function TokenDetailsDialog({
   // Extract token attributes for display
   const attributes = token.attributes.reduce<Record<string, string>>(
     (acc, attr) => {
-      acc[attr.trait_type] = attr.value;
+      if (attr.trait_type !== 'Color Band') {
+        acc[attr.trait_type] = attr.value;
+      }
       return acc;
     },
     {}
