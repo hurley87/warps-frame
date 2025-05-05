@@ -1,13 +1,13 @@
 interface AwardPointsParams {
   username: string;
   points: number;
-  type: string;
+  reason: string;
 }
 
 export async function awardPoints({
   username,
   points,
-  type,
+  reason,
 }: AwardPointsParams) {
   try {
     const response = await fetch('/api/points', {
@@ -18,7 +18,7 @@ export async function awardPoints({
       body: JSON.stringify({
         username,
         points,
-        type,
+        reason,
       }),
     });
 

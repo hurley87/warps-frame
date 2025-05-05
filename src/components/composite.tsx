@@ -131,7 +131,7 @@ export function Composite({
           await awardPoints({
             username: username!,
             points: 1,
-            type: 'composite',
+            reason: 'composite',
           });
         } catch (error) {
           console.error('Failed to award points:', error);
