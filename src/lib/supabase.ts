@@ -32,3 +32,26 @@ export const insertNotification = async (
 
   return data;
 };
+
+// Called when a new user signs in or plays the game
+export async function saveReferral(ref: string | null, referredUser: string) {
+  if (!ref || ref === referredUser) return; // prevent self-referral
+
+  console.log('ref', ref);
+  console.log('referredUser', referredUser);
+
+  const { data, error } = await supabase
+    .from('referrals')
+    .insert([{ referrer: ref, referred_user: referredUser }])
+    .select();
+
+  if (error) {
+    if (error.code === '23505') {
+      console.log('User already referred');
+    } else {
+      console.error('Error saving referral:', error.message);
+    }
+  } else {
+    console.log('Referral saved:', data);
+  }
+}

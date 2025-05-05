@@ -20,6 +20,7 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
+import { saveReferral } from '@/lib/supabase';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -40,6 +41,9 @@ export default function Game() {
   const { isConnected, address } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
+  // Get the ref from the URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const ref = searchParams.get('ref');
 
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
@@ -139,11 +143,17 @@ export default function Game() {
   }, [isSDKLoaded, handleSwitchChain]);
 
   useEffect(() => {
+    console.log('context', context);
     if (!context?.client?.added) {
       (async () => {
         await sdk.actions.addFrame();
       })();
     }
+    (async () => {
+      if (ref && context?.user?.username) {
+        await saveReferral(ref, context?.user?.username);
+      }
+    })();
   }, [context]);
 
   if (!isSDKLoaded) {
