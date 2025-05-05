@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { Mint } from './mint';
 import { Tokens } from './tokens';
-import Info from './info';
 import {
   ArrowRight,
   ArrowLeft,
@@ -198,7 +197,6 @@ export default function DesktopGame() {
           <div className="px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-bold">Warps</span>
-              <Info />
             </div>
             <Mint />
           </div>
