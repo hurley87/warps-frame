@@ -37,16 +37,10 @@ export const insertNotification = async (
 export async function saveReferral(ref: string | null, referredUser: string) {
   if (!ref || ref === referredUser) return; // prevent self-referral
 
-  console.log('ref', ref);
-  console.log('referredUser', referredUser);
-
   const { data, error } = await supabase
     .from('referrals')
     .insert([{ referrer: ref, referred_user: referredUser }])
     .select();
-
-  console.log('data', data);
-  console.log('error', error);
 
   if (error) {
     if (error.code === '23505') {
@@ -57,4 +51,17 @@ export async function saveReferral(ref: string | null, referredUser: string) {
   } else {
     console.log('Referral saved:', data);
   }
+}
+
+export async function awardPoints(
+  username: string,
+  points: number,
+  reason: string
+) {
+  const { error } = await supabase
+    .from('points')
+    .insert([{ username, points, reason }]);
+
+  if (error)
+    console.error(`Failed to award points for ${reason}:`, error.message);
 }

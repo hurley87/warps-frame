@@ -11,6 +11,7 @@ import { Loader2, RefreshCw, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { chain } from '@/lib/chain';
 import posthog from 'posthog-js';
+import { awardPoints } from '@/lib/points';
 
 interface CompositeProps {
   selectedTokens: number[];
@@ -122,6 +123,17 @@ export function Composite({
           icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
           className: 'bg-gradient-to-r from-primary/30 to-primary/10',
         });
+
+        // Save the composite to the database
+        try {
+          await awardPoints({
+            address: address!,
+            points: 1,
+            type: 'composite',
+          });
+        } catch (error) {
+          console.error('Failed to award points:', error);
+        }
 
         // Clean up particle effect after a short delay
         setTimeout(() => {
