@@ -43,6 +43,7 @@ export default function Game() {
   // Get the ref from the URL
   const searchParams = new URLSearchParams(window.location.search);
   const ref = searchParams.get('ref');
+  console.log('ref', ref);
 
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
@@ -148,10 +149,11 @@ export default function Game() {
         await sdk.actions.addFrame();
       })();
     }
-    (async () => {
+
+    const handleReferral = async () => {
+      console.log('ref', ref);
+      console.log('context.user.username', context?.user?.username);
       if (ref && context?.user?.username) {
-        console.log('ref', ref);
-        console.log('context.user.username', context.user.username);
         try {
           const response = await fetch('/api/referrals', {
             method: 'POST',
@@ -171,8 +173,10 @@ export default function Game() {
           console.error('Error saving referral:', error);
         }
       }
-    })();
-  }, [context]);
+    };
+
+    handleReferral();
+  }, [context, ref]);
 
   if (!isSDKLoaded) {
     return <div>Loading...</div>;
