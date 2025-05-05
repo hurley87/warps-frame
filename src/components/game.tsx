@@ -150,6 +150,8 @@ export default function Game() {
     }
     (async () => {
       if (ref && context?.user?.username) {
+        console.log('ref', ref);
+        console.log('context.user.username', context.user.username);
         try {
           const response = await fetch('/api/referrals', {
             method: 'POST',

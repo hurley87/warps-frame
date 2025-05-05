@@ -5,6 +5,9 @@ export async function POST(request: Request) {
   try {
     const { ref, username } = await request.json();
 
+    console.log('ref', ref);
+    console.log('username', username);
+
     if (!ref || !username) {
       return NextResponse.json(
         { error: 'Missing required fields' },
