@@ -7,7 +7,11 @@ import { useReadContract } from 'wagmi';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 
-export function MintContainer() {
+interface MintContainerProps {
+  username: string;
+}
+
+export function MintContainer({ username }: MintContainerProps) {
   const { address } = useAccount();
 
   const { data: hasUsedFreeMint } = useReadContract({
@@ -23,7 +27,7 @@ export function MintContainer() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {!hasUsedFreeMint ? <FreeMint /> : <Mint />}
+      {!hasUsedFreeMint ? <FreeMint /> : <Mint username={username} />}
     </div>
   );
 }

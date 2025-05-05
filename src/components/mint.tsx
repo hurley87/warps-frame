@@ -9,8 +9,13 @@ import { toast } from 'sonner';
 import { Loader2, Sparkles } from 'lucide-react';
 import { DaimoPayButton } from '@daimo/pay';
 import { useQueryClient } from '@tanstack/react-query';
+import { awardPoints } from '@/lib/points';
 
-export function Mint() {
+interface MintProps {
+  username: string;
+}
+
+export function Mint({ username }: MintProps) {
   const { address } = useAccount();
   const queryClient = useQueryClient();
 
@@ -29,6 +34,38 @@ export function Mint() {
     setTimeout(() => {
       document.documentElement.classList.remove('screen-shake');
     }, 500);
+  };
+
+  const handlePaymentCompleted = async (e: any) => {
+    console.log('Payment completed:', e);
+    setIsPaymentProcessing(false);
+    setHasError(false);
+    triggerScreenShake();
+
+    // Invalidate relevant queries
+    queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+    queryClient.invalidateQueries({
+      queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
+    });
+
+    try {
+      await awardPoints({
+        username,
+        points: 5,
+        reason: 'mint',
+      });
+      toast.success('Payment successful! NFT minted!', {
+        icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+        className: 'bg-gradient-to-r from-primary/30 to-primary/10',
+      });
+    } catch (error) {
+      console.error('Failed to award points:', error);
+      // Still show success for the mint, but log the points error
+      toast.success('Payment successful! NFT minted! (Points award failed)', {
+        icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+        className: 'bg-gradient-to-r from-primary/30 to-primary/10',
+      });
+    }
   };
 
   return (
@@ -54,23 +91,7 @@ export function Mint() {
           icon: <Loader2 className="h-4 w-4 animate-spin" />,
         });
       }}
-      onPaymentCompleted={(e) => {
-        console.log('Payment completed:', e);
-        setIsPaymentProcessing(false);
-        setHasError(false);
-        triggerScreenShake();
-
-        // Invalidate relevant queries
-        queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
-        queryClient.invalidateQueries({
-          queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
-        });
-
-        toast.success('Payment successful! NFT minted!', {
-          icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
-          className: 'bg-gradient-to-r from-primary/30 to-primary/10',
-        });
-      }}
+      onPaymentCompleted={handlePaymentCompleted}
       resetOnSuccess
       onPaymentBounced={(e) => {
         console.log('Payment bounced:', e);

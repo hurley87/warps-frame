@@ -17,7 +17,7 @@ export async function generateMetadata({
   try {
     const frame = {
       version: 'next',
-      imageUrl: `${appUrl}/warps.gif`,
+      imageUrl: `https://www.warps.fun/warps.gif`,
       button: {
         title: 'Play Warps',
         action: {

@@ -332,7 +332,7 @@ export default function Game() {
 
         {/* Fixed footer Mint button */}
         <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
-          <MintContainer />
+          <MintContainer username={username} />
         </footer>
       </div>
     );

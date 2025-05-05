@@ -198,7 +198,6 @@ export default function DesktopGame() {
             <div className="flex items-center gap-2">
               <span className="font-bold">Warps</span>
             </div>
-            <Mint />
           </div>
         </header>
         <Tokens />
