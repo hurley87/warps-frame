@@ -17,7 +17,7 @@ export async function generateMetadata({
   try {
     const frame = {
       version: 'next',
-      imageUrl: `${appUrl}/api/og?tokenId=${tokenId}`,
+      imageUrl: `${appUrl}/warps.gif`,
       button: {
         title: 'Play Warps',
         action: {
