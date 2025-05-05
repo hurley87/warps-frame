@@ -6,6 +6,7 @@ import { useAccount, useConnect, useSwitchChain, useReadContract } from 'wagmi';
 import { Button } from './ui/button';
 import { Tokens } from './tokens';
 import Info from './info';
+import type { GameFrameContext } from '@/types/farcaster';
 import {
   ArrowRight,
   ArrowLeft,
@@ -23,7 +24,7 @@ import { MintContainer } from './mint-container';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<Context.FrameContext>();
+  const [context, setContext] = useState<GameFrameContext>();
   const [floatingWarps, setFloatingWarps] = useState<
     Array<{
       id: number;
@@ -36,7 +37,6 @@ export default function Game() {
   >([]);
   const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
   const [winningColor, setWinningColor] = useState('#018A08');
-  const [ref, setRef] = useState<string | null>(null);
 
   const { isConnected, address } = useAccount();
   const { connect, connectors } = useConnect();
@@ -140,16 +140,6 @@ export default function Game() {
   }, [isSDKLoaded, handleSwitchChain]);
 
   useEffect(() => {
-    // Parse URL parameters inside useEffect
-    console.log('window.location.search', window.location.search);
-    const searchParams = new URLSearchParams(window.location.search);
-    const urlRef = searchParams.get('ref');
-    console.log('URL Search Params:', window.location.search);
-    console.log('Parsed ref from URL:', urlRef);
-    setRef(urlRef);
-  }, []); // Empty dependency array since we only need to run this once on mount
-
-  useEffect(() => {
     console.log('context', context);
     if (!context?.client?.added) {
       (async () => {
@@ -158,6 +148,9 @@ export default function Game() {
     }
 
     const handleReferral = async () => {
+      const url = context?.location;
+      const embed = url?.embed;
+      const ref = embed?.split('ref=')[1];
       console.log('Current ref value:', ref);
       console.log('Current context:', context);
       if (ref && context?.user?.username) {
@@ -183,7 +176,7 @@ export default function Game() {
     };
 
     handleReferral();
-  }, [context, ref]);
+  }, [context]);
 
   if (!isSDKLoaded) {
     return <div>Loading...</div>;
