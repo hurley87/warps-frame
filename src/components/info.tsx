@@ -15,8 +15,9 @@ import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import { Warp } from './warp';
 import { Button } from './ui/button';
+import sdk from '@farcaster/frame-sdk';
 
-export default function Info() {
+export default function Info({ username }: { username: string }) {
   const [open, setOpen] = useState(false);
   const [winningColor, setWinningColor] = useState('#018A08');
   const [winnerClaimPercentage, setWinnerClaimPercentage] =
@@ -47,6 +48,18 @@ export default function Info() {
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
+
+  const handleShare = () => {
+    const shareText = 'Play Warps, Earn USDC!';
+    const shareUrl = encodeURIComponent(`https://warps.fun?ref=${username}`);
+    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      shareText
+    )}&embeds[]=${shareUrl}`;
+
+    console.log('warpcastUrl', warpcastUrl);
+
+    sdk.actions.openUrl(warpcastUrl);
+  };
 
   // Update winner claim percentage when data is fetched
   useEffect(() => {
@@ -131,6 +144,16 @@ export default function Info() {
                 <div className="flex items-center gap-2">
                   <Warp color={`#${winningColor}`} className="w-10 h-10" />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold">Share with friends</h3>
+                <Button
+                  variant="outline"
+                  onClick={handleShare}
+                  className="w-full"
+                >
+                  Share
+                </Button>
               </div>
             </div>
           </div>

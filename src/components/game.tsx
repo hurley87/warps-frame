@@ -20,7 +20,6 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
-import { saveReferral } from '@/lib/supabase';
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
@@ -151,7 +150,24 @@ export default function Game() {
     }
     (async () => {
       if (ref && context?.user?.username) {
-        await saveReferral(ref, context?.user?.username);
+        try {
+          const response = await fetch('/api/referrals', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ref,
+              username: context.user.username,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error('Failed to save referral');
+          }
+        } catch (error) {
+          console.error('Error saving referral:', error);
+        }
       }
     })();
   }, [context]);
@@ -178,7 +194,7 @@ export default function Game() {
     }
   };
 
-  const username = context?.user?.username;
+  const username = context?.user?.username as string;
 
   // Game content based on connection status
   const renderGameContent = () => {
@@ -293,7 +309,7 @@ export default function Game() {
           <header className="sticky top-0 bg-[#17101f] z-10">
             <div className="px-6 py-3 flex items-center justify-between">
               <Warp color={`#${winningColor}`} />
-              <Info />
+              <Info username={username} />
             </div>
           </header>
         )}
