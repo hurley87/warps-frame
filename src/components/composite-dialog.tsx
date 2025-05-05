@@ -97,6 +97,7 @@ interface CompositeDialogProps {
     target: number;
   } | null;
   onCompositeComplete: (evolvedTokenId?: number) => void;
+  username?: string;
 }
 
 export function CompositeDialog({
@@ -106,6 +107,7 @@ export function CompositeDialog({
   targetToken,
   selectedPair,
   onCompositeComplete,
+  username,
 }: CompositeDialogProps) {
   const [isMerging, setIsMerging] = useState(false);
 
@@ -195,6 +197,7 @@ export function CompositeDialog({
               }
               onCompositeComplete={handleCompositeComplete}
               onMergeStart={handleStartMerge}
+              username={username}
             />
           </div>
         </footer>

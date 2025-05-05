@@ -17,12 +17,14 @@ interface CompositeProps {
   selectedTokens: number[];
   onCompositeComplete: (evolvedTokenId?: number) => void;
   onMergeStart?: () => boolean;
+  username?: string;
 }
 
 export function Composite({
   selectedTokens,
   onCompositeComplete,
   onMergeStart,
+  username,
 }: CompositeProps) {
   const { address } = useAccount();
   const [isPending, setIsPending] = useState(false);
@@ -127,7 +129,7 @@ export function Composite({
         // Save the composite to the database
         try {
           await awardPoints({
-            address: address!,
+            username: username!,
             points: 1,
             type: 'composite',
           });

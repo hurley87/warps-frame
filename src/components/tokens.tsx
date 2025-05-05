@@ -296,6 +296,7 @@ export function Tokens({ username }: { username?: string }) {
         targetToken={targetToken}
         selectedPair={selectedPair}
         onCompositeComplete={handleCompositeComplete}
+        username={username}
       />
     </div>
   );

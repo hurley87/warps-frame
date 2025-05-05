@@ -3,9 +3,9 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
-    const { address, points, type } = await request.json();
+    const { username, points, type } = await request.json();
 
-    if (!address || !points || !type) {
+    if (!username || !points || !type) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       .from('points')
       .insert([
         {
-          address,
+          username,
           points,
           type,
           created_at: new Date().toISOString(),

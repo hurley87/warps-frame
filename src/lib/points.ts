@@ -1,11 +1,11 @@
 interface AwardPointsParams {
-  address: string;
+  username: string;
   points: number;
   type: string;
 }
 
 export async function awardPoints({
-  address,
+  username,
   points,
   type,
 }: AwardPointsParams) {
@@ -16,7 +16,7 @@ export async function awardPoints({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        address,
+        username,
         points,
         type,
       }),
