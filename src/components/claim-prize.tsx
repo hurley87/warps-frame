@@ -72,7 +72,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
 
         await awardPoints({
           username: username!,
-          points: 10,
+          points: 20,
           reason: 'win',
         });
 

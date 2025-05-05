@@ -20,6 +20,8 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
+import { awardPoints } from '@/lib/points';
+import { supabase } from '@/lib/supabase';
 
 type GameFrameContext = Context.FrameContext & {
   location?: {
@@ -149,6 +151,21 @@ export default function Game() {
     if (!context?.client?.added) {
       (async () => {
         await sdk.actions.addFrame();
+        const { data: referral } = await supabase
+          .from('referrals')
+          .select('referrer')
+          .eq('referred_user', context?.user?.username)
+          .single();
+
+        console.log('referral', referral);
+
+        if (referral?.referrer) {
+          await awardPoints({
+            username: referral.referrer,
+            points: 5,
+            reason: 'referral',
+          });
+        }
       })();
     }
 

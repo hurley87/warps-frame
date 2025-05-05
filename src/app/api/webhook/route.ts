@@ -37,6 +37,7 @@ export async function POST(request: Request) {
 
           try {
             await insertNotification(notification);
+
             console.log('Notification stored in Supabase:', notification);
           } catch (error) {
             console.error('Failed to store notification:', error);
