@@ -6,7 +6,6 @@ import { useAccount, useConnect, useSwitchChain, useReadContract } from 'wagmi';
 import { Button } from './ui/button';
 import { Tokens } from './tokens';
 import Info from './info';
-import type { GameFrameContext } from '@/types/farcaster';
 import {
   ArrowRight,
   ArrowLeft,
@@ -21,6 +20,12 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
+
+type GameFrameContext = Context.FrameContext & {
+  location?: {
+    embed?: string;
+  };
+};
 
 export default function Game() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
