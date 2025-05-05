@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
-import { Mint } from './mint';
+// import { Mint } from './mint';
 import { Tokens } from './tokens';
 import {
   ArrowRight,

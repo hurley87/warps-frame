@@ -36,8 +36,7 @@ export function Mint({ username }: MintProps) {
     }, 500);
   };
 
-  const handlePaymentCompleted = async (e: any) => {
-    console.log('Payment completed:', e);
+  const handlePaymentCompleted = async () => {
     setIsPaymentProcessing(false);
     setHasError(false);
     triggerScreenShake();
