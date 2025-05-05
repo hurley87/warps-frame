@@ -38,7 +38,7 @@ export function Mint() {
         '0x1EE8da4d492aCbd8F28b79F8157060A8cCd1a374'.toLowerCase() as `0x${string}`
       }
       toChain={8453}
-      toUnits={'4.00'}
+      toUnits={'8.00'}
       toToken={'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
       intent="Purchase NFT"
       toCallData={encodeFunctionData({
