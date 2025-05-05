@@ -36,14 +36,11 @@ export default function Game() {
   >([]);
   const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
   const [winningColor, setWinningColor] = useState('#018A08');
+  const [ref, setRef] = useState<string | null>(null);
 
   const { isConnected, address } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
-  // Get the ref from the URL
-  const searchParams = new URLSearchParams(window.location.search);
-  const ref = searchParams.get('ref');
-  console.log('ref', ref);
 
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
@@ -143,6 +140,16 @@ export default function Game() {
   }, [isSDKLoaded, handleSwitchChain]);
 
   useEffect(() => {
+    // Parse URL parameters inside useEffect
+    console.log('window.location.search', window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlRef = searchParams.get('ref');
+    console.log('URL Search Params:', window.location.search);
+    console.log('Parsed ref from URL:', urlRef);
+    setRef(urlRef);
+  }, []); // Empty dependency array since we only need to run this once on mount
+
+  useEffect(() => {
     console.log('context', context);
     if (!context?.client?.added) {
       (async () => {
@@ -151,8 +158,8 @@ export default function Game() {
     }
 
     const handleReferral = async () => {
-      console.log('ref', ref);
-      console.log('context.user.username', context?.user?.username);
+      console.log('Current ref value:', ref);
+      console.log('Current context:', context);
       if (ref && context?.user?.username) {
         try {
           const response = await fetch('/api/referrals', {
