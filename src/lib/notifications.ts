@@ -6,11 +6,24 @@ import {
 
 const targetUrl = 'https://www.warps.fun';
 
+// Rate limit configuration
+const RATE_LIMIT_DELAY = 1000; // Base delay in ms
+const MAX_RETRIES = 3; // Maximum number of retries
+const BATCH_SIZE = 10; // Reduced batch size to avoid rate limits
+
 export interface Notification {
   fid: number;
   url: string;
   token: string;
 }
+
+// Helper function to delay execution
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper function to calculate exponential backoff delay
+const getBackoffDelay = (retryCount: number) => {
+  return Math.min(RATE_LIMIT_DELAY * Math.pow(2, retryCount), 30000); // Max 30s delay
+};
 
 export async function insertNotification(notification: Notification) {
   const { data, error } = await supabase
@@ -36,86 +49,104 @@ type SendFrameNotificationResult =
   | { state: 'success' };
 
 /**
- * Sends a notification to a single user
- * @param fid - User FID to notify
+ * Sends a notification to a single user with retry logic
+ * @param notification - The notification to send
  * @param title - The notification title
  * @param body - The notification body text
+ * @param retryCount - Current retry attempt
  * @returns Result of the notification attempt
  */
 export async function sendFrameNotification({
   notification,
   title,
   body,
+  retryCount = 0,
 }: {
   notification: Notification;
   title: string;
   body: string;
+  retryCount?: number;
 }): Promise<SendFrameNotificationResult> {
   if (!notification.url) {
     return { state: 'no_token' };
   }
 
-  const response = await fetch(notification.url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      notificationId: crypto.randomUUID(),
-      title,
-      body,
-      targetUrl,
-      tokens: [notification.token],
-    } satisfies SendNotificationRequest),
-  });
+  try {
+    const response = await fetch(notification.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        notificationId: crypto.randomUUID(),
+        title,
+        body,
+        targetUrl,
+        tokens: [notification.token],
+      } satisfies SendNotificationRequest),
+    });
 
-  const responseJson = await response.json();
+    const responseJson = await response.json();
 
-  if (response.status === 200) {
-    const responseBody = sendNotificationResponseSchema.safeParse(responseJson);
-    if (responseBody.success === false) {
-      // Malformed response
-      return { state: 'error', error: responseBody.error.errors };
+    if (response.status === 200) {
+      const responseBody =
+        sendNotificationResponseSchema.safeParse(responseJson);
+      if (responseBody.success === false) {
+        return { state: 'error', error: responseBody.error.errors };
+      }
+
+      if (responseBody.data.result.rateLimitedTokens.length) {
+        if (retryCount < MAX_RETRIES) {
+          const backoffDelay = getBackoffDelay(retryCount);
+          console.log(
+            `Rate limited, retrying in ${backoffDelay}ms (attempt ${
+              retryCount + 1
+            }/${MAX_RETRIES})`
+          );
+          await delay(backoffDelay);
+          return sendFrameNotification({
+            notification,
+            title,
+            body,
+            retryCount: retryCount + 1,
+          });
+        }
+        return { state: 'rate_limit' };
+      }
+
+      return { state: 'success' };
+    } else {
+      return { state: 'error', error: responseJson };
     }
-
-    if (responseBody.data.result.rateLimitedTokens.length) {
-      // Rate limited
-      return { state: 'rate_limit' };
-    }
-
-    return { state: 'success' };
-  } else {
-    // Error response
-    return { state: 'error', error: responseJson };
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    return { state: 'error', error };
   }
 }
 
 /**
- * Sends the same notification to a batch of users
+ * Sends the same notification to a batch of users with improved rate limit handling
  * @param notifications - Array of notifications to notify
  * @param title - The notification title
  * @param body - The notification body text
- * @param batchSize - Optional batch size for processing (default: 50)
  * @returns Summary of notification results
  */
 export async function sendBatchNotifications(
   notifications: Notification[],
   title: string,
-  body: string,
-  batchSize = 50
+  body: string
 ) {
-  // Initialize counters
   let successful = 0;
   let failed = 0;
   let rateLimited = 0;
   let noToken = 0;
 
-  // Process in batches to avoid overwhelming resources
-  for (let i = 0; i < notifications.length; i += batchSize) {
-    const batch = notifications.slice(i, i + batchSize);
+  // Process in smaller batches to avoid overwhelming the API
+  for (let i = 0; i < notifications.length; i += BATCH_SIZE) {
+    const batch = notifications.slice(i, i + BATCH_SIZE);
 
-    // Create notifications for this batch
-    const notificationPromises = batch.map(async (notification) => {
+    // Process batch sequentially to better handle rate limits
+    for (const notification of batch) {
       const result = await sendFrameNotification({
         notification,
         title,
@@ -141,11 +172,9 @@ export async function sendBatchNotifications(
           break;
       }
 
-      return result;
-    });
-
-    // Wait for this batch to complete before processing the next
-    await Promise.all(notificationPromises);
+      // Add a small delay between notifications to avoid rate limits
+      await delay(100);
+    }
   }
 
   return {
