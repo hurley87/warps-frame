@@ -45,6 +45,9 @@ export async function saveReferral(ref: string | null, referredUser: string) {
     .insert([{ referrer: ref, referred_user: referredUser }])
     .select();
 
+  console.log('data', data);
+  console.log('error', error);
+
   if (error) {
     if (error.code === '23505') {
       console.log('User already referred');
