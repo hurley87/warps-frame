@@ -15,6 +15,7 @@ import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import sdk from '@farcaster/frame-sdk';
 import { Pool } from './pool';
+import { awardPoints } from '@/lib/points';
 
 interface ClaimPrizeProps {
   token: {
@@ -69,8 +70,11 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
           icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
         });
 
-        // Remove query invalidation from here to prevent immediate navigation
-        // and keep the success state visible
+        await awardPoints({
+          username: username!,
+          points: 10,
+          reason: 'win',
+        });
 
         // Notify all users about the winner
         try {
