@@ -41,7 +41,6 @@ export default function Game() {
       color: string;
     }>
   >([]);
-  const [hasUsedFreeMint, setHasUsedFreeMint] = useState<boolean>(false);
   const [winningColor, setWinningColor] = useState('#018A08');
 
   const { isConnected, address } = useAccount();
@@ -76,12 +75,6 @@ export default function Game() {
       refetchInterval: 5000,
     },
   });
-
-  useEffect(() => {
-    if (fetchedHasUsedFreeMint !== undefined) {
-      setHasUsedFreeMint(fetchedHasUsedFreeMint);
-    }
-  }, [fetchedHasUsedFreeMint]);
 
   // Generate random floating warps for the background animation
   useEffect(() => {
