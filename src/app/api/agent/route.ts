@@ -120,6 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     console.log('agentResponse', agentResponse);
+    console.log('baseUrl', baseUrl);
 
     if (agentResponse.shouldMint) {
       void fetch(`${baseUrl}/api/free-mint.background`, {
@@ -135,6 +136,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }).catch((error) => {
         console.error('Error in Jestr API route:', error);
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     if (agentResponse.shouldReply) {

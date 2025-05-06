@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     const validatedData = requestSchema.parse(body);
     const { threadHash } = validatedData;
     const privateKey = process.env.SERVER_PRIVATE_KEY;
+    console.log('threadHash', threadHash);
 
     if (!privateKey) {
       return new Response(
