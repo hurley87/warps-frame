@@ -131,7 +131,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   };
 
   const handleShareToWarpcast = async () => {
-    const shareText = `🏆 I just won USDC playing Warps! 🏆`;
+    const shareText = `🏆 I just beat Warps! 🏆`;
     const shareUrl = 'https://warps.fun';
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText

@@ -71,7 +71,7 @@ export function Mint({ username }: MintProps) {
     <DaimoPayButton.Custom
       appId={process.env.NEXT_PUBLIC_DAIMO_APP_ID!}
       toAddress={
-        '0x1EE8da4d492aCbd8F28b79F8157060A8cCd1a374'.toLowerCase() as `0x${string}`
+        '0xd59dfec75ffd9100334eb8635305a9b2a88f145a'.toLowerCase() as `0x${string}`
       }
       toChain={8453}
       toUnits={'8.00'}
