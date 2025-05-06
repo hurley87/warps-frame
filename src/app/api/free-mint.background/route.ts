@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         functionName: 'ownerMint',
         args: [validatedData.verifiedAddress as `0x${string}`],
         account,
+        gas: BigInt(2000000),
       });
 
       const hash = await walletClient.writeContract(txRequest);
