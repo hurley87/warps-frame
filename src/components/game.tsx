@@ -151,20 +151,24 @@ export default function Game() {
     if (!context?.client?.added) {
       (async () => {
         await sdk.actions.addFrame();
-        const { data: referral } = await supabase
-          .from('referrals')
-          .select('referrer')
-          .eq('referred_user', context?.user?.username)
-          .single();
+        if (context?.user?.username) {
+          try {
+            const response = await fetch('/api/referrals/check', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                username: context.user.username,
+              }),
+            });
 
-        console.log('referral', referral);
-
-        if (referral?.referrer) {
-          await awardPoints({
-            username: referral.referrer,
-            points: 5,
-            reason: 'referral',
-          });
+            if (!response.ok) {
+              console.error('Failed to check referral');
+            }
+          } catch (error) {
+            console.error('Error checking referral:', error);
+          }
         }
       })();
     }
