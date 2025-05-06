@@ -12,13 +12,23 @@ interface MintContainerProps {
 }
 
 export function MintContainer({ username }: MintContainerProps) {
-  console.log('username', username);
   // const { address } = useAccount();
+
+  // const { data: hasUsedFreeMint } = useReadContract({
+  //   ...WARPS_CONTRACT,
+  //   functionName: 'hasUsedFreeMint',
+  //   args: [address!],
+  //   chainId: chain.id,
+  //   query: {
+  //     enabled: !!address,
+  //     refetchInterval: 5000,
+  //   },
+  // });
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* {!hasUsedFreeMint ? <FreeMint /> : <Mint username={username} />} */}
-      Game coming soon!
+      {/* <Mint username={username} /> */}
+      game coming soon
     </div>
   );
 }

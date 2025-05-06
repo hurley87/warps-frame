@@ -6,7 +6,7 @@ import { Abi } from 'viem';
 
 // 0x2B48D8EB7f6CC235ee6C9e5de9191c19421fCF0A
 export const WARPS_CONTRACT_ADDRESSES = {
-  production: '0x1EE8da4d492aCbd8F28b79F8157060A8cCd1a374' as `0x${string}`,
+  production: '0xd59dfec75ffd9100334eb8635305a9b2a88f145a' as `0x${string}`,
   development: '0x4087a72e96a6125ec7dae02852f90828c928aa6d' as `0x${string}`,
 };
 
@@ -93,13 +93,6 @@ export const WARPS_CONTRACT = {
       type: 'function',
       name: 'emergencyWithdraw',
       inputs: [],
-      outputs: [],
-      stateMutability: 'nonpayable',
-    },
-    {
-      type: 'function',
-      name: 'freeMint',
-      inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
       outputs: [],
       stateMutability: 'nonpayable',
     },
@@ -210,6 +203,13 @@ export const WARPS_CONTRACT = {
       inputs: [],
       outputs: [{ name: '', type: 'address', internalType: 'address' }],
       stateMutability: 'view',
+    },
+    {
+      type: 'function',
+      name: 'ownerMint',
+      inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
     },
     {
       type: 'function',
@@ -333,6 +333,13 @@ export const WARPS_CONTRACT = {
       name: 'tokenByIndex',
       inputs: [{ name: 'index', type: 'uint256', internalType: 'uint256' }],
       outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+      stateMutability: 'view',
+    },
+    {
+      type: 'function',
+      name: 'tokenColors',
+      inputs: [{ name: 'id', type: 'uint256', internalType: 'uint256' }],
+      outputs: [{ name: '', type: 'uint24[]', internalType: 'uint24[]' }],
       stateMutability: 'view',
     },
     {

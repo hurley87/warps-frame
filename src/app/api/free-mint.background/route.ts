@@ -1,0 +1,97 @@
+import { chain } from '@/lib/chain';
+import { WARPS_CONTRACT } from '@/lib/contracts';
+import { publishCast } from '@/lib/neynar';
+import { NextResponse } from 'next/server';
+import { createPublicClient, createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { z } from 'zod';
+
+const publicClient = createPublicClient({
+  chain: chain,
+  transport: http(process.env.NEXT_PUBLIC_BASE_RPC!),
+});
+
+const walletClient = createWalletClient({
+  chain: chain,
+  transport: http(process.env.NEXT_PUBLIC_BASE_RPC!),
+});
+
+// Schema for request validation
+const requestSchema = z.object({
+  verifiedAddress: z
+    .string()
+    .min(42)
+    .max(42)
+    .regex(/^0x[a-fA-F0-9]{40}$/, {
+      message: 'Invalid Ethereum address format',
+    }),
+  threadHash: z.string(),
+});
+
+export const maxDuration = 300;
+
+export async function POST(request: Request) {
+  try {
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = requestSchema.parse(body);
+    const { threadHash } = validatedData;
+    const privateKey = process.env.SERVER_PRIVATE_KEY;
+
+    if (!privateKey) {
+      return new Response(
+        JSON.stringify({ error: 'Server private key not configured' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const account = privateKeyToAccount(privateKey as `0x${string}`);
+
+    try {
+      const { request: txRequest } = await publicClient.simulateContract({
+        ...WARPS_CONTRACT,
+        functionName: 'ownerMint',
+        args: [validatedData.verifiedAddress as `0x${string}`],
+        account,
+      });
+
+      const hash = await walletClient.writeContract(txRequest);
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+
+      console.log(receipt);
+
+      await publishCast(
+        'Sent you some Warps, DM me if you have any questions about the game.',
+        threadHash,
+        'https://warps.fun'
+      );
+
+      return NextResponse.json({
+        success: true,
+        message: 'Free mint request received',
+      });
+    } catch (error) {
+      console.error('Free mint error:', error);
+      await publishCast('Error minting your Warps. DM me.', threadHash);
+      return NextResponse.json({
+        success: false,
+        message: 'Internal server error',
+      });
+    }
+  } catch (error) {
+    console.error('Free mint error:', error);
+
+    // Handle other types of errors
+    console.error('Free mint error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+}
