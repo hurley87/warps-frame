@@ -115,7 +115,7 @@ export default function Leaderboard({ username }: LeaderboardProps) {
                 onClick={handleShare}
                 className="w-full"
               >
-                Cast referral
+                Cast referral link
               </Button>
             </div>
             {isLoading ? (
