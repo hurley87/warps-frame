@@ -12,13 +12,18 @@ import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import sdk from '@farcaster/frame-sdk';
 
 interface LeaderboardEntry {
   username: string;
   total_points: number;
 }
 
-export default function Leaderboard() {
+interface LeaderboardProps {
+  username?: string;
+}
+
+export default function Leaderboard({ username }: LeaderboardProps) {
   const [open, setOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>(
     []
@@ -50,6 +55,20 @@ export default function Leaderboard() {
 
     fetchLeaderboard();
   }, [open]);
+
+  const handleShare = () => {
+    if (!username) return;
+
+    const shareText = 'Play Warps, Earn USDC!';
+    const shareUrl = encodeURIComponent(`https://warps.fun?ref=${username}`);
+    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      shareText
+    )}&embeds[]=${shareUrl}`;
+
+    console.log('warpcastUrl', warpcastUrl);
+
+    sdk.actions.openUrl(warpcastUrl);
+  };
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -89,6 +108,16 @@ export default function Leaderboard() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
+            <div className="space-y-2">
+              <h3 className="font-bold">Share with friends</h3>
+              <Button
+                variant="outline"
+                onClick={handleShare}
+                className="w-full"
+              >
+                Share
+              </Button>
+            </div>
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (

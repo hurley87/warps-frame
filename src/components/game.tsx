@@ -322,7 +322,7 @@ export default function Game() {
             <div className="px-6 py-3 flex items-center justify-between">
               <Info username={username} />
               <Warp color={`#${winningColor}`} />
-              <Leaderboard />
+              <Leaderboard username={username} />
             </div>
           </header>
         )}
