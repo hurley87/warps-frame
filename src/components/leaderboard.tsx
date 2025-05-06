@@ -108,14 +108,14 @@ export default function Leaderboard({ username }: LeaderboardProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
-            <div className="space-y-2">
-              <h3 className="font-bold">Share with friends</h3>
+            <div className="space-y-2 mb-4">
+              <h3 className="font-bold">Each referral is worth 5 points</h3>
               <Button
                 variant="outline"
                 onClick={handleShare}
                 className="w-full"
               >
-                Share
+                Cast referral
               </Button>
             </div>
             {isLoading ? (
