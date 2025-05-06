@@ -87,8 +87,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Free mint error:', error);
 
-    // Handle other types of errors
-    console.error('Free mint error:', error);
     return NextResponse.json({
       success: false,
       message: 'Internal server error',
