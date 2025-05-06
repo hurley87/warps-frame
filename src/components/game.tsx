@@ -43,7 +43,7 @@ export default function Game() {
   >([]);
   const [winningColor, setWinningColor] = useState('#018A08');
 
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
 
@@ -188,17 +188,6 @@ export default function Game() {
   };
 
   const username = context?.user?.username as string;
-
-  const { data: hasUsedFreeMint } = useReadContract({
-    ...WARPS_CONTRACT,
-    functionName: 'hasUsedFreeMint',
-    args: [address!],
-    chainId: chain.id,
-    query: {
-      enabled: !!address,
-      refetchInterval: 5000,
-    },
-  });
 
   // Game content based on connection status
   const renderGameContent = () => {
