@@ -317,15 +317,13 @@ export default function Game() {
 
     return (
       <div className="w-screen h-screen mx-auto bg-background bg-[#17101f] flex flex-col">
-        {hasUsedFreeMint && (
-          <header className="sticky top-0 bg-[#17101f] z-10">
-            <div className="px-6 py-3 flex items-center justify-between">
-              <Info username={username} />
-              <Warp color={`#${winningColor}`} />
-              <Leaderboard username={username} />
-            </div>
-          </header>
-        )}
+        <header className="sticky top-0 bg-[#17101f] z-10">
+          <div className="px-6 py-3 flex items-center justify-between">
+            <Info username={username} />
+            <Warp color={`#${winningColor}`} />
+            <Leaderboard username={username} />
+          </div>
+        </header>
 
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto pb-28 px-2">
