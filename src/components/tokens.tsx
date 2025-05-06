@@ -14,6 +14,7 @@ import { AnimatedWarp } from './animated-warp';
 import { AlertCircle } from 'lucide-react';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
+import sdk from '@farcaster/frame-sdk';
 
 function LoadingScreen() {
   return (
@@ -186,6 +187,14 @@ export function Tokens({ username }: { username?: string }) {
     return warps && warps !== '1';
   });
 
+  const handleShareToWarpcast = async () => {
+    const shareText = `@hurls can I have some warps?`;
+    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      shareText
+    )}`;
+    sdk.actions.openUrl(warpcastUrl);
+  };
+
   if (tokens.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center p-6 space-y-6 text-center pt-0">
@@ -198,8 +207,13 @@ export function Tokens({ username }: { username?: string }) {
             Mint and combine warps to win
           </p>
         </div>
-
-        {/* Mint button moved to persistent footer in Game component */}
+        <Button
+          onClick={handleShareToWarpcast}
+          className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer
+            bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90 font-bold"
+        >
+          Claim Free Warps
+        </Button>
       </div>
     );
   }

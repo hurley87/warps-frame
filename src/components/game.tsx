@@ -19,8 +19,8 @@ import {
 import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
-import { MintContainer } from './mint-container';
 import Leaderboard from './leaderboard';
+import { Mint } from './mint';
 
 type GameFrameContext = Context.FrameContext & {
   location?: {
@@ -43,7 +43,7 @@ export default function Game() {
   >([]);
   const [winningColor, setWinningColor] = useState('#018A08');
 
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
 
@@ -189,6 +189,17 @@ export default function Game() {
 
   const username = context?.user?.username as string;
 
+  const { data: hasUsedFreeMint } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'hasUsedFreeMint',
+    args: [address!],
+    chainId: chain.id,
+    query: {
+      enabled: !!address,
+      refetchInterval: 5000,
+    },
+  });
+
   // Game content based on connection status
   const renderGameContent = () => {
     if (!isConnected) {
@@ -313,7 +324,9 @@ export default function Game() {
 
         {/* Fixed footer Mint button */}
         <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
-          <MintContainer username={username} />
+          <div className="w-full max-w-md mx-auto flex flex-col gap-4">
+            <Mint username={username} />
+          </div>
         </footer>
       </div>
     );
