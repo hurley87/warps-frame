@@ -108,15 +108,38 @@ export default function Leaderboard({ username }: LeaderboardProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pt-4">
-            <div className="space-y-2 mb-4">
-              <h3 className="font-bold">Each referral is worth 5 points</h3>
-              <Button
-                variant="outline"
-                onClick={handleShare}
-                className="w-full"
-              >
-                Cast referral link
-              </Button>
+            <div className="space-y-4 mb-6">
+              <div className="bg-[#1a1a1a] rounded-lg p-4 space-y-3">
+                <h3 className="font-bold text-lg">Points System</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span>Combine</span>
+                    <span className="text-[#7c65c1] font-bold">1 pt</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Mint</span>
+                    <span className="text-[#7c65c1] font-bold">5 pts</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Win</span>
+                    <span className="text-[#7c65c1] font-bold">10 pts</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Referral</span>
+                    <span className="text-[#7c65c1] font-bold">5 pts</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold">Each referral is worth 5 points</h3>
+                <Button
+                  variant="outline"
+                  onClick={handleShare}
+                  className="w-full"
+                >
+                  Cast referral link
+                </Button>
+              </div>
             </div>
             {isLoading ? (
               <div className="space-y-4">
