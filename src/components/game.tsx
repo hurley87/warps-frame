@@ -149,25 +149,6 @@ export default function Game() {
     if (!context?.client?.added) {
       (async () => {
         await sdk.actions.addFrame();
-        if (context?.user?.username) {
-          try {
-            const response = await fetch('/api/referrals/check', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                username: context.user.username,
-              }),
-            });
-
-            if (!response.ok) {
-              console.error('Failed to check referral');
-            }
-          } catch (error) {
-            console.error('Error checking referral:', error);
-          }
-        }
       })();
     }
 

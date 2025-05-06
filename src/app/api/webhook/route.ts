@@ -4,7 +4,14 @@ import {
   verifyAppKeyWithNeynar,
   ParseWebhookEventResult,
 } from '@farcaster/frame-node';
-import { insertNotification } from '@/lib/supabase';
+import { awardPoints, insertNotification, supabase } from '@/lib/supabase';
+import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
+
+const config = new Configuration({
+  apiKey: process.env.NEYNAR_API_KEY || '',
+});
+
+const client = new NeynarAPIClient(config);
 
 function isFrameEvent(
   data: ParseWebhookEventResult
@@ -35,10 +42,29 @@ export async function POST(request: Request) {
             token,
           };
 
+          const fids = [fid];
+
+          const { users } = await client.fetchBulkUsers({ fids });
+          console.log('User :', users[0]);
+          const user = users[0];
+          const username = user.username;
+
           try {
             await insertNotification(notification);
 
             console.log('Notification stored in Supabase:', notification);
+
+            const { data: referral } = await supabase
+              .from('referrals')
+              .select('referrer')
+              .eq('referred_user', username)
+              .single();
+
+            console.log('referral', referral);
+
+            if (referral?.referrer) {
+              await awardPoints(referral.referrer, 5, 'referral');
+            }
           } catch (error) {
             console.error('Failed to store notification:', error);
             return NextResponse.json(
