@@ -20,8 +20,6 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
-import { awardPoints } from '@/lib/points';
-import { supabase } from '@/lib/supabase';
 
 type GameFrameContext = Context.FrameContext & {
   location?: {
