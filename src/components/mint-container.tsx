@@ -12,6 +12,8 @@ interface MintContainerProps {
 }
 
 export function MintContainer({ username }: MintContainerProps) {
+  console.log('mint container');
+  console.log('username', username);
   // const { address } = useAccount();
 
   // const { data: hasUsedFreeMint } = useReadContract({
