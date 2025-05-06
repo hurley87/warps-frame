@@ -65,3 +65,11 @@ export async function awardPoints(
   if (error)
     console.error(`Failed to award points for ${reason}:`, error.message);
 }
+
+export async function getPoints() {
+  const { data, error } = await supabase
+    .from('points')
+    .select('username, points');
+
+  return { data, error };
+}

@@ -20,6 +20,7 @@ import { chain } from '@/lib/chain';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { Warp } from './warp';
 import { MintContainer } from './mint-container';
+import Leaderboard from './leaderboard';
 
 type GameFrameContext = Context.FrameContext & {
   location?: {
@@ -319,8 +320,9 @@ export default function Game() {
         {hasUsedFreeMint && (
           <header className="sticky top-0 bg-[#17101f] z-10">
             <div className="px-6 py-3 flex items-center justify-between">
-              <Warp color={`#${winningColor}`} />
               <Info username={username} />
+              <Warp color={`#${winningColor}`} />
+              <Leaderboard />
             </div>
           </header>
         )}
