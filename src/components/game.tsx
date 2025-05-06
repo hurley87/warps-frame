@@ -43,7 +43,7 @@ export default function Game() {
   >([]);
   const [winningColor, setWinningColor] = useState('#018A08');
 
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
 
@@ -63,18 +63,6 @@ export default function Game() {
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
-
-  // Check if the user has used their free mint
-  const { data: fetchedHasUsedFreeMint } = useReadContract({
-    ...WARPS_CONTRACT,
-    functionName: 'hasUsedFreeMint',
-    args: [address!],
-    chainId: chain.id,
-    query: {
-      enabled: !!address,
-      refetchInterval: 5000,
-    },
-  });
 
   // Generate random floating warps for the background animation
   useEffect(() => {
