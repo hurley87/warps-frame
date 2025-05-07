@@ -166,7 +166,8 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
         <div className="text-center p-4">
           <h2 className="text-4xl font-bold text-white mb-2">
-            {`You won! You can claim `} <Pool showWinningAmount={true} />.
+            {`Hurray! Try to claim `} <Pool showWinningAmount={true} /> before
+            someone else does.
           </h2>
         </div>
 
