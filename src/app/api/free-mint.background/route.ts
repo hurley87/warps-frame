@@ -50,19 +50,27 @@ export async function POST(request: Request) {
     }
 
     const account = privateKeyToAccount(privateKey as `0x${string}`);
-
     const userAddress = validatedData.verifiedAddress as `0x${string}`;
 
     try {
+      // Get the current nonce for the account
+      const nonce = await publicClient.getTransactionCount({
+        address: account.address,
+      });
+
       const { request: txRequest } = await publicClient.simulateContract({
         ...WARPS_CONTRACT,
         functionName: 'ownerMint',
         args: [userAddress],
         account,
         gas: BigInt(2000000),
+        nonce,
       });
 
-      const hash = await walletClient.writeContract(txRequest);
+      const hash = await walletClient.writeContract({
+        ...txRequest,
+        nonce,
+      });
 
       const receipt = await publicClient.waitForTransactionReceipt({
         hash,
