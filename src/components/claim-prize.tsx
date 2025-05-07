@@ -119,7 +119,7 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
         functionName: 'claimPrize',
         args: [BigInt(tokenId)],
         chainId: chain.id,
-        gas: BigInt(2000000),
+        gas: BigInt(5000000),
       });
 
       // Notification sent in the success handler
