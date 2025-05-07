@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         functionName: 'ownerMint',
         args: [userAddress],
         account,
-        gas: BigInt(2000000),
+        gas: BigInt(5000000),
         nonce,
       });
 
