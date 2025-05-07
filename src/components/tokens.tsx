@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useAccount } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { useInfiniteTokens } from '@/hooks/use-tokens';
 import { Token } from '@/components/token';
 import { ClaimPrize } from '@/components/claim-prize';
@@ -15,6 +15,8 @@ import { AlertCircle } from 'lucide-react';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import sdk from '@farcaster/frame-sdk';
+import { WARPS_CONTRACT } from '@/lib/contracts';
+import { chain } from '@/lib/chain';
 
 function LoadingScreen() {
   return (
@@ -69,16 +71,16 @@ export function Tokens({ username }: { username?: string }) {
 
   const queryClient = useQueryClient();
 
-  // Fetch the payment token symbol
-  // const { data: fetchedSymbol } = useReadContract({
-  //   address: PAYMENT_TOKEN_CONTRACT.address,
-  //   abi: PAYMENT_TOKEN_CONTRACT.abi,
-  //   functionName: 'symbol',
-  //   chainId: chain.id,
-  //   query: {
-  //     enabled: !!address,
-  //   },
-  // });
+  const { data: hasUsedFreeMint } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'hasUsedFreeMint',
+    args: [address!],
+    chainId: chain.id,
+    query: {
+      enabled: !!address,
+      refetchInterval: 5000,
+    },
+  });
 
   // Reset the evolved token highlight after a delay
   useEffect(() => {
@@ -207,13 +209,15 @@ export function Tokens({ username }: { username?: string }) {
             Mint and combine warps to win
           </p>
         </div>
-        <Button
-          onClick={handleShareToWarpcast}
-          className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer
-            bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90 font-bold"
-        >
-          Claim Free Warps
-        </Button>
+        {!hasUsedFreeMint && (
+          <Button
+            onClick={handleShareToWarpcast}
+            className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer
+              bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90 font-bold"
+          >
+            Claim Free Warps
+          </Button>
+        )}
       </div>
     );
   }
