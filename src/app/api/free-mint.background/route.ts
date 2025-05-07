@@ -51,11 +51,13 @@ export async function POST(request: Request) {
 
     const account = privateKeyToAccount(privateKey as `0x${string}`);
 
+    const userAddress = validatedData.verifiedAddress as `0x${string}`;
+
     try {
       const { request: txRequest } = await publicClient.simulateContract({
         ...WARPS_CONTRACT,
         functionName: 'ownerMint',
-        args: [validatedData.verifiedAddress as `0x${string}`],
+        args: [userAddress],
         account,
         gas: BigInt(2000000),
       });
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
       console.log(receipt);
 
       await publishCast(
-        'Sent you some Warps, DM me if you have any questions about the game.',
+        `Sent some Warps to ${userAddress}, DM me if you have any questions about the game.`,
         threadHash,
         'https://warps.fun'
       );
@@ -80,7 +82,10 @@ export async function POST(request: Request) {
       });
     } catch (error) {
       console.error('Free mint error:', error);
-      await publishCast('Error minting your Warps. DM me.', threadHash);
+      await publishCast(
+        'Error minting your Warps. Most of time time this is because I already sent some free waprs. DM me if you have any questions.',
+        threadHash
+      );
       return NextResponse.json({
         success: false,
         message: 'Internal server error',
