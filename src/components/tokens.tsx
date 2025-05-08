@@ -53,6 +53,7 @@ function LoadingScreen() {
 
 export function Tokens({ username }: { username?: string }) {
   const { address } = useAccount();
+  const [showClaimPrize, setShowClaimPrize] = useState(true);
   const {
     tokens = [],
     isLoading,
@@ -171,8 +172,14 @@ export function Tokens({ username }: { username?: string }) {
   // Check if user has any winning tokens
   const winningToken = tokens.find((token) => token.isWinning);
 
-  if (winningToken) {
-    return <ClaimPrize token={winningToken} username={username} />;
+  if (winningToken && showClaimPrize) {
+    return (
+      <ClaimPrize
+        token={winningToken}
+        username={username}
+        onClose={() => setShowClaimPrize(false)}
+      />
+    );
   }
 
   const sourceToken = selectedPair

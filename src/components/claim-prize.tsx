@@ -7,7 +7,7 @@ import {
   useAccount,
 } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Token } from '@/components/token';
 import { toast } from 'sonner';
@@ -28,9 +28,10 @@ interface ClaimPrizeProps {
     isWinning?: boolean;
   };
   username?: string;
+  onClose: () => void;
 }
 
-export function ClaimPrize({ token, username }: ClaimPrizeProps) {
+export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -142,6 +143,13 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
   if (isClaimSuccessful) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#17101f] bottom-0 left-0 right-0 top-0">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-purple-900/50 transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-6 w-6 text-white" />
+        </button>
         <div className="mb-6 text-center h-full justify-center flex items-center">
           <h2 className="text-4xl font-bold text-white mb-2">
             Share your win with your friends!
@@ -162,6 +170,13 @@ export function ClaimPrize({ token, username }: ClaimPrizeProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-[#17101f] bottom-0 left-0 right-0 top-0">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 rounded-full hover:bg-purple-900/50 transition-colors"
+        aria-label="Close"
+      >
+        <X className="h-6 w-6 text-white" />
+      </button>
       {/* Central content */}
       <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
         <div className="text-center p-4">
