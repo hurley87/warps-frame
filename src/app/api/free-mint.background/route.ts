@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error('Free mint error:', error);
       await publishCast(
-        'Error minting your Warps. Most of time time this is because I already sent some free waprs. DM me if you have any questions.',
+        'Error minting your Warps. Most of time time this is because I already sent some warps. DM me if you have any questions.',
         threadHash
       );
       return NextResponse.json({
