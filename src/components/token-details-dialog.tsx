@@ -28,6 +28,8 @@ export function TokenDetailsDialog({
   const [winningColor, setWinningColor] = useState('#018A08');
   const [tokenColors, setTokenColors] = useState<string[]>([]);
 
+  console.log('hideTokenPageLink', hideTokenPageLink);
+
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
     address: WARPS_CONTRACT.address,
