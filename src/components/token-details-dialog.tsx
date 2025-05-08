@@ -53,39 +53,22 @@ export function TokenDetailsDialog({
     },
   });
 
-  // Fetch colors for each index
-  const { data: color1 } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'getColorFromIndex',
-    args: [colorIndices?.[0] ?? 0],
-    chainId: chain.id,
-    query: {
-      enabled: !!colorIndices?.[0],
-    },
-  });
+  // Helper function to convert color index to hex color
+  const convertToHexColor = (
+    colorIndex: number | undefined
+  ): string | undefined => {
+    if (colorIndex === undefined) return undefined;
+    return '#' + colorIndex.toString(16).padStart(6, '0');
+  };
 
-  const { data: color2 } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'getColorFromIndex',
-    args: [colorIndices?.[1] ?? 0],
-    chainId: chain.id,
-    query: {
-      enabled: !!colorIndices?.[1],
-    },
-  });
-
-  const { data: color3 } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'getColorFromIndex',
-    args: [colorIndices?.[2] ?? 0],
-    chainId: chain.id,
-    query: {
-      enabled: !!colorIndices?.[2],
-    },
-  });
+  // Update token colors when data is fetched
+  useEffect(() => {
+    if (!colorIndices) return;
+    const colors = colorIndices
+      .map((index) => convertToHexColor(Number(index)))
+      .filter((color): color is string => color !== undefined);
+    setTokenColors(colors);
+  }, [colorIndices]);
 
   // Update winning color when data is fetched
   useEffect(() => {
@@ -93,12 +76,6 @@ export function TokenDetailsDialog({
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
-
-  // Update token colors when data is fetched
-  useEffect(() => {
-    const colors = [color1, color2, color3].filter(Boolean) as string[];
-    setTokenColors(colors);
-  }, [color1, color2, color3]);
 
   // Create a safe reference to token in case it's null
   const tokenId = token?.id;
