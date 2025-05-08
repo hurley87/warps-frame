@@ -26,8 +26,7 @@ export function TokenDetailsDialog({
   hideCloseButton = false,
 }: TokenDetailsDialogProps) {
   const [winningColor, setWinningColor] = useState('#018A08');
-
-  console.log('hideTokenPageLink', hideTokenPageLink);
+  const [tokenColors, setTokenColors] = useState<string[]>([]);
 
   // Fetch the current winning color from the contract
   const { data: fetchedWinningColor } = useReadContract({
@@ -40,12 +39,64 @@ export function TokenDetailsDialog({
     },
   });
 
+  // Fetch token colors
+  const { data: colorIndices } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'tokenColors',
+    args: [token?.id ? BigInt(token.id) : BigInt(0)],
+    chainId: chain.id,
+    query: {
+      enabled: !!token?.id,
+    },
+  });
+
+  // Fetch colors for each index
+  const { data: color1 } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getColorFromIndex',
+    args: [colorIndices?.[0] ?? 0],
+    chainId: chain.id,
+    query: {
+      enabled: !!colorIndices?.[0],
+    },
+  });
+
+  const { data: color2 } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getColorFromIndex',
+    args: [colorIndices?.[1] ?? 0],
+    chainId: chain.id,
+    query: {
+      enabled: !!colorIndices?.[1],
+    },
+  });
+
+  const { data: color3 } = useReadContract({
+    address: WARPS_CONTRACT.address,
+    abi: WARPS_CONTRACT.abi,
+    functionName: 'getColorFromIndex',
+    args: [colorIndices?.[2] ?? 0],
+    chainId: chain.id,
+    query: {
+      enabled: !!colorIndices?.[2],
+    },
+  });
+
   // Update winning color when data is fetched
   useEffect(() => {
     if (fetchedWinningColor) {
       setWinningColor(fetchedWinningColor);
     }
   }, [fetchedWinningColor]);
+
+  // Update token colors when data is fetched
+  useEffect(() => {
+    const colors = [color1, color2, color3].filter(Boolean) as string[];
+    setTokenColors(colors);
+  }, [color1, color2, color3]);
 
   // Create a safe reference to token in case it's null
   const tokenId = token?.id;
@@ -133,6 +184,25 @@ export function TokenDetailsDialog({
                 <span className="font-medium text-white text-xs">
                   #{token.id}
                 </span>
+              </div>
+
+              {/* Token Colors Section */}
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-400 uppercase tracking-wider">
+                  Colors
+                </span>
+                <div className="flex gap-2 mt-1">
+                  {tokenColors.map((color, index) => (
+                    <div
+                      key={index}
+                      className="w-4 h-4 rounded-full"
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: `0 0 8px ${color}80`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Links Section */}

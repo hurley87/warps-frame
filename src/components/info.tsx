@@ -146,6 +146,25 @@ export default function Info({ username }: { username: string }) {
                 </div>
               </div>
               <div className="space-y-2">
+                <h3 className="font-bold">Color Legend</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { color: 'FF007A', name: 'Uniswap' },
+                    { color: '855DCD', name: 'Farcaster' },
+                    { color: 'FF9900', name: 'Bitcoin' },
+                    { color: '52b043', name: 'XBOX' },
+                    { color: '1da1f2', name: 'Twitter' },
+                    { color: '018A08', name: 'Higher Green' },
+                    { color: 'F0B90B', name: 'Binance Gold' },
+                  ].map((item) => (
+                    <div key={item.color} className="flex items-center gap-2">
+                      <Warp color={`#${item.color}`} className="w-6 h-6" />
+                      <span className="text-sm">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
                 <h3 className="font-bold">Share with friends</h3>
                 <Button
                   variant="outline"
