@@ -1,4 +1,5 @@
 import { NeynarAPIClient } from '@neynar/nodejs-sdk';
+import { UserResponse } from '@neynar/nodejs-sdk/build/api/models/user-response';
 
 // Initialize client
 const neynarClient = new NeynarAPIClient({
@@ -25,6 +26,15 @@ export const publishCast = async (
     text,
     parent,
     embeds: url ? [{ url }] : undefined,
+  });
+  return response;
+};
+
+export const getUserByUsername = async (
+  username: string
+): Promise<UserResponse> => {
+  const response = await neynarClient.lookupUserByUsername({
+    username,
   });
   return response;
 };

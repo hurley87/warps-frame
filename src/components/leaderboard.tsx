@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import sdk from '@farcaster/frame-sdk';
+import { LeaderboardEntry } from './leaderboard-entry';
 
 interface LeaderboardEntry {
   username: string;
@@ -155,18 +156,12 @@ export default function Leaderboard({ username }: LeaderboardProps) {
             ) : (
               <div className="space-y-4">
                 {leaderboardData.map((entry, index) => (
-                  <div
+                  <LeaderboardEntry
                     key={entry.username}
-                    className="flex items-center justify-between py-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-gray-400 w-6">{index + 1}</span>
-                      <span className="font-medium">{entry.username}</span>
-                    </div>
-                    <span className="text-[#7c65c1] font-bold">
-                      {entry.total_points} pts
-                    </span>
-                  </div>
+                    username={entry.username}
+                    totalPoints={entry.total_points}
+                    rank={index + 1}
+                  />
                 ))}
               </div>
             )}
