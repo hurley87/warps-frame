@@ -12,10 +12,11 @@ import { Loader2, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Token } from '@/components/token';
 import { toast } from 'sonner';
-import { WARPS_CONTRACT } from '@/lib/contracts';
+import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import sdk from '@farcaster/frame-sdk';
 import { awardPoints } from '@/lib/points';
+import { formatUnits } from 'viem';
 
 interface ClaimPrizeProps {
   token: {
@@ -44,6 +45,45 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
     functionName: 'getAvailablePrizePool',
     chainId: chain.id,
   });
+
+  // Fetch the winner claim percentage
+  const { data: winnerClaimPercentage } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'winnerClaimPercentage',
+    chainId: chain.id,
+  });
+
+  // Fetch the payment token decimals
+  const { data: tokenDecimals } = useReadContract({
+    ...PAYMENT_TOKEN_CONTRACT,
+    functionName: 'decimals',
+    chainId: chain.id,
+  });
+
+  // Fetch the payment token symbol
+  const { data: tokenSymbol } = useReadContract({
+    ...PAYMENT_TOKEN_CONTRACT,
+    functionName: 'symbol',
+    chainId: chain.id,
+  });
+
+  const formatHumanReadable = (value: bigint, decimals: number): string => {
+    // Convert to a decimal string with proper precision
+    const rawString = formatUnits(value, decimals);
+
+    // Parse as float and format with commas and 2 decimal places
+    const number = parseFloat(rawString);
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    }).format(number);
+  };
+
+  // Calculate the actual prize amount based on the percentage
+  const calculatePrizeAmount = (pool: bigint, percentage: number): bigint => {
+    if (!pool || !percentage) return BigInt(0);
+    return (pool * BigInt(percentage)) / BigInt(100);
+  };
 
   const {
     data: hash,
@@ -121,7 +161,7 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
     // Check if there are rewards available
     if (availablePrizePool === BigInt(0)) {
       toast.error(
-        'No rewards available in the prize pool. Please try again later.'
+        'No rewards available in the prize pool. They are added once a day.'
       );
       return;
     }
@@ -198,7 +238,13 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
           <h2 className="text-4xl font-bold text-white mb-2">
             {availablePrizePool === BigInt(0)
               ? 'No rewards available at the moment. Please try again later!'
-              : `Hurray! Try to claim ${availablePrizePool?.toString()} before someone else does.`}
+              : `Hurray! Try to claim ${formatHumanReadable(
+                  calculatePrizeAmount(
+                    availablePrizePool || BigInt(0),
+                    Number(winnerClaimPercentage || 0)
+                  ),
+                  tokenDecimals || 18
+                )} ${tokenSymbol || ''} before someone else does.`}
           </h2>
         </div>
 
