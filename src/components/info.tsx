@@ -154,8 +154,8 @@ export default function Info({ username }: { username: string }) {
                     { color: 'FF9900', name: 'Bitcoin' },
                     { color: '52b043', name: 'XBOX' },
                     { color: '1da1f2', name: 'Twitter' },
-                    { color: '018A08', name: 'Higher Green' },
-                    { color: 'F0B90B', name: 'Binance Gold' },
+                    { color: '018A08', name: 'Higher' },
+                    { color: 'F0B90B', name: 'Binance' },
                   ].map((item) => (
                     <div key={item.color} className="flex items-center gap-2">
                       <Warp color={`#${item.color}`} className="w-6 h-6" />
