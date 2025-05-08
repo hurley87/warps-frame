@@ -5,6 +5,7 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useAccount,
+  useReadContract,
 } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, Sparkles, X } from 'lucide-react';
@@ -37,6 +38,13 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isClaimSuccessful, setIsClaimSuccessful] = useState(false);
   const successHandled = useRef(false); // Prevent duplicate success handling
+
+  // Add read contract hook to check available prize pool
+  const { data: availablePrizePool } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'getAvailablePrizePool',
+    chainId: chain.id,
+  });
 
   const {
     data: hash,
@@ -110,6 +118,14 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
 
   const handleClaimPrize = async (tokenId: number) => {
     if (!address || isLoading) return;
+
+    // Check if there are rewards available
+    if (availablePrizePool === BigInt(0)) {
+      toast.error(
+        'No rewards available in the prize pool. Please try again later.'
+      );
+      return;
+    }
 
     setIsProcessing(true);
     successHandled.current = false; // Reset success flag for new attempt
@@ -193,18 +209,20 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
       <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
         <Button
           className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full rounded-md shadow-lg ${
-            isLoading
+            isLoading || availablePrizePool === BigInt(0)
               ? 'opacity-60 cursor-not-allowed bg-[#7c65c1]/60'
               : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
           }`}
           onClick={() => handleClaimPrize(token.id)}
-          disabled={isLoading}
+          disabled={isLoading || availablePrizePool === BigInt(0)}
         >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {isConfirming ? 'Confirming...' : 'Claiming...'}
             </>
+          ) : availablePrizePool === BigInt(0) ? (
+            'No Rewards Available'
           ) : (
             'Claim Prize 🏆'
           )}
