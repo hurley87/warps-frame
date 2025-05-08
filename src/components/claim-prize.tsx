@@ -197,8 +197,9 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
         <div className="text-center p-4">
           <h2 className="text-4xl font-bold text-white mb-2">
-            {`Hurray! Try to claim `} <Pool showWinningAmount={true} /> before
-            someone else does.
+            {availablePrizePool === BigInt(0)
+              ? 'No rewards available at the moment. Please try again later!'
+              : `Hurray! Try to claim ${availablePrizePool?.toString()} before someone else does.`}
           </h2>
         </div>
 
