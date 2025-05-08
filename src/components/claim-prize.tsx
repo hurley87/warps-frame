@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
 import sdk from '@farcaster/frame-sdk';
-import { Pool } from './pool';
 import { awardPoints } from '@/lib/points';
 
 interface ClaimPrizeProps {
