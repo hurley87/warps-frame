@@ -117,16 +117,16 @@ export default function Leaderboard({ username }: LeaderboardProps) {
                     <span className="text-[#7c65c1] font-bold">1 pt</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Mint</span>
+                    <span>Referral</span>
                     <span className="text-[#7c65c1] font-bold">5 pts</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Win</span>
+                    <span>Mint</span>
                     <span className="text-[#7c65c1] font-bold">10 pts</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Referral</span>
-                    <span className="text-[#7c65c1] font-bold">5 pts</span>
+                    <span>Win</span>
+                    <span className="text-[#7c65c1] font-bold">20 pts</span>
                   </div>
                 </div>
               </div>

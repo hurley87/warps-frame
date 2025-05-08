@@ -50,7 +50,7 @@ export function Mint({ username }: MintProps) {
     try {
       await awardPoints({
         username,
-        points: 5,
+        points: 10,
         reason: 'mint',
       });
       toast.success('Payment successful! NFT minted!', {
