@@ -239,7 +239,7 @@ export function Tokens({ username }: { username?: string }) {
         onClick={handleShare}
         className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full mb-4"
       >
-        Share Warps, Earn Points
+        Share & Earn Points
       </Button>
 
       <div className="flex flex-col">
