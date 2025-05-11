@@ -73,7 +73,7 @@ export default function Leaderboard({ username }: LeaderboardProps) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <Button className="bg-[#7c65c1] rounded-lg text-white font-bold">
+        <Button className="border border-white rounded-lg text-white font-bold bg-transparent">
           Leaderboard
         </Button>
       </DrawerTrigger>

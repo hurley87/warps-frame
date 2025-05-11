@@ -109,7 +109,7 @@ export default function Info({ username }: { username: string }) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <Button className="bg-[#7c65c1] rounded-lg text-white font-bold">
+        <Button className="border border-white rounded-lg text-white font-bold bg-transparent">
           How To Play
         </Button>
       </DrawerTrigger>
