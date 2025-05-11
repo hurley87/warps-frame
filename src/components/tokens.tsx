@@ -232,12 +232,12 @@ export function Tokens({ username }: { username?: string }) {
   }
 
   return (
-    <div className="relative p-3 pb-8 bg-[#17101f] overflow-hidden">
+    <div className="relative p-4 pb-8 bg-[#17101f] overflow-hidden pt-0">
       {isFetching && <LoadingScreen />}
 
       <Button
         onClick={handleShare}
-        className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full"
+        className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full mb-4"
       >
         Share Warps, Earn Points
       </Button>
