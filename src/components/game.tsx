@@ -299,10 +299,16 @@ export default function Game() {
     return (
       <div className="w-screen h-screen mx-auto bg-background bg-[#17101f] flex flex-col">
         <header className="sticky top-0 bg-[#17101f] z-10">
-          <div className="px-6 py-3 flex items-center justify-between">
-            <Info username={username} />
-            <Warp color={`#${winningColor}`} />
-            <Leaderboard username={username} />
+          <div className="px-6 py-3 items-center justify-between grid grid-cols-3">
+            <div className="col-span-1">
+              <Info username={username} />
+            </div>
+            <div className="col-span-1">
+              <Warp color={`#${winningColor}`} />
+            </div>
+            <div className="col-span-1">
+              <Leaderboard username={username} />
+            </div>
           </div>
         </header>
 
