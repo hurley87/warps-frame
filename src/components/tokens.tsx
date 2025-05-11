@@ -11,9 +11,6 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { AnimatedWarp } from './animated-warp';
-import { AlertCircle } from 'lucide-react';
-
-import { Alert, AlertTitle } from '@/components/ui/alert';
 import sdk from '@farcaster/frame-sdk';
 import { WARPS_CONTRACT } from '@/lib/contracts';
 import { chain } from '@/lib/chain';
@@ -189,18 +186,23 @@ export function Tokens({ username }: { username?: string }) {
     ? tokens.find((t) => t.id === selectedPair.target) ?? null
     : null;
 
-  const hasTokensWithMultipleWarps = tokens.some((token) => {
-    const warps = token.attributes.find(
-      (attr) => attr.trait_type === 'Warps'
-    )?.value;
-    return warps && warps !== '1';
-  });
-
   const handleShareToWarpcast = async () => {
     const shareText = `@hurls can I have some warps?`;
     const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       shareText
     )}`;
+    sdk.actions.openUrl(warpcastUrl);
+  };
+
+  const handleShare = () => {
+    if (!username) return;
+
+    const shareText = 'Play Warps, Earn USDC!';
+    const shareUrl = encodeURIComponent(`https://warps.fun?ref=${username}`);
+    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      shareText
+    )}&embeds[]=${shareUrl}`;
+
     sdk.actions.openUrl(warpcastUrl);
   };
 
@@ -233,28 +235,12 @@ export function Tokens({ username }: { username?: string }) {
     <div className="relative p-3 pb-8 bg-[#17101f] overflow-hidden">
       {isFetching && <LoadingScreen />}
 
-      {tokens.length === 1 && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Mint Warps to continue.</AlertTitle>
-        </Alert>
-      )}
-      {tokens.length > 0 &&
-        selectedTokenId === null &&
-        hasTokensWithMultipleWarps && (
-          <Alert variant="default" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Select a token</AlertTitle>
-          </Alert>
-        )}
-      {tokens.length > 0 &&
-        selectedTokenId !== null &&
-        hasTokensWithMultipleWarps && (
-          <Alert variant="default" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Select a different token</AlertTitle>
-          </Alert>
-        )}
+      <Button
+        onClick={handleShare}
+        className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full"
+      >
+        Share Warps, Earn Points
+      </Button>
 
       <div className="flex flex-col">
         <div className="grid grid-cols-2 gap-4">
