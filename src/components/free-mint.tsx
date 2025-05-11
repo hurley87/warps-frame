@@ -70,15 +70,7 @@ export function FreeMint() {
       console.error('Free mint error:', error);
       setHasError(true);
       setIsFreeMinting(false);
-      playErrorFeedback();
     }
-  };
-
-  const playErrorFeedback = () => {
-    const errorSound = new Audio('/sounds/composite-error.mp3');
-    errorSound.volume = 0.3;
-    errorSound.play().catch(() => {});
-    triggerScreenShake();
   };
 
   const triggerScreenShake = () => {

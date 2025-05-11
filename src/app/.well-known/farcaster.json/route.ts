@@ -17,6 +17,11 @@ export async function GET() {
       splashImageUrl: 'https://warps.fun/splash.jpg',
       splashBackgroundColor: '#000000',
       webhookUrl: 'https://warps.fun/api/webhook',
+      subtitle: 'Play Warps on Farcaster',
+      description: 'The first viral game on Farcaster',
+      primaryCategory: 'games',
+      tags: ['game', 'fun', 'social'],
+      tagline: 'The first viral game on Farcaster',
     },
   };
 

@@ -22,13 +22,6 @@ export function Mint({ username }: MintProps) {
   const [hasError, setHasError] = useState(false);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
-  const playErrorFeedback = () => {
-    const errorSound = new Audio('/sounds/composite-error.mp3');
-    errorSound.volume = 0.3;
-    errorSound.play().catch(() => {});
-    triggerScreenShake();
-  };
-
   const triggerScreenShake = () => {
     document.documentElement.classList.add('screen-shake');
     setTimeout(() => {
@@ -96,7 +89,6 @@ export function Mint({ username }: MintProps) {
         console.log('Payment bounced:', e);
         setIsPaymentProcessing(false);
         setHasError(true);
-        playErrorFeedback();
         toast.error('Payment failed. Please try again.', {
           icon: '❌',
         });
