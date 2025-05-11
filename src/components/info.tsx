@@ -109,12 +109,12 @@ export default function Info({ username }: { username: string }) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger>
-        <Button className="border border-white rounded-lg text-white font-bold bg-transparent">
+        <Button className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80">
           {formatHumanReadable(
             availablePrizePool || BigInt(0),
             tokenDecimals || 18
           )}{' '}
-          {tokenSymbol || 'USDC'} in Rewards
+          {tokenSymbol || 'USDC'}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-full">
