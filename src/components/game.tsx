@@ -303,10 +303,10 @@ export default function Game() {
             <div className="col-span-1">
               <Info username={username} />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 flex justify-center">
               <Warp color={`#${winningColor}`} />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 flex justify-end">
               <Leaderboard username={username} />
             </div>
           </div>

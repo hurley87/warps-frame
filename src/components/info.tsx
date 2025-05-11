@@ -108,7 +108,7 @@ export default function Info({ username }: { username: string }) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger>
+      <DrawerTrigger className="w-full">
         <Button className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full">
           {formatHumanReadable(
             availablePrizePool || BigInt(0),
