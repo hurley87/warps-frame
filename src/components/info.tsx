@@ -110,11 +110,7 @@ export default function Info({ username }: { username: string }) {
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger className="w-full">
         <Button className="border border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full">
-          {formatHumanReadable(
-            availablePrizePool || BigInt(0),
-            tokenDecimals || 18
-          )}{' '}
-          {tokenSymbol || 'USDC'}
+          How To Play
         </Button>
       </DrawerTrigger>
       <DrawerContent className="h-full">
