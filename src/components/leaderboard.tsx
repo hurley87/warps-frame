@@ -135,9 +135,9 @@ export default function Leaderboard({ username }: LeaderboardProps) {
                 <Button
                   variant="outline"
                   onClick={handleShare}
-                  className="w-full"
+                  className="border-2 border-white rounded-lg text-black font-bold bg-white hover:bg-white/80 w-full"
                 >
-                  Cast referral link
+                  Share & Earn Points
                 </Button>
               </div>
             </div>
