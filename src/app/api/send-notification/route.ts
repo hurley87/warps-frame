@@ -9,6 +9,57 @@ const sendNotificationRequestSchema = z.object({
   targetUrl: z.string().max(256),
 });
 
+const BATCH_SIZE = 100; // Number of tokens to send in each batch
+const RATE_LIMIT_DELAY = 1000; // Delay in ms between batches
+
+async function sendBatch(url: string, tokens: string[], payload: any) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...payload,
+        tokens,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        url,
+      });
+
+      // Check if rate limited
+      if (response.status === 429) {
+        return {
+          successfulTokens: [],
+          invalidTokens: [],
+          rateLimitedTokens: tokens,
+        };
+      }
+
+      throw new Error(
+        `HTTP error! status: ${response.status}, body: ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    return data.result;
+  } catch (error) {
+    console.error('Error sending notification batch:', error);
+    return {
+      successfulTokens: [],
+      invalidTokens: tokens,
+      rateLimitedTokens: [],
+    };
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -46,54 +97,51 @@ export async function POST(request: Request) {
       return acc;
     }, {} as Record<string, string[]>);
 
-    // Send notifications to each URL
+    // Process each URL's notifications in batches
     const results = await Promise.all(
       Object.entries(notificationsByUrl).map(async ([url, tokens]) => {
-        try {
-          const payload = {
-            ...validatedData,
-            tokens,
-          };
-          console.log(
-            'Sending notification payload:',
-            JSON.stringify(payload, null, 2)
-          );
+        const batches = [];
+        for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
+          const batchTokens = tokens.slice(i, i + BATCH_SIZE);
+          batches.push(batchTokens);
+        }
 
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          });
+        const batchResults = [];
+        for (const batchTokens of batches) {
+          const result = await sendBatch(url, batchTokens, validatedData);
+          batchResults.push(result);
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error response:', {
-              status: response.status,
-              statusText: response.statusText,
-              body: errorText,
-              url,
-            });
-            throw new Error(
-              `HTTP error! status: ${response.status}, body: ${errorText}`
+          // Add delay between batches to avoid rate limiting
+          if (batches.length > 1) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, RATE_LIMIT_DELAY)
             );
           }
-
-          const data = await response.json();
-          return data.result;
-        } catch (error) {
-          console.error('Error sending notification:', error);
-          return {
-            successfulTokens: [],
-            invalidTokens: tokens,
-            rateLimitedTokens: [],
-          };
         }
+
+        // Combine results from all batches
+        return batchResults.reduce(
+          (acc, result) => ({
+            successfulTokens: [
+              ...acc.successfulTokens,
+              ...result.successfulTokens,
+            ],
+            invalidTokens: [...acc.invalidTokens, ...result.invalidTokens],
+            rateLimitedTokens: [
+              ...acc.rateLimitedTokens,
+              ...result.rateLimitedTokens,
+            ],
+          }),
+          {
+            successfulTokens: [] as string[],
+            invalidTokens: [] as string[],
+            rateLimitedTokens: [] as string[],
+          }
+        );
       })
     );
 
-    // Combine results
+    // Combine results from all URLs
     const combinedResult = results.reduce(
       (acc, result) => ({
         successfulTokens: [...acc.successfulTokens, ...result.successfulTokens],
