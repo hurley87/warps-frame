@@ -14,6 +14,8 @@ type SendNotificationRequest = z.infer<typeof sendNotificationRequestSchema>;
 const BATCH_SIZE = 100; // Number of tokens to send in each batch
 const RATE_LIMIT_DELAY = 1000; // Delay in ms between batches
 
+export const maxDuration = 300;
+
 async function sendBatch(
   url: string,
   tokens: string[],
