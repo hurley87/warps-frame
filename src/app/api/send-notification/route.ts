@@ -9,10 +9,16 @@ const sendNotificationRequestSchema = z.object({
   targetUrl: z.string().max(256),
 });
 
+type SendNotificationRequest = z.infer<typeof sendNotificationRequestSchema>;
+
 const BATCH_SIZE = 100; // Number of tokens to send in each batch
 const RATE_LIMIT_DELAY = 1000; // Delay in ms between batches
 
-async function sendBatch(url: string, tokens: string[], payload: any) {
+async function sendBatch(
+  url: string,
+  tokens: string[],
+  payload: SendNotificationRequest
+) {
   try {
     const response = await fetch(url, {
       method: 'POST',
