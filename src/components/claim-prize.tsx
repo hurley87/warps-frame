@@ -37,6 +37,7 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isClaimSuccessful, setIsClaimSuccessful] = useState(false);
+  const [hasWonToday, setHasWonToday] = useState(false);
   const successHandled = useRef(false); // Prevent duplicate success handling
 
   // Add read contract hook to check available prize pool
@@ -66,6 +67,44 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
     functionName: 'symbol',
     chainId: chain.id,
   });
+
+  // Check if user has already won today
+  useEffect(() => {
+    const checkTodayPoints = async () => {
+      if (!username) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      try {
+        const response = await fetch('/api/points/check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username,
+            reason: 'win',
+            startDate: today.toISOString(),
+            endDate: tomorrow.toISOString(),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to check points');
+        }
+
+        const data = await response.json();
+        setHasWonToday(data.hasPoints);
+      } catch (error) {
+        console.error("Error checking today's points:", error);
+      }
+    };
+
+    checkTodayPoints();
+  }, [username]);
 
   const formatHumanReadable = (value: bigint, decimals: number): string => {
     // Convert to a decimal string with proper precision
@@ -236,7 +275,9 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 w-full max-w-sm mx-auto">
         <div className="text-center p-4">
           <h2 className="text-4xl font-bold text-white mb-2">
-            {availablePrizePool === BigInt(0)
+            {hasWonToday
+              ? 'You have already claimed your prize today! Come back tomorrow.'
+              : availablePrizePool === BigInt(0)
               ? 'No rewards available at the moment. Please try again later!'
               : `Hurray! Try to claim ${formatHumanReadable(
                   calculatePrizeAmount(
@@ -255,18 +296,22 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
       <footer className="fixed bottom-0 left-0 right-0 bg-purple-900 p-4 py-8 z-20 backdrop-blur-sm">
         <Button
           className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full rounded-md shadow-lg ${
-            isLoading || availablePrizePool === BigInt(0)
+            isLoading || availablePrizePool === BigInt(0) || hasWonToday
               ? 'opacity-60 cursor-not-allowed bg-[#7c65c1]/60'
               : 'bg-[#7c65c1]/80 hover:bg-[#7c65c1]/90'
           }`}
           onClick={() => handleClaimPrize(token.id)}
-          disabled={isLoading || availablePrizePool === BigInt(0)}
+          disabled={
+            isLoading || availablePrizePool === BigInt(0) || hasWonToday
+          }
         >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               {isConfirming ? 'Confirming...' : 'Claiming...'}
             </>
+          ) : hasWonToday ? (
+            'Already Claimed Today'
           ) : availablePrizePool === BigInt(0) ? (
             'No Rewards Available'
           ) : (
