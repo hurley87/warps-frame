@@ -50,19 +50,34 @@ export async function POST(request: Request) {
     const results = await Promise.all(
       Object.entries(notificationsByUrl).map(async ([url, tokens]) => {
         try {
+          const payload = {
+            ...validatedData,
+            tokens,
+          };
+          console.log(
+            'Sending notification payload:',
+            JSON.stringify(payload, null, 2)
+          );
+
           const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              ...validatedData,
-              tokens,
-            }),
+            body: JSON.stringify(payload),
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Error response:', {
+              status: response.status,
+              statusText: response.statusText,
+              body: errorText,
+              url,
+            });
+            throw new Error(
+              `HTTP error! status: ${response.status}, body: ${errorText}`
+            );
           }
 
           const data = await response.json();
