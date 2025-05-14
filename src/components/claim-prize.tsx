@@ -47,6 +47,13 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
     chainId: chain.id,
   });
 
+  // Fetch the total deposited
+  const { data: totalDeposited } = useReadContract({
+    ...WARPS_CONTRACT,
+    functionName: 'getTotalDeposited',
+    chainId: chain.id,
+  });
+
   // Fetch the winner claim percentage
   const { data: winnerClaimPercentage } = useReadContract({
     ...WARPS_CONTRACT,
@@ -281,7 +288,7 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
               ? 'No rewards available at the moment. Please try again later!'
               : `Hurray! Try to claim ${formatHumanReadable(
                   calculatePrizeAmount(
-                    availablePrizePool || BigInt(0),
+                    totalDeposited || BigInt(0),
                     Number(winnerClaimPercentage || 0)
                   ),
                   tokenDecimals || 18

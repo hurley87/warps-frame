@@ -15,8 +15,6 @@ import { chain } from '@/lib/chain';
 import { Warp } from './warp';
 import { Button } from './ui/button';
 import sdk from '@farcaster/frame-sdk';
-import { formatUnits } from 'viem';
-import { PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
 
 export default function Info({ username }: { username: string }) {
   const [open, setOpen] = useState(false);
@@ -42,43 +40,6 @@ export default function Info({ username }: { username: string }) {
     functionName: 'winnerClaimPercentage',
     chainId: chain.id,
   });
-
-  // Fetch the available prize pool
-  const { data: availablePrizePool } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'getAvailablePrizePool',
-    chainId: chain.id,
-  });
-
-  // Fetch the payment token decimals
-  const { data: tokenDecimals } = useReadContract({
-    ...PAYMENT_TOKEN_CONTRACT,
-    functionName: 'decimals',
-    chainId: chain.id,
-  });
-
-  // Fetch the payment token symbol
-  const { data: tokenSymbol } = useReadContract({
-    ...PAYMENT_TOKEN_CONTRACT,
-    functionName: 'symbol',
-    chainId: chain.id,
-  });
-
-  const formatHumanReadable = (value: bigint, decimals: number): string => {
-    const rawString = formatUnits(value, decimals);
-    const number = parseFloat(rawString);
-    return new Intl.NumberFormat('en-US', {
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 0,
-    }).format(number);
-  };
-
-  // Calculate the actual prize amount based on the percentage
-  const calculatePrizeAmount = (pool: bigint, percentage: number): bigint => {
-    if (!pool || !percentage) return BigInt(0);
-    return (pool * BigInt(percentage)) / BigInt(100);
-  };
 
   // Update winning color when data is fetched
   useEffect(() => {
@@ -168,30 +129,6 @@ export default function Info({ username }: { username: string }) {
                   Once claimed, a new winning color is chosen at random and the
                   race begins again.
                 </p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-bold">Prize Pool</h3>
-                <div className="bg-purple-900/20 p-4 rounded-lg">
-                  <p className="text-lg font-semibold">
-                    Total Pool:{' '}
-                    {formatHumanReadable(
-                      availablePrizePool || BigInt(0),
-                      tokenDecimals || 18
-                    )}{' '}
-                    {tokenSymbol || ''}
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    Winner receives {winnerClaimPercentage}% (
-                    {formatHumanReadable(
-                      calculatePrizeAmount(
-                        availablePrizePool || BigInt(0),
-                        Number(winnerClaimPercentage || 0)
-                      ),
-                      tokenDecimals || 18
-                    )}{' '}
-                    {tokenSymbol || ''})
-                  </p>
-                </div>
               </div>
               <div className="space-y-2">
                 <h3 className="font-bold">Winning Color</h3>
