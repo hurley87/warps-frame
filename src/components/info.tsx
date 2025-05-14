@@ -47,7 +47,7 @@ export default function Info({ username }: { username: string }) {
   const { data: availablePrizePool } = useReadContract({
     address: WARPS_CONTRACT.address,
     abi: WARPS_CONTRACT.abi,
-    functionName: 'getTotalDeposited',
+    functionName: 'getAvailablePrizePool',
     chainId: chain.id,
   });
 

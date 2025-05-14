@@ -43,7 +43,7 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
   // Add read contract hook to check available prize pool
   const { data: availablePrizePool } = useReadContract({
     ...WARPS_CONTRACT,
-    functionName: 'getTotalDeposited',
+    functionName: 'getAvailablePrizePool',
     chainId: chain.id,
   });
 
