@@ -10,8 +10,10 @@ export const WARPS_CONTRACT_ADDRESSES = {
   development: '0x4087a72e96a6125ec7dae02852f90828c928aa6d' as `0x${string}`,
 };
 
+// 0x833589fcd6edb6e08f4c7c32d4f71b54bda02913;
+
 export const PAYMENT_TOKEN_DDRESSES = {
-  production: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913' as `0x${string}`,
+  production: '0xBe523e724B9Ea7D618dD093f14618D90c4B19b0c' as `0x${string}`,
   development: '0xB1d4113a03F4e18Ea868E0F60c7214D6061532D8' as `0x${string}`,
 };
 
