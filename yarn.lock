@@ -166,21 +166,21 @@
     eventemitter3 "^5.0.1"
     preact "^10.24.2"
 
-"@daimo/pay-common@1.7.6":
-  version "1.7.6"
-  resolved "https://registry.npmjs.org/@daimo/pay-common/-/pay-common-1.7.6.tgz"
-  integrity sha512-z2yaQlZJ/LJW0+SmU6i6mcgS5DHY/befM+SS3CgLLx+/iGDDV/mScN7Q8m0JNEUJ/rlPI0SkPh0M0LiDB7f/tg==
+"@daimo/pay-common@1.8.6":
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/@daimo/pay-common/-/pay-common-1.8.6.tgz#ff9ddef78d25f5c96e702e615ec98e01bc4c2d84"
+  integrity sha512-cWzPVe78KWi0tTUUyYtnOrW5Hrp5LyOs9HU02U5l34emGFteFkrsLKWaX872mtSvrFH41G6yzllh3KutD5Rs8g==
   dependencies:
     "@scure/base" "^1.2.4"
     viem "^2.23.14"
     zod "^3.24.2"
 
-"@daimo/pay@^1.7.5":
-  version "1.7.6"
-  resolved "https://registry.npmjs.org/@daimo/pay/-/pay-1.7.6.tgz"
-  integrity sha512-Mse7OVlaQzdbgq7chpNsBrUGG6MbPU5zzugWCQj75J8dFTsEPpw3OXWB4Fl0nww210WTAmo0fJtVIL0wPDdibg==
+"@daimo/pay@^1.8.6":
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/@daimo/pay/-/pay-1.8.6.tgz#71de1acc00dff52c7a51276837c706210021df22"
+  integrity sha512-LvUmpq2F07axrTe2U5DEV2+G8mmZ9elyF6se7taV83Ziairrlr0Ue51S8I4z7CLr5U4OhfJu587NZsVyndgA4A==
   dependencies:
-    "@daimo/pay-common" "1.7.6"
+    "@daimo/pay-common" "1.8.6"
     "@rollup/plugin-typescript" "^12.1.2"
     "@solana/wallet-adapter-base" "^0.9.23"
     "@solana/wallet-adapter-react" "^0.15.35"
