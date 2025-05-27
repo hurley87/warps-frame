@@ -1,16 +1,13 @@
 'use client';
 
-import {
-  useAccount,
-  useReadContract,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from 'wagmi';
+import { encodeFunctionData } from 'viem';
+import { useAccount } from 'wagmi';
 import { Button } from './ui/button';
-import { useState, useEffect } from 'react';
-import { WARPS_CONTRACT, PAYMENT_TOKEN_CONTRACT } from '@/lib/contracts';
+import { useState } from 'react';
+import { WARPS_CONTRACT } from '@/lib/contracts';
 import { toast } from 'sonner';
-import { Loader2, Sparkles, CheckCircle } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
+import { DaimoPayButton } from '@daimo/pay';
 import { useQueryClient } from '@tanstack/react-query';
 import { awardPoints } from '@/lib/points';
 
@@ -22,128 +19,8 @@ export function Mint({ username }: MintProps) {
   const { address } = useAccount();
   const queryClient = useQueryClient();
 
-  const [isApproving, setIsApproving] = useState(false);
-  const [isMinting, setIsMinting] = useState(false);
-
-  // Read mint price from contract
-  const { data: mintPrice } = useReadContract({
-    address: WARPS_CONTRACT.address,
-    abi: WARPS_CONTRACT.abi,
-    functionName: 'mintPrice',
-  });
-
-  // Read user's token balance
-  const { data: tokenBalance } = useReadContract({
-    address: PAYMENT_TOKEN_CONTRACT.address,
-    abi: PAYMENT_TOKEN_CONTRACT.abi,
-    functionName: 'balanceOf',
-    args: address ? [address] : undefined,
-  });
-
-  console.log('tokenBalance', tokenBalance);
-
-  // Read current allowance
-  const { data: currentAllowance } = useReadContract({
-    address: PAYMENT_TOKEN_CONTRACT.address,
-    abi: PAYMENT_TOKEN_CONTRACT.abi,
-    functionName: 'allowance',
-    args: address ? [address, WARPS_CONTRACT.address] : undefined,
-  });
-
-  console.log('currentAllowance', currentAllowance);
-
-  // Write contract hooks
-  const {
-    data: approveHash,
-    writeContract: approve,
-    isPending: isApprovePending,
-    error: approveError,
-  } = useWriteContract();
-
-  const {
-    data: mintHash,
-    writeContract: mint,
-    isPending: isMintPending,
-    error: mintError,
-  } = useWriteContract();
-
-  // Wait for transaction receipts
-  const { isLoading: isApproveLoading, isSuccess: isApproveSuccess } =
-    useWaitForTransactionReceipt({
-      hash: approveHash,
-    });
-
-  const { isLoading: isMintLoading, isSuccess: isMintSuccess } =
-    useWaitForTransactionReceipt({
-      hash: mintHash,
-    });
-
-  // Check if user has sufficient balance and allowance
-  const hasInsufficientBalance =
-    tokenBalance !== undefined &&
-    mintPrice !== undefined &&
-    tokenBalance < mintPrice;
-  const needsApproval =
-    currentAllowance !== undefined &&
-    mintPrice !== undefined &&
-    currentAllowance < mintPrice;
-
-  // Handle approval success
-  useEffect(() => {
-    if (isApproveSuccess) {
-      setIsApproving(false);
-      toast.success('Approval successful! You can now mint.', {
-        icon: <CheckCircle className="h-4 w-4 text-green-400" />,
-      });
-      // Invalidate allowance query to refetch
-      queryClient.invalidateQueries({
-        queryKey: ['readContract', PAYMENT_TOKEN_CONTRACT.address, 'allowance'],
-      });
-    }
-  }, [isApproveSuccess, queryClient]);
-
-  // Handle mint success
-  useEffect(() => {
-    if (isMintSuccess) {
-      setIsMinting(false);
-      triggerScreenShake();
-
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
-      queryClient.invalidateQueries({
-        queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
-      });
-
-      // Award points
-      awardPoints({
-        username,
-        points: 10,
-        reason: 'mint',
-      }).catch((error) => {
-        console.error('Failed to award points:', error);
-      });
-
-      toast.success('NFT minted successfully!', {
-        icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
-        className: 'bg-gradient-to-r from-primary/30 to-primary/10',
-      });
-    }
-  }, [isMintSuccess, queryClient, username]);
-
-  // Handle errors
-  useEffect(() => {
-    if (approveError) {
-      setIsApproving(false);
-      toast.error(`Approval failed: ${approveError.message}`);
-    }
-  }, [approveError]);
-
-  useEffect(() => {
-    if (mintError) {
-      setIsMinting(false);
-      toast.error(`Minting failed: ${mintError.message}`);
-    }
-  }, [mintError]);
+  const [hasError, setHasError] = useState(false);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   const triggerScreenShake = () => {
     document.documentElement.classList.add('screen-shake');
@@ -152,103 +29,95 @@ export function Mint({ username }: MintProps) {
     }, 500);
   };
 
-  const handleApprove = async () => {
-    if (!address || !mintPrice) return;
+  const handlePaymentCompleted = async () => {
+    setIsPaymentProcessing(false);
+    setHasError(false);
+    triggerScreenShake();
 
-    setIsApproving(true);
+    // Invalidate relevant queries
+    queryClient.invalidateQueries({ queryKey: ['tokens-balance'] });
+    queryClient.invalidateQueries({
+      queryKey: ['readContract', WARPS_CONTRACT.address, 'hasUsedFreeMint'],
+    });
+
     try {
-      approve({
-        address: PAYMENT_TOKEN_CONTRACT.address,
-        abi: PAYMENT_TOKEN_CONTRACT.abi,
-        functionName: 'approve',
-        args: [WARPS_CONTRACT.address, mintPrice],
+      await awardPoints({
+        username,
+        points: 10,
+        reason: 'mint',
+      });
+      toast.success('Payment successful! NFT minted!', {
+        icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+        className: 'bg-gradient-to-r from-primary/30 to-primary/10',
       });
     } catch (error) {
-      console.error('Approval error:', error);
-      setIsApproving(false);
-    }
-  };
-
-  const handleMint = async () => {
-    if (!address) return;
-
-    setIsMinting(true);
-    try {
-      mint({
-        address: WARPS_CONTRACT.address,
-        abi: WARPS_CONTRACT.abi,
-        functionName: 'mint',
-        args: [address],
+      console.error('Failed to award points:', error);
+      // Still show success for the mint, but log the points error
+      toast.success('Payment successful! NFT minted! (Points award failed)', {
+        icon: <Sparkles className="h-4 w-4 text-yellow-400" />,
+        className: 'bg-gradient-to-r from-primary/30 to-primary/10',
       });
-    } catch (error) {
-      console.error('Minting error:', error);
-      setIsMinting(false);
     }
   };
-
-  if (!address) {
-    return (
-      <Button
-        className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full bg-gray-500 cursor-not-allowed font-bold"
-        disabled
-      >
-        Connect Wallet to Mint
-      </Button>
-    );
-  }
-
-  if (hasInsufficientBalance) {
-    return (
-      <Button
-        className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full bg-red-500 cursor-not-allowed font-bold"
-        disabled
-      >
-        Insufficient Balance
-      </Button>
-    );
-  }
-
-  if (needsApproval) {
-    return (
-      <Button
-        className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90 font-bold ${
-          isApproving || isApprovePending || isApproveLoading
-            ? 'opacity-50 cursor-not-allowed'
-            : ''
-        }`}
-        onClick={handleApprove}
-        disabled={isApproving || isApprovePending || isApproveLoading}
-      >
-        {isApproving || isApprovePending || isApproveLoading ? (
-          <div className="flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Approving...
-          </div>
-        ) : (
-          `Approve To Mint`
-        )}
-      </Button>
-    );
-  }
 
   return (
-    <Button
-      className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90 font-bold ${
-        isMinting || isMintPending || isMintLoading
-          ? 'opacity-50 cursor-not-allowed'
-          : ''
-      }`}
-      onClick={handleMint}
-      disabled={isMinting || isMintPending || isMintLoading}
+    <DaimoPayButton.Custom
+      appId={process.env.NEXT_PUBLIC_DAIMO_APP_ID!}
+      toAddress={
+        '0xd59dfec75ffd9100334eb8635305a9b2a88f145a'.toLowerCase() as `0x${string}`
+      }
+      toChain={8453}
+      toUnits={'500000'}
+      toToken={'0x32E0f9d26D1e33625742A52620cC76C1130efde6'}
+      intent="Purchase NFT"
+      toCallData={encodeFunctionData({
+        abi: WARPS_CONTRACT.abi,
+        functionName: 'mint',
+        args: [address as `0x${string}`],
+      })}
+      onPaymentStarted={(e) => {
+        console.log('Payment started:', e);
+        setIsPaymentProcessing(true);
+        setHasError(false);
+        toast.info('Payment initiated...', {
+          icon: <Loader2 className="h-4 w-4 animate-spin" />,
+        });
+      }}
+      onPaymentCompleted={handlePaymentCompleted}
+      resetOnSuccess
+      onPaymentBounced={(e) => {
+        console.log('Payment bounced:', e);
+        setIsPaymentProcessing(false);
+        setHasError(true);
+        toast.error('Payment failed. Please try again.', {
+          icon: '❌',
+        });
+      }}
     >
-      {isMinting || isMintPending || isMintLoading ? (
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Minting...
-        </div>
-      ) : (
-        `Mint Warps`
+      {({ show }) => (
+        <Button
+          className={`relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full cursor-pointer ${
+            hasError
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-[#7c65c1] shadow-lg shadow-primary/20 hover:bg-[#7c65c1]/90'
+          } font-bold ${
+            isPaymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          onClick={show}
+          disabled={isPaymentProcessing}
+        >
+          {isPaymentProcessing ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Processing...
+            </div>
+          ) : hasError ? (
+            'Retry Payment'
+          ) : (
+            `Mint Warps`
+          )}
+        </Button>
       )}
-    </Button>
+    </DaimoPayButton.Custom>
   );
 }
