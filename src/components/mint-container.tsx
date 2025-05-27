@@ -28,7 +28,7 @@ export function MintContainer({ username }: MintContainerProps) {
 
   const handleShareToWarpcast = async () => {
     const shareText = `@hurls can I have some warps?`;
-    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+    const warpcastUrl = `https://farcaster.xyz/~/compose?text=${encodeURIComponent(
       shareText
     )}`;
     sdk.actions.openUrl(warpcastUrl);

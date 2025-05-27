@@ -61,7 +61,7 @@ export default function Leaderboard({ username }: LeaderboardProps) {
 
     const shareText = 'Play Warps, Earn USDC!';
     const shareUrl = encodeURIComponent(`https://warps.fun?ref=${username}`);
-    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+    const warpcastUrl = `https://farcaster.xyz/~/compose?text=${encodeURIComponent(
       shareText
     )}&embeds[]=${shareUrl}`;
 

@@ -31,7 +31,7 @@ export default function Waitlist() {
     const shareText =
       'I just joined the waitlist for Warps! A fun new game coming soon ↑';
     const shareUrl = encodeURIComponent('https://warps.fun');
-    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+    const warpcastUrl = `https://farcaster.xyz/~/compose?text=${encodeURIComponent(
       shareText
     )}&embeds[]=${shareUrl}`;
     sdk.actions.openUrl(warpcastUrl);

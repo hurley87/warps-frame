@@ -235,7 +235,7 @@ export function ClaimPrize({ token, username, onClose }: ClaimPrizeProps) {
   const handleShareToWarpcast = async () => {
     const shareText = `🏆 I just beat Warps! 🏆`;
     const shareUrl = 'https://warps.fun';
-    const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+    const warpcastUrl = `https://farcaster.xyz/~/compose?text=${encodeURIComponent(
       shareText
     )}&embeds[]=${shareUrl}`;
     sdk.actions.openUrl(warpcastUrl);
