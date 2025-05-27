@@ -67,8 +67,8 @@ export function Mint({ username }: MintProps) {
         '0xd59dfec75ffd9100334eb8635305a9b2a88f145a'.toLowerCase() as `0x${string}`
       }
       toChain={8453}
-      toUnits={'4.00'}
-      toToken={'0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'}
+      toUnits={'500000'}
+      toToken={'0xBe523e724B9Ea7D618dD093f14618D90c4B19b0c'}
       intent="Purchase NFT"
       toCallData={encodeFunctionData({
         abi: WARPS_CONTRACT.abi,
