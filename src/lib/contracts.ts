@@ -13,7 +13,7 @@ export const WARPS_CONTRACT_ADDRESSES = {
 // 0x833589fcd6edb6e08f4c7c32d4f71b54bda02913;
 
 export const PAYMENT_TOKEN_DDRESSES = {
-  production: '0xBe523e724B9Ea7D618dD093f14618D90c4B19b0c' as `0x${string}`,
+  production: '0x32E0f9d26D1e33625742A52620cC76C1130efde6' as `0x${string}`,
   development: '0xB1d4113a03F4e18Ea868E0F60c7214D6061532D8' as `0x${string}`,
 };
 
