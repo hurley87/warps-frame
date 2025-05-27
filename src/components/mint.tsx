@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { Loader2, Sparkles, CheckCircle } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { awardPoints } from '@/lib/points';
-import { formatUnits } from 'viem';
 
 interface MintProps {
   username: string;
@@ -41,6 +40,8 @@ export function Mint({ username }: MintProps) {
     args: address ? [address] : undefined,
   });
 
+  console.log('tokenBalance', tokenBalance);
+
   // Read current allowance
   const { data: currentAllowance } = useReadContract({
     address: PAYMENT_TOKEN_CONTRACT.address,
@@ -48,6 +49,8 @@ export function Mint({ username }: MintProps) {
     functionName: 'allowance',
     args: address ? [address, WARPS_CONTRACT.address] : undefined,
   });
+
+  console.log('currentAllowance', currentAllowance);
 
   // Write contract hooks
   const {
@@ -183,13 +186,6 @@ export function Mint({ username }: MintProps) {
     }
   };
 
-  // Format token amounts for display
-  const formatTokenAmount = (amount: bigint | undefined) => {
-    if (!amount) return '0';
-    // Assuming USDC with 6 decimals
-    return formatUnits(amount, 6);
-  };
-
   if (!address) {
     return (
       <Button
@@ -207,7 +203,7 @@ export function Mint({ username }: MintProps) {
         className="relative group overflow-hidden transition-all duration-300 py-10 text-2xl w-full bg-red-500 cursor-not-allowed font-bold"
         disabled
       >
-        Insufficient Balance ({formatTokenAmount(tokenBalance)} USDC)
+        Insufficient Balance
       </Button>
     );
   }
@@ -229,7 +225,7 @@ export function Mint({ username }: MintProps) {
             Approving...
           </div>
         ) : (
-          `Approve ${formatTokenAmount(mintPrice)} USDC`
+          `Approve To Mint`
         )}
       </Button>
     );
@@ -251,7 +247,7 @@ export function Mint({ username }: MintProps) {
           Minting...
         </div>
       ) : (
-        `Mint Warps (${formatTokenAmount(mintPrice)} USDC)`
+        `Mint Warps`
       )}
     </Button>
   );
